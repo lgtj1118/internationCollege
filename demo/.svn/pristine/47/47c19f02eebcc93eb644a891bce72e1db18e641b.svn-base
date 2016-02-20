@@ -1,0 +1,178 @@
+package com.tjpu.bean;
+
+
+public class SemesterChosenCourseModel  {
+
+	private Integer id;
+	private String semester;
+	private String coursenum;
+	private String coursename;
+	private String begainweek;
+	private String endweek;
+	private String teacherid;
+	private String teachername;
+	private String classes;
+	private String weekday;
+	private String slot;
+	private String roomname;
+	private String roomtype;
+	private Integer credits;
+	private Integer lessonCount;
+	private Integer weeklesson;
+	private Integer isElective;	//1 选修 0 必修
+	private Integer stuNum;
+	private Integer isOddWeek; //1 单周 2 双周 3 单双周 bin(3) = 11 bin(1) = 1 bin(2) = 10
+    public Integer getLessonCount() {
+		return lessonCount;
+	}
+
+	public void setLessonCount(Integer lessonCount) {
+		this.lessonCount = lessonCount;
+	}
+
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
+
+	public Integer getStuNum() {
+		return stuNum;
+	}
+
+	public void setStuNum(Integer stuNum) {
+		this.stuNum = stuNum;
+	}
+
+	public Integer getIsOddWeek() {
+		return isOddWeek;
+	}
+
+	public void setIsOddWeek(Integer isOddWeek) {
+		this.isOddWeek = isOddWeek;
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getSemester() {
+		return this.semester;
+	}
+
+	public void setSemester(String semester) {
+		this.semester = semester;
+	}
+
+	public String getCoursenum() {
+		return this.coursenum;
+	}
+
+	public void setCoursenum(String coursenum) {
+		this.coursenum = coursenum;
+	}
+
+	public String getBegainweek() {
+		return this.begainweek;
+	}
+
+	public void setBegainweek(String begainweek) {
+		this.begainweek = begainweek;
+	}
+
+	public String getEndweek() {
+		return this.endweek;
+	}
+
+	public void setEndweek(String endweek) {
+		this.endweek = endweek;
+	}
+
+	public String getTeacherid() {
+		return this.teacherid;
+	}
+
+	public void setTeacherid(String teacherid) {
+		this.teacherid = teacherid;
+	}
+
+	public String getCoursename() {
+		return coursename;
+	}
+
+	public void setCoursename(String coursename) {
+		this.coursename = coursename;
+	}
+
+	public String getTeachername() {
+		return teachername;
+	}
+
+	public void setTeachername(String teachername) {
+		this.teachername = teachername;
+	}
+
+	public String getClasses() {
+		return classes;
+	}
+
+	public void setClasses(String classes) {
+		this.classes = classes;
+	}
+
+	public String getWeekday() {
+		return this.weekday;
+	}
+
+	public void setWeekday(String weekday) {
+		this.weekday = weekday;
+	}
+
+	public String getSlot() {
+		return this.slot;
+	}
+
+	public void setSlot(String slot) {
+		this.slot = slot;
+	}
+
+	public String getRoomname() {
+		return this.roomname;
+	}
+
+	public void setRoomname(String roomname) {
+		this.roomname = roomname;
+	}
+
+	public String getRoomtype() {
+		return this.roomtype;
+	}
+
+	public void setRoomtype(String roomtype) {
+		this.roomtype = roomtype;
+	}
+
+	
+	public Integer getCredits() {
+		return credits;
+	}
+
+	public void setCredits(Integer credits) {
+		this.credits = credits;
+	}
+
+	public Integer getWeeklesson() {
+		return weeklesson;
+	}
+
+	public void setWeeklesson(Integer weeklesson) {
+		this.weeklesson = weeklesson;
+	}
+
+}

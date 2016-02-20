@@ -1,0 +1,2146 @@
+package com.tjpu.service;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.opensymphony.xwork2.ActionContext;
+import com.sun.org.apache.bcel.internal.generic.NEW;
+import com.tjpu.bean.Adjustcourse;
+import com.tjpu.bean.AdjustcourseModel;
+import com.tjpu.bean.Announcement;
+import com.tjpu.bean.AnnouncementModel;
+import com.tjpu.bean.Attendence;
+import com.tjpu.bean.AttendenceModel;
+import com.tjpu.bean.Certify1;
+import com.tjpu.bean.ChosenCourse;
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.ClassesModel;
+import com.tjpu.bean.Classroom;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.CourseModel;
+import com.tjpu.bean.InfoBean;
+import com.tjpu.bean.MD5;
+import com.tjpu.bean.SemesterChosenClassroom;
+import com.tjpu.bean.SemesterChosenClassroomModel;
+import com.tjpu.bean.SemesterChosenCourse;
+import com.tjpu.bean.SemesterChosenCourseModel;
+import com.tjpu.bean.StudentModel;
+import com.tjpu.bean.Syllabus;
+import com.tjpu.bean.Teacher;
+import com.tjpu.bean.TeacherModel;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.Evalution;
+import com.tjpu.bean.Leave;
+import com.tjpu.bean.LeaveModel;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.User;
+import com.tjpu.dao.ManageDao;
+import com.tjpu.dao.StudentDao;
+import com.tjpu.dao.UserDao;
+import com.tjpu.bean.Dept;
+
+@Service
+public class ManageServiceImpl implements ManageService {
+
+	@Autowired
+	ManageDao manageDao;
+	@Autowired
+	StudentDao studentDao;
+	@Autowired
+	UserDao userDao;
+	
+	public String getCurrSemester (){
+		Calendar now = Calendar.getInstance();
+		String year = String.valueOf(now.get(Calendar.YEAR));
+		int month = now.get(Calendar.MONTH) + 1;
+		if (month > 9)
+			return year + "01";
+		else
+			return year + "02";
+	}
+	
+	public Teacher loginService(String usernum, String password/*,Integer type*/) {
+		Teacher user1 = null;
+		List<Teacher> list = manageDao.loginDao(usernum,password/*,type*/);
+		if (list.size() > 0 && list != null) {
+			user1 = list.get(0);
+		}
+		return user1;
+	}
+
+	public void evalutionteacheradd(Evalution evalution) {
+		String teacher = null;
+		String extrude = null;
+		String advice = null;
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		try {
+			teacher = java.net.URLDecoder.decode(evalution.getTeacher(),"UTF-8");
+			extrude = java.net.URLDecoder.decode(evalution.getExtrude(),"UTF-8");
+			advice = java.net.URLDecoder.decode(evalution.getAdvice(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		evalution.setStuid(user.getId());
+		evalution.setTeacher(teacher);
+		evalution.setExtrude(extrude);
+		evalution.setAdvice(advice);
+		manageDao.evalutionteacheradd(evalution);
+	}
+
+	public String loadevalution(Integer id) {
+		
+		List<Evalution> evalution = manageDao.loadevalution(id);
+		String evalutionlist = "";
+		int i = 1;
+		for (Evalution c : evalution) {
+			String s = "{\"id\":" + c.getId() + "," + "\"stuid\":" + "\"" + c.getStuid() + "\"," + "\"incicators1\":" + "\"" + c.getIncicators1() + "\"," + "\"incicators2\":" + "\"" + c.getIncicators2() + "\"," + "\"incicators3\":" + "\"" + c.getIncicators3() + "\"," 
+					+ "\"incicators4\":" + "\"" + c.getIncicators4() + "\","+ "\"incicators5\":" + "\"" + c.getIncicators5() + "\","+ "\"incicators6\":" + "\"" + c.getIncicators6() + "\","+ "\"incicators7\":" + "\"" + c.getIncicators7() + "\","+ "\"summary\":" + "\"" + c.getSummary() + "\","
+					+ "\"extrude\":" + "\"" + c.getExtrude() + "\","+ "\"advice\":" + "\"" + c.getAdvice() + "\"}";
+			if (i < evalution.size()) {
+				evalutionlist += s + ",";
+			} else {
+				evalutionlist += s;
+			}
+			i++;
+		}
+		return evalutionlist;
+	}
+
+	public List<Evalution> loadevalutionlist(Integer num){
+		List<Evalution> evalutionlist = manageDao.loadevalution(num);
+		return evalutionlist;
+	}
+	
+	public Map<String, Object> teachermap(int page, int pageSize) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Teacher> teachers = manageDao.loadteacher((page - 1) * pageSize, pageSize);
+		long total = manageDao.totalteacher();
+		List<TeacherModel> teachermodels = new ArrayList<TeacherModel>();
+		for (Teacher s : teachers) {
+			TeacherModel model = new TeacherModel();
+			model.setId(s.getId());
+			model.setSex(s.getSex());
+			//model.setClassid(s.getClasses().getId());
+			model.setEmail(s.getEmail());
+			model.setIdentificationnum(s.getIdentificationnum());
+			model.setPosition(s.getPosition());
+			model.setTeachername(s.getTeachername());
+			model.setTelephone(s.getTelephone());
+			
+			teachermodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", teachermodels);
+		return map;
+	}
+
+	public void teacherupdate(Teacher teacher) {
+		
+		String name = null;
+		String identificationnum =null;
+		String gender = null;
+		String educationbackground = null;
+		//String brithdate = null;
+		String telephone = null;
+		String email = null;
+		try {
+			name = java.net.URLDecoder.decode(teacher.getTeachername(),"UTF-8");
+			identificationnum = java.net.URLDecoder.decode(teacher.getIdentificationnum(),"UTF-8");
+			gender = java.net.URLDecoder.decode(teacher.getSex(),"UTF-8");
+			educationbackground = java.net.URLDecoder.decode(teacher.getPosition(),"UTF-8");
+			//brithdate = java.net.URLDecoder.decode(teacher.getBrithdate(),"UTF-8");
+			telephone = java.net.URLDecoder.decode(teacher.getTelephone(),"UTF-8");
+			email = java.net.URLDecoder.decode(teacher.getEmail(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
+		teacher.setTeachername(name);
+		teacher.setIdentificationnum(identificationnum);
+		teacher.setSex(gender);
+		teacher.setPosition(educationbackground);
+		teacher.setEmail(email);
+		//teacher.setBrithdate(brithdate);
+		teacher.setTelephone(telephone);
+		manageDao.teacherupdate(teacher);
+		}
+
+	public void teacherdelete(String ids) {
+		
+		StringTokenizer fenxi = new StringTokenizer(ids, ",");
+		while (fenxi.hasMoreTokens()) {
+			String sid = fenxi.nextToken();
+			int stuid = Integer.parseInt(sid);
+			manageDao.teacherdelete(stuid);
+		}
+	}
+
+	public void stuattendenceadd(Attendence attendence, String ids) {
+				
+		String date = null;
+		String time = null;
+		Integer choosencourseid = null;
+		String type = null;
+		String semester = getCurrSemester();
+		try {
+			date = java.net.URLDecoder.decode(attendence.getDate(),"UTF-8");
+			time = java.net.URLDecoder.decode(attendence.getTime(),"UTF-8");
+			choosencourseid = attendence.getChoosencourseid();
+			type = java.net.URLDecoder.decode(attendence.getType(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
+		StringTokenizer fenxi = new StringTokenizer(ids, ",");
+		while (fenxi.hasMoreTokens()) {
+			String sid = fenxi.nextToken();		
+			List<Attendence> attendences = manageDao.loadattendence(attendence,sid);
+			for (int i = 0; i < attendences.size(); i++) {
+				if (sid.equals(attendences.get(i).getStuid())) {
+					sid = null;
+				}
+			}
+			if (sid==null) {
+				continue;
+			}else {
+				Attendence attendence2 = new Attendence();
+				attendence2.setChoosencourseid(choosencourseid);
+				attendence2.setDate(date);
+				attendence2.setStuid(sid);
+				attendence2.setTime(time);
+				attendence2.setType(type);
+				attendence2.setSemester(semester);
+				manageDao.stuattendenceadd(attendence2);
+			}			
+		}
+	}
+	List<Attendence> attendencelist = new ArrayList<Attendence>();
+
+	public void loadattendence(Integer id) {
+		
+		attendencelist.clear();
+		attendencelist= manageDao.attendencestulist(id);
+	}
+	
+
+	public Map<String, Object> attendencestulistmap(int page, int pageSize) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = attendencelist.size();
+		List<AttendenceModel> attendencemodels = new ArrayList<AttendenceModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < attendencelist.size()) {
+			    AttendenceModel model = new AttendenceModel();
+			    model.setId(attendencelist.get(i).getId());
+			    Student student = studentDao.loadstubyid(Integer.parseInt(attendencelist.get(i).getStuid()));
+			    model.setClassname(student.getClasses().getClassname());
+			    model.setDate(attendencelist.get(i).getDate());
+			    model.setFirstname(student.getFirstname());
+			    model.setLastname(student.getLastname());
+			    model.setStunum(student.getStuid());
+			    model.setStuname(student.getStuname());
+			    model.setTime(attendencelist.get(i).getTime());
+			    model.setType(attendencelist.get(i).getType());
+			    attendencemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", attendencemodels);
+		return map;
+	}
+
+	public List<Course> loadstucourse() {	
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		String semester = getCurrSemester();
+		List<ChosenCourse> chosencourses = studentDao.loadstucourse(user.getUsernum(),semester);
+		List<Course> courses = new ArrayList<Course>(); 
+		if (chosencourses==null) {
+			courses=null;
+		}else {
+			for(ChosenCourse c:chosencourses){
+				Course course = manageDao.loadCourseByIdent(String.valueOf(c.getCourseId()));
+				courses.add(course);
+			}
+		}
+		
+		return courses;
+	}
+	
+
+	public void leaveadd(Leave leave) {
+		
+		String applydate = null;
+		String leavingdate = null;
+		String backdate = null;
+		String leavereason = null;
+		String telephone = null;
+		String stuid = null;
+		Integer type = null;
+		try {
+			leavingdate = java.net.URLDecoder.decode(leave.getLeavingdate(),"UTF-8");
+			backdate = java.net.URLDecoder.decode(leave.getBackdate(),"UTF-8");
+			leavereason = java.net.URLDecoder.decode(leave.getLeavereason(),"UTF-8");
+			telephone = java.net.URLDecoder.decode(leave.getTelephone(),"UTF-8");
+			stuid = leave.getStuid();
+			type = leave.getType();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-d");
+		applydate = df.format(new Date());
+		leave.setApplydate(applydate);
+		leave.setStatus(0);
+		leave.setApplydate(applydate);
+		leave.setBackdate(backdate);
+		leave.setLeavereason(leavereason);
+		leave.setLeavingdate(leavingdate);
+		leave.setStuid(stuid);
+		leave.setTelephone(telephone);
+		leave.setType(type);
+		manageDao.leaveadd(leave);
+	}
+
+	public Map<String, Object> stuleavemap(int page, int pageSize) {
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Classes> cls = studentDao.loadclassbyteacher(user.getUsernum());
+		List<Student> students = new ArrayList<Student>();
+		for(Classes c:cls){
+			List<Student> stu = studentDao.loadstubyclassid(c.getId());
+			students.addAll(stu);
+		}
+				
+		List<Leave> stuleave = new ArrayList<Leave>();
+		for(Student stu:students){
+			List<Leave> leaves = manageDao.loadleavebystuid(stu.getStuid());
+			stuleave.addAll(leaves);
+		}
+		long total = stuleave.size();
+		List<LeaveModel> leavemodels = new ArrayList<LeaveModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < stuleave.size()) {
+			LeaveModel model = new LeaveModel();
+			model.setId(stuleave.get(i).getId());
+			Student student = studentDao.loadstubystuid(stuleave.get(i).getStuid());
+			model.setTelephone(stuleave.get(i).getTelephone());
+			model.setApplydate(stuleave.get(i).getApplydate());
+			model.setBackdate(stuleave.get(i).getBackdate());
+			model.setLeavereason(stuleave.get(i).getLeavereason());
+			model.setLeavingdate(stuleave.get(i).getLeavingdate());
+			model.setClassname(student.getClasses().getClassname());
+			model.setStuname(student.getStuname());
+			model.setPassport(student.getPassport());
+			model.setMajor(student.getClasses().getMajor());
+			model.setStunum(student.getStuid());
+			model.setStatus(stuleave.get(i).getStatus());
+			model.setType(stuleave.get(i).getType());
+			leavemodels.add(model);
+		}else {
+			break;
+		}
+		}
+		map.put("Total", total);
+		map.put("Rows", leavemodels);
+		return map;
+	}
+	public Map<String, Object> loadstuleavemap(int page, int pageSize) {
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Leave> stuleave = manageDao.loadleavebystuid(user.getUsernum());
+		long total = stuleave.size();
+		List<LeaveModel> leavemodels = new ArrayList<LeaveModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < stuleave.size()) {
+			LeaveModel model = new LeaveModel();
+			model.setId(stuleave.get(i).getId());
+			Student student = studentDao.loadstubystuid(stuleave.get(i).getStuid());
+			model.setTelephone(stuleave.get(i).getTelephone());
+			model.setApplydate(stuleave.get(i).getApplydate());
+			model.setBackdate(stuleave.get(i).getBackdate());
+			model.setLeavereason(stuleave.get(i).getLeavereason());
+			model.setLeavingdate(stuleave.get(i).getLeavingdate());
+			model.setClassname(student.getClasses().getClassname());
+			model.setStuname(student.getStuname());
+			model.setPassport(student.getPassport());
+			model.setMajor(student.getClasses().getMajor());
+			model.setStunum(student.getStuid());
+			model.setStatus(stuleave.get(i).getStatus());
+			model.setType(stuleave.get(i).getType());
+			leavemodels.add(model);
+		}else {
+			break;
+		}
+		}
+		map.put("Total", total);
+		map.put("Rows", leavemodels);
+		return map;
+	}
+	
+	public void stuleaveupdate(Leave leave) {
+		
+		manageDao.stuleaveupdate(leave);
+	}
+
+	public void leavedelete(Leave leave) {
+		
+		manageDao.leavedelete(leave);
+	}
+
+	public String courseattendencesearch(Attendence attendence) {
+		
+		Integer courseid = null;
+		String type = null;
+		courseid = attendence.getChoosencourseid();
+		try {
+			type = java.net.URLDecoder.decode(attendence.getType(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
+		List<Attendence> attendences=manageDao.courseattendencesearch(courseid,type);
+		String attendencelist = "";		
+		int i = 1;
+		for(Attendence a:attendences){
+			Student student = studentDao.loadstubyid(Integer.valueOf(a.getStuid()));
+			String s ="{\"id\":" + a.getId() + "," + "\"stuname\":" + "\"" + student.getStuname() + "\"," + "\"firstname\":" + "\"" + student.getFirstname() + "\"," + "\"lastname\":" + "\"" + student.getLastname() + "\"," + "\"classname\":" + "\"" + student.getClasses().getClassname() + "\","+ "\"time\":" + "\"" + a.getTime() + "\","+ "\"type\":" + "\"" + a.getType() + "\","+ "\"date\":" + "\"" + a.getDate() + "\","+ "\"stunum\":" + "\"" + student.getStuid() + "\"}"; 
+		    if (i<attendences.size()) {
+				attendencelist+= s+",";
+			}else {
+				attendencelist+=s;
+			}
+		}
+		return attendencelist;
+	}
+
+	public void teacheradd(Teacher teacher,Integer depid) {
+		
+		String identificationnum = null;
+		String teachername = null;
+		String sex = null;
+		String position = null;
+		String email = null;
+		String telephone = null;
+		try {
+			identificationnum = java.net.URLDecoder.decode(teacher.getIdentificationnum(),"UTF-8");
+			teachername = java.net.URLDecoder.decode(teacher.getTeachername(),"UTF-8");
+			sex = java.net.URLDecoder.decode(teacher.getSex(),"UTF-8");
+			position = java.net.URLDecoder.decode(teacher.getPosition(),"UTF-8");
+			email = java.net.URLDecoder.decode(teacher.getEmail(),"UTF-8");
+			telephone = java.net.URLDecoder.decode(teacher.getTelephone(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
+		teacher.setEmail(email);
+		teacher.setIdentificationnum(identificationnum);
+		teacher.setSex(sex);
+		teacher.setTeachername(teachername);
+		teacher.setTelephone(telephone);
+		String pass= MD5.generate("123456");
+		teacher.setPassword(pass);
+		teacher.setType(0);
+		teacher.setPosition(position);
+		//teacher.setDeptid(depid);
+		manageDao.teacheradd(teacher,depid);
+	}
+
+	public boolean teachercheck(String identificationnum) {
+		
+		List<Teacher> haveteacher = manageDao.teachercheck(identificationnum);
+		if (haveteacher.size() > 0) {
+			return false;
+		}
+		return true;
+	}
+	private List<String> readTxtFile(String filePath) {
+		List<String> linelist = new ArrayList<String>();
+		try {
+			String encoding = "GBK";
+			File file = new File(filePath);
+			if (file.isFile() && file.exists()) { // 判断文件是否存在
+				InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);// ���ǵ������ʽ
+				BufferedReader bufferedReader = new BufferedReader(read);
+				String lineTxt = null;
+				while ((lineTxt = bufferedReader.readLine()) != null) {
+					linelist.add(lineTxt);
+				}
+				read.close();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return linelist;
+	}
+
+
+	public void teacheraddbytxt(String path) {
+		
+		try {
+			List<String> linelist = readTxtFile(path);
+			List<Dept> depts = userDao.loaddepts();
+			for (String line : linelist) {
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				if (tokenizer.hasMoreTokens()) {
+					Teacher teacher = new Teacher();
+					String teachernum = tokenizer.nextToken();
+					List<Teacher> teacher2 = manageDao.loadteacherbyIdent(teachernum);
+					if (teacher2.size()==0) {
+						teacher.setIdentificationnum(teachernum);
+						teacher.setTeachername(tokenizer.nextToken());
+						teacher.setSex(tokenizer.nextToken());
+						teacher.setTelephone(tokenizer.nextToken());
+						teacher.setEmail(tokenizer.nextToken());
+						teacher.setPosition(tokenizer.nextToken());					
+						Integer depid = 0;
+						teacher.setType(0);
+						String deptname = tokenizer.nextToken();
+						for (int i = 0; i < depts.size(); i++) {
+							if (deptname.equals(depts.get(i).getDeptname())) {
+								depid = depts.get(i).getDeptid();
+							}
+						}
+						String password = MD5.generate("123456");
+						teacher.setPassword(password);
+						manageDao.teacheradd(teacher, depid);
+					}else {
+						continue;
+					}
+					
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		File file = new File(path);
+		if (file.exists()) {
+			file.delete();
+		}
+	}
+
+	public Teacher loadteacherbyid(Integer id) {		
+		Teacher teacher = manageDao.loadteacherbyid(id);
+		return teacher;
+	}
+
+	public void justiceladd(Certify1 certify1) {
+		
+		manageDao.justiceladd(certify1);
+	}
+
+	public void announcementadd(Announcement announcement) {
+		
+		String title = null;
+		String content = null;
+		String createdtime = null;
+		try {
+			title = java.net.URLDecoder.decode(announcement.getTitle(),"UTF-8");
+			content = announcement.getContent();
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss ");
+		createdtime = df.format(new Date());
+		announcement.setContent(content);
+		announcement.setCreatedtime(createdtime);
+		announcement.setTitle(title);
+		manageDao.announcementadd(announcement);
+	}
+
+	public Map<String, Object> announcementmap(int page, int pageSize) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Announcement> announcements = manageDao.announcementlist((page - 1) * pageSize, pageSize);
+		long total = manageDao.totalannouncement();
+		List<AnnouncementModel> announcementmodels = new ArrayList<AnnouncementModel>();
+		for (Announcement s : announcements) {
+			AnnouncementModel model = new AnnouncementModel();
+			model.setContent(s.getContent());
+			model.setCreatedtime(s.getCreatedtime());
+			model.setTitle(s.getTitle());
+			model.setId(s.getId());
+			announcementmodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", announcementmodels);
+		return map;
+	}
+
+	public Announcement loadannouncement(Integer id) {
+		
+		Announcement announcement = manageDao.loadannouncement(id);		
+		return announcement;
+	}
+
+	public void announcementupdate(Announcement announcement) {
+		
+		String title = null;
+		String content = null;
+		String createdtime = null;
+		try {
+			title = java.net.URLDecoder.decode(announcement.getTitle(),"UTF-8");
+			content =announcement.getContent();
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss ");
+		createdtime = df.format(new Date());
+		announcement.setContent(content);
+		announcement.setCreatedtime(createdtime);
+		announcement.setTitle(title);
+		manageDao.announcementupdate(announcement);
+	}
+
+	public void announcementdelete(String ids) {
+		
+		Integer id = Integer.valueOf(ids);
+		manageDao.announcementdelete(id);
+	}
+
+	public String loadjusticel() {
+		
+		List<Certify1> certifys = manageDao.loadjusticel();
+		String justicellist = "";
+		int i = 1;
+		for (Certify1 c : certifys) {
+			String s = "{\"id\":" + c.getId() + "," + "\"title\":" + "\"" + c.getTitle() + "\","+ "\"filepath\":" + "\"" + c.getFileplace() + "\"," + "\"createdtime\":" + "\"" + c.getCreatedtime()  + "\"}";
+			if (i < certifys.size()) {
+				justicellist += s + ",";
+			} else {
+				justicellist += s;
+			}
+			i++;
+		}
+		return justicellist;
+	}
+
+	public void justiceldelete(String ids) {
+		
+		Integer id = Integer.valueOf(ids);
+		manageDao.justiceldelete(id);
+	}
+
+	public List<Certify1> loadjusticellist() {
+		
+		List<Certify1> justicelList = manageDao.loadjusticel();
+		return justicelList;
+	}
+
+	public Certify1 loadjusticelbyid(Integer id) {
+		
+		Certify1 certify1 = manageDao.loadjusticelbyid(id);
+		return certify1;
+	}
+
+	public void justicelupdate(Certify1 certify) {
+		
+		manageDao.justicelupdate(certify);
+	}
+
+	public String loadattendencelist(Integer id) {
+		
+		attendencelist.clear();
+		attendencelist= manageDao.attendencestulist(id);
+		String justicellist = "";
+		int i = 1;
+		for (Attendence c : attendencelist) {
+			Student student = studentDao.loadstubyid(Integer.parseInt(attendencelist.get(i-1).getStuid()));
+			String s = "{\"id\":" + c.getId() + "," + "\"stunum\":" + "\"" + c.getStuid() + "\","+ "\"date\":" + "\"" + c.getDate() + "\","+ "\"type\":" + "\"" + c.getType() + "\","+"\"stuname\":" + "\"" + student.getStuname() + "\","+ "\"firstname\":" + "\"" + student.getFirstname() + "\","+"\"lastname\":" + "\"" + student.getLastname() + "\","+"\"classname\":" + "\"" + student.getClasses().getClassname() + "\","+ "\"time\":" + "\"" + c.getTime()  + "\"}";
+			if (i < attendencelist.size()) {
+				justicellist += s + ",";
+			} else {
+				justicellist += s;
+			}
+			i++;
+		}
+		return justicellist;
+	}
+
+	public List<Announcement> announcementlist() {
+		
+		List<Announcement> announcementlist = manageDao.loadannouncementlist();
+		return announcementlist;
+	}
+	List<Attendence> attendences = new ArrayList<Attendence>();
+
+	public List<Attendence> searchstuattendence(Attendence attendence) {
+		
+		attendences.clear();
+		attendences = manageDao.searchstuattendence(attendence);
+		return null;
+	}
+
+	public Map<String, Object> stuattendencelistmap(int page, int pageSize) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = attendences.size();
+		List<AttendenceModel> attendencemodels = new ArrayList<AttendenceModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < attendences.size()) {
+			    AttendenceModel model = new AttendenceModel();
+			    model.setId(attendences.get(i).getId());
+			    Student student = studentDao.loadstubyid(Integer.parseInt(attendences.get(i).getStuid()));
+			    Course course = studentDao.loadcoursebyid(attendences.get(i).getChoosencourseid());
+			    model.setClassname(student.getClasses().getClassname());
+			    model.setCoursename(course.getCoursename());
+			    model.setDate(attendences.get(i).getDate());
+			    model.setFirstname(student.getFirstname());
+			    model.setLastname(student.getLastname());
+			    model.setStunum(student.getStuid());
+			    model.setStuname(student.getStuname());
+			    model.setTime(attendences.get(i).getTime());
+			    model.setType(attendences.get(i).getType());
+			    attendencemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", attendencemodels);
+		return map;
+	}
+
+	public Map<String, Object> personattendencelistmap(int page, int pageSize) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Attendence> attendence = manageDao.personattendence();
+		long total = attendence.size();
+		List<AttendenceModel> attendencemodels = new ArrayList<AttendenceModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < attendence.size()) {
+			    AttendenceModel model = new AttendenceModel();
+			    model.setId(attendence.get(i).getId());
+			    Student student = studentDao.loadstubyid(Integer.parseInt(attendence.get(i).getStuid()));
+			    Course course = studentDao.loadcoursebyid(attendence.get(i).getChoosencourseid());
+			    model.setClassname(student.getClasses().getClassname());
+			    model.setCoursename(course.getCoursename());
+			    model.setDate(attendence.get(i).getDate());
+			    model.setFirstname(student.getFirstname());
+			    model.setLastname(student.getLastname());
+			    model.setStunum(student.getStuid());
+			    model.setStuname(student.getStuname());
+			    model.setTime(attendence.get(i).getTime());
+			    model.setType(attendence.get(i).getType());
+			    attendencemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", attendencemodels);
+		return map;
+	}
+
+	public List<Attendence> loadattendencebycourseid(Integer id) {
+		
+		List<Attendence> attendences = manageDao.loadattendencebycourseid(id);
+		return attendences;
+	}
+
+	public void teacherchangeimg(String imgurl) {		
+		User teacher = (User) ActionContext.getContext().getSession().get("user");
+		Teacher teacher2 = manageDao.loadteacherbyidentificationnum(teacher.getUsernum());
+		manageDao.changeimg(imgurl, teacher2);
+	}
+
+	public Leave loadleavebyid(Integer id) {
+		
+		Leave leave = manageDao.loadleavebyid(id);
+		return leave;
+	}
+
+	public List<InfoBean> getUnarrangeCourses(int page, int pageSize, String semester) {
+		int n = getTotalUnarrangedCourseNum(semester);
+		List<ChosenCourseModel> unarranged = new ArrayList<ChosenCourseModel>();
+		if (page * pageSize > n)
+			//unarranged = manageDao.semesterCourseList(semester).subList((page -1 ) * pageSize, n - 1);
+			for (SemesterChosenCourse i : manageDao.semesterCourseList(semester).subList((page -1 ) * pageSize, n - 1)){
+				unarranged.add(toModel(i, semester));
+			}
+		else {
+			//unarranged =  manageDao.semesterCourseList(semester).subList((page -1 ) * pageSize, page * pageSize);
+			List<SemesterChosenCourse> t = manageDao.semesterCourseList(semester).subList((page -1 ) * pageSize, page * pageSize);
+			for (SemesterChosenCourse i : t){
+				ChosenCourseModel p = toModel(i, semester);
+				unarranged.add(p);
+			}
+		}
+		List<InfoBean> ret = new ArrayList<InfoBean>();
+		for (ChosenCourseModel i : unarranged) {
+			CourseModel c = i.getCourse();
+			String names = "";
+			for (ClassesModel name : i.getClasses())
+				names += " " +  name.getClassname();
+                InfoBean info = new InfoBean(c.getNum(), c.getCoursename(), 1, 16, 2, "必修", "集中式", i.getTeacher().getTeachername(), names);
+			ret.add(info);
+		}
+		return ret;
+	}
+	
+	public int getTotalUnarrangedCourseNum (String semester) {
+		//return CourseArrangeTest.getTestChosenCourses().size();
+		return manageDao.semesterCourseList(semester).size();
+	}
+	
+	public int getTotalAvlRoomsNum (String semester) {
+		//return CourseArrangeTest.getTestRooms().size();
+		return manageDao.semesterRoomList(semester).size();
+	}
+
+	public List<ClassroomModel> getAvlRooms(int page, int pageSize, String semester) {
+		List<ClassroomModel> ret = new ArrayList<ClassroomModel>();
+		for (SemesterChosenClassroom i : manageDao.semesterRoomList(semester).subList((page - 1) * pageSize, page * pageSize)){
+			ret.add(new ClassroomModel(i.getId(), i.getNum(),
+					i.getRoomtype(), i.getRoomcapacity(), i.getRealcapacity(), i.getRoomplace() + i.getNum()));
+		}
+		return ret;
+	}
+
+	public List<ChosenCourseModel> getAllChosenCourse(String semester) {
+		//return CourseArrangeTest.getTestChosenCourses();
+		List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+		for (SemesterChosenCourse i : manageDao.semesterCourseList(semester))
+			ret.add(toModel(i, semester));
+		return ret;
+	}
+	
+	private ChosenCourseModel toModel (SemesterChosenCourse course, String semester) {
+		ChosenCourseModel ret = new ChosenCourseModel();
+		if (course.getId() != null)
+			ret.setSemesterId(String.valueOf(course.getId()));
+		if (course.getBegainweek() !=null)
+			ret.setBeginWeek(Integer.parseInt(course.getBegainweek()));
+		ret.setNum(String.valueOf(course.getId()));
+		List<ClassesModel> classes = new ArrayList<ClassesModel>();
+		if (course.getClass_() != null){
+			for (String id : course.getClass_().split("&"))
+				if (id != null && !id.equals(""))
+					classes.add(manageDao.loadClassByID(id));
+		}
+		if (course.getIsElective() != null && course.getIsElective() == 1){
+			ret.setElective(true);
+		} else {
+			ret.setElective(false);
+		}
+		ret.setRoomType(course.getRoomtype());
+		ret.setClasses(classes);
+		if (course.getEndweek() != null)
+			ret.setEndWeek(Integer.parseInt(course.getEndweek()));
+		if (course.getTeacherid() != null){
+			Integer id = new Integer(Integer.parseInt(course.getTeacherid()));
+			Teacher p = manageDao.loadteacherbyid(id);
+			if (p != null)
+				ret.setTeacher(new TeacherModel(p));
+		}
+		
+		// 不设置为-1就默认为0了
+		if (course.getWeekday() != null){
+			ret.setWeekday(Integer.parseInt(course.getWeekday()));
+		} else {
+			ret.setWeekday(-1);
+		}
+		if (course.getSlot() != null) {
+			ret.setSlot(Integer.parseInt(course.getSlot()));
+		} else {
+			ret.setSlot(-1);
+		}
+		ret.setCourse(new CourseModel(manageDao.loadCourseByIdent(course.getCoursenum())));
+		List<SemesterChosenClassroom> rooms = manageDao.loadsemesterroombyid(course.getRoomname(),semester);
+		if (rooms.size() > 0){
+			SemesterChosenClassroom room = rooms.get(0);
+			ret.setRoom(new ClassroomModel(room.getId(), room.getNum(), room.getRoomtype(), 
+					room.getRoomcapacity(), room.getRealcapacity(), room.getRoomplace()+room.getRoomname()));
+		}
+		return ret;
+	}
+	
+	
+	public List<ClassroomModel> getAllAvlRooms (String semester) {
+		//return CourseArrangeTest.getTestRooms();
+		List<ClassroomModel> ret = new ArrayList<ClassroomModel>();
+		List<SemesterChosenClassroom> rooms = manageDao.semesterRoomList(semester);
+		for (SemesterChosenClassroom room : rooms){
+			ret.add(new ClassroomModel(room.getId(), room.getNum(), room.getRoomtype(), 
+					room.getRoomcapacity(), room.getRealcapacity(), room.getRoomplace()+room.getRoomname()));
+		}
+		return ret;
+	}
+
+	@Override
+	public Map<String, Object> semestercourselist(int page, int pageSize) {
+		 
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<SemesterChosenCourse> semestercourselist = manageDao.semestercourselist();
+		//List<SemesterChosenCourse> semestercourses = new ArrayList<SemesterChosenCourse>();
+		for (int i = 0; i < semestercourselist.size(); i++) {
+			for (int j = semestercourselist.size()-1; j>i; j--) {
+			if (semestercourselist.get(i).getCoursenum().equals(semestercourselist.get(j).getCoursenum())) {
+				//semestercourses.add(semestercourselist.get(i));
+				semestercourselist.remove(semestercourselist.get(i));
+			}
+			}
+		}
+		long total = semestercourselist.size();
+		List<SemesterChosenCourseModel> semestercoursemodels = new ArrayList<SemesterChosenCourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < semestercourselist.size()) {
+				SemesterChosenCourseModel model = new SemesterChosenCourseModel();
+			    model.setId(semestercourselist.get(i).getId());
+			    Course courses = studentDao.loadcoursebycoursenum(semestercourselist.get(i).getCoursenum());
+			    model.setCoursename(courses.getCoursename());
+			    model.setCheckway(courses.getCheckway());
+			    model.setBegainweek(semestercourselist.get(i).getBegainweek());
+			    model.setEndweek(semestercourselist.get(i).getEndweek());
+			    if (semestercourselist.get(i).getClass_()!=null) {
+			    	StringTokenizer fenxi = new StringTokenizer(semestercourselist.get(i).getClass_(),"&");
+					String classname = "";
+				    while(fenxi.hasMoreTokens()){
+						String sid = fenxi.nextToken();
+						int classid = Integer.valueOf(sid);
+						Classes cls = studentDao.loadclassbyid(classid);
+						classname = classname+cls.getClassname()+" ";
+					}
+				    model.setClasses(classname);
+				}			    
+			    model.setSemester(semestercourselist.get(i).getSemester());
+			    model.setCredits(semestercourselist.get(i).getCredits());
+			    model.setSlot(semestercourselist.get(i).getSlot());	
+			    model.setStuNum(semestercourselist.get(i).getStuNum());
+			    model.setLessonCount(semestercourselist.get(i).getLessonCount());
+			    model.setIsOddWeek(semestercourselist.get(i).getIsOddWeek());
+			    model.setIsElective(semestercourselist.get(i).getIsElective());
+			    Teacher teacher = userDao.loadteacherbyid(semestercourselist.get(i).getTeacherid());
+			    if (teacher!=null) {
+			    	model.setTeacherid(semestercourselist.get(i).getTeacherid());
+			    	model.setTeachername(teacher.getTeachername());
+				}			    
+			    model.setCoursenum(semestercourselist.get(i).getCoursenum());
+			    model.setRoomname(semestercourselist.get(i).getRoomname());
+			    model.setRoomtype(semestercourselist.get(i).getRoomtype());
+			    model.setWeekday(semestercourselist.get(i).getWeekday());
+			    model.setLessonCount(semestercourselist.get(i).getLessonCount());
+			    model.setWeeklesson(semestercourselist.get(i).getWeeklesson());
+			    semestercoursemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", semestercoursemodels);
+		return map;
+	}
+
+	@Override
+	public void semestercourseadd(String ids,String semester) {
+		 
+		StringTokenizer fenxi = new StringTokenizer(ids, ",");
+		while (fenxi.hasMoreTokens()) {
+			String sid = fenxi.nextToken();
+			int courseid = Integer.parseInt(sid);
+			Course course = studentDao.loadcoursebyid(courseid);
+			List<SemesterChosenCourse> semestercourses = manageDao.loadsemestercoursebyid(course.getNum(),semester);
+			if (semestercourses.size()==0) {				
+				SemesterChosenCourse semestercourse = new SemesterChosenCourse();
+				semestercourse.setCoursenum(String.valueOf(course.getNum()));				
+				semestercourse.setSemester(semester);
+				if(course.getCharacter().equals("必修")){
+                   semestercourse.setIsElective(0);
+                }else if(course.getCharacter().equals("选修")){
+					semestercourse.setIsElective(1);
+				}
+				manageDao.semestercourseadd(semestercourse);
+			}else {
+				continue;
+			}			
+		}
+	}
+	@Override
+	public void semestercoursedelete(String ids){
+		StringTokenizer fenxi = new StringTokenizer(ids,",");
+		while(fenxi.hasMoreTokens()){
+			String sid = fenxi.nextToken();
+			int courseid = Integer.valueOf(sid);
+			manageDao.semestercoursedelete(courseid);
+		}
+	}
+
+	@Override
+	public Map<String, Object> courselist(int page, int pageSize) {
+		 
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Course> courses = studentDao.loadcourse();
+		List<Course> course1 = new ArrayList<Course>();
+		List<SemesterChosenCourse> semestercourse = manageDao.semestercourselist();
+		for (int i = 0; i < courses.size(); i++) {
+			for (int j = 0; j < semestercourse.size(); j++) {
+				if (courses.get(i).getNum().equals(Integer.valueOf(semestercourse.get(j).getCoursenum()))) {
+					course1.add(courses.get(i));
+				}
+			}
+		}
+		courses.removeAll(course1);
+		long total = courses.size();
+		List<CourseModel> coursemodels = new ArrayList<CourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < courses.size()) {
+			   CourseModel model = new CourseModel();
+			   model.setId(courses.get(i).getId());
+			   model.setNum(courses.get(i).getNum());
+			   model.setCoursename(courses.get(i).getCoursename());
+			   model.setTeacher(courses.get(i).getTeacher());
+			   model.setCharacter(courses.get(i).getCharacter());
+			   model.setCheckway(courses.get(i).getCheckway());
+			   model.setCredits(courses.get(i).getCredits());
+			   model.setBeginweeks(courses.get(i).getBeginweeks());
+			   model.setEndweeks(courses.get(i).getEndweeks());
+			   coursemodels.add(model);
+			}else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> roomlist(int page, int pageSize) {
+		 
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Classroom> room = studentDao.loadroom();
+		List<Classroom> room1= new ArrayList<Classroom>();
+		List<SemesterChosenClassroom> semesterroomlist = manageDao.semesterroomlist();
+		for (int i = 0; i < room.size(); i++) {
+			for (int j = 0; j < semesterroomlist.size(); j++) {
+				if (room.get(i).getNum().equals(semesterroomlist.get(j).getNum())) {
+					room1.add(room.get(i));
+				}
+			}
+		}
+		room.removeAll(room1);
+		long total = room.size();
+		List<ClassroomModel> roommodels = new ArrayList<ClassroomModel>();
+		for (Classroom s : room) {
+			ClassroomModel model = new ClassroomModel();
+			model.setId(s.getId());
+			model.setNum(s.getNum());
+			model.setRoomname(s.getRoomname());
+			model.setRoomplace(s.getRoomplace());
+			model.setRoomtype(s.getRoomtype());
+			model.setRoomcapacity(String.valueOf(s.getRoomcapacity()));
+			model.setRealcapacity(String.valueOf(s.getRealcapacity()));
+			model.setNote(s.getNote());
+			roommodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", roommodels);
+		return map;
+	}
+
+
+	@Override
+	public Map<String, Object> semesterroomlist(int page, int pageSize) {
+		 
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<SemesterChosenClassroom> semesterroomlist = manageDao.semesterroomlist();
+		long totals = semesterroomlist.size();
+		List<SemesterChosenClassroomModel> roommodelss = new ArrayList<SemesterChosenClassroomModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < semesterroomlist.size()) {
+				SemesterChosenClassroomModel model = new SemesterChosenClassroomModel();				
+				model.setId(semesterroomlist.get(i).getId());
+				model.setNum(semesterroomlist.get(i).getNum());
+				model.setRoomname(semesterroomlist.get(i).getRoomname());
+				model.setRoomplace(semesterroomlist.get(i).getRoomplace());
+				model.setRoomtype(semesterroomlist.get(i).getRoomtype());
+				model.setRoomcapacity(semesterroomlist.get(i).getRoomcapacity());
+				model.setRealcapacity(semesterroomlist.get(i).getRealcapacity());
+				model.setNote(semesterroomlist.get(i).getNote());
+				roommodelss.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", totals);
+		map.put("Rows", roommodelss);
+		return map;
+	}
+
+	@Override
+	public void semesterroomadd(String ids,String semester) {
+		 
+		StringTokenizer fenxi = new StringTokenizer(ids, ",");
+		while (fenxi.hasMoreTokens()) {
+			String sid = fenxi.nextToken();
+			int roomid = Integer.parseInt(sid);
+			Classroom room = studentDao.loadroombyid(roomid);
+			List<SemesterChosenClassroom> semestercourses = manageDao.loadsemesterroombyid(room.getNum(),semester);
+			if (semestercourses.size()==0) {				
+				SemesterChosenClassroom semesterroom = new SemesterChosenClassroom();
+				semesterroom.setNote(room.getNote());
+				semesterroom.setNum(room.getNum());
+				semesterroom.setRealcapacity(String.valueOf(room.getRealcapacity()));
+				semesterroom.setRoomcapacity(String.valueOf(room.getRoomcapacity()));
+				semesterroom.setRoomname(room.getRoomname());
+				semesterroom.setRoomplace(room.getRoomplace());
+				semesterroom.setRoomtype(room.getRoomtype());
+				semesterroom.setSemester(semester);
+				manageDao.semesterroomadd(semesterroom);
+			}else {
+				continue;
+			}			
+		}
+	}
+	@Override
+	public void semesterroombegainadd(Classroom c,String semester) {
+		List<SemesterChosenClassroom> semestercourses = manageDao.loadsemesterroombyid(c.getNum(),semester);
+		if (semestercourses.size()==0) {				
+			SemesterChosenClassroom semesterroom = new SemesterChosenClassroom();
+			semesterroom.setNote(c.getNote());
+			semesterroom.setNum(c.getNum());
+			semesterroom.setRealcapacity(String.valueOf(c.getRealcapacity()));
+			semesterroom.setRoomcapacity(String.valueOf(c.getRoomcapacity()));
+			semesterroom.setRoomname(c.getRoomname());
+			semesterroom.setRoomplace(c.getRoomplace());
+			semesterroom.setRoomtype(c.getRoomtype());
+			semesterroom.setSemester(semester);
+			manageDao.semesterroomadd(semesterroom);
+		}		
+	}
+	@Override
+	public void semesterroomdelete(String ids) {
+		 
+		StringTokenizer fenxi = new StringTokenizer(ids,",");
+		while(fenxi.hasMoreTokens()){
+			String sid = fenxi.nextToken();
+			int roomid = Integer.valueOf(sid);
+			manageDao.semesterroomdelete(roomid);
+		}
+	}
+
+	public void saveArrangedCourse(List<ChosenCourseModel> arranged, String semester) {
+		manageDao.saveSyllabus(arranged, semester);
+	}
+
+	@Override
+	public void semestercourseteacheradd(List<SemesterChosenCourse> listUpdated) {
+		for (SemesterChosenCourse s :listUpdated) {
+			SemesterChosenCourse semestercourse = new SemesterChosenCourse();
+			semestercourse.setId(s.getId());
+			semestercourse.setBegainweek(s.getBegainweek());
+			semestercourse.setEndweek(s.getEndweek());
+			semestercourse.setTeacherid(s.getTeacherid());
+			semestercourse.setCredits(s.getCredits());
+			semestercourse.setLessonCount(s.getLessonCount());
+			semestercourse.setWeeklesson(s.getWeeklesson());
+			semestercourse.setRoomtype(s.getRoomtype());
+			semestercourse.setIsElective(s.getIsElective());
+			manageDao.semestercourseteacheradd(semestercourse);
+			
+		}
+	}
+
+	public void semesterteacherendadd(String identificationnum,Integer semestercourseid) {
+		Teacher teacher = manageDao.loadteacherbyidentificationnum(identificationnum);
+		manageDao.semesterteacherendadd(teacher.getIdentificationnum(),semestercourseid);
+	}
+
+	public void semesterclassset(Integer id, String ids) {
+		ids = ids.replace(",", "&");
+		manageDao.semestercourseclassset(id,ids);
+	}
+	
+	public List<ChosenCourseModel> getStuSyllabus(String stuid, String semester) {
+		/*List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+		List<ChosenCourse> t = manageDao.stuSyllabusList(stuid, semester);
+		List<ChosenCourseModel> temp = new ArrayList<ChosenCourseModel>();
+		if (t != null && t.size() > 0)
+			for (ChosenCourse course : t){
+				List<SemesterChosenCourse> c =  manageDao.loadsemestercoursebyid(course.getCourseId(), semester);
+				if (c != null && c.size() > 0)
+					ret.add(toModel(c.get(0), semester));
+				for (SemesterChosenCourse p : c)
+					ret.add(toModel(p, semester));
+			}
+		String className = getClassByStuId(stuid).getClassname();
+		for (ChosenCourseModel q : ret){
+			for (ClassesModel c : q.getClasses())
+				if (c.getClassname().equals(className)){
+					temp.add(q);
+					break;
+				}
+		}
+		return temp;*/
+		
+		// 最终结果
+		List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+		// 先从ChosenCourse 中读出已经选择的课程
+		List<ChosenCourse> selected =  manageDao.getChosenCourseListByStuID(stuid, semester);
+		if (selected == null || selected.size() == 0)
+			return ret;
+		// 获得所在班级的信息
+		Classes thisClass = manageDao.getClassByStuID(stuid);
+		//从本学期课程中查询选择的课程
+		String classNum = String.valueOf(thisClass.getId());
+		List<SemesterChosenCourse> lessons = manageDao.getChosenCourseByClassNum(classNum, semester);
+		for (SemesterChosenCourse i : lessons) {
+			for (ChosenCourse j : selected) {
+				Integer num = Integer.parseInt(i.getCoursenum());
+				if (j.getCourseId().equals(num)) {
+					ret.add(toModel(i, semester));
+					break;
+				}
+			}
+		}
+		// 选修课
+		List<SemesterChosenCourse> elective = manageDao.electiveCourseList(semester);
+		for (SemesterChosenCourse i : elective) {
+			for (ChosenCourse j : selected) {
+				Integer num = Integer.parseInt(i.getCoursenum());
+				if (j.getCourseId().equals(num)) {
+					ret.add(toModel(i, semester));
+					break;
+				}
+			}
+		}
+		return ret;
+	}
+
+	
+	
+	public List<ChosenCourseModel> getOtherOption(ChosenCourseModel course, String semester) {
+		List<ChosenCourseModel> fullTable = new ArrayList<ChosenCourseModel>();
+		for (SemesterChosenCourse i : manageDao.semesterCourseList(semester)){
+			fullTable.add(toModel(i, semester));
+		}
+		List<ClassroomModel> rooms = new ArrayList<ClassroomModel>();
+		for (SemesterChosenClassroom i : manageDao.semesterRoomList(semester)){
+			rooms.add(new ClassroomModel(i.getId(), i.getNum(),
+					i.getRoomtype(), i.getRoomcapacity(), i.getRealcapacity(), i.getRoomplace() + i.getNum()));
+		}
+		for (ClassroomModel r : rooms){
+			for (int d = 0; d < 5; ++d){
+				for (int s = 0; s < 5; ++s) {
+					boolean isfind = false;
+					for (ChosenCourseModel c : fullTable) {
+						if (c.getRoom() == null)
+							continue;
+						if (c.getSlot() == s && c.getWeekday() == d && c.getRoom().getNum().equals(r.getNum()))
+							continue;
+					}
+					if (!isfind)
+						fullTable.add(new ChosenCourseModel(d, s, r));
+				}
+			}
+		}
+		TableState currState = new TableState(fullTable, 5, 5);
+		List<ChosenCourseModel> otherOption = new ArrayList<ChosenCourseModel>();
+		for (ChosenCourseModel i : fullTable){
+			if (currState.chkOption(course, i))
+				otherOption.add(i);
+		}
+		return otherOption;
+	}
+
+
+	public List<ChosenCourseModel> loadAllChosenCourse(String semester) {
+		List<SemesterChosenCourse> all = manageDao.semesterCourseList(semester);
+		if (all == null || all.size() == 0)
+			return null;
+		List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+		for (SemesterChosenCourse i : all) {
+			ret.add(toModel(i, semester));
+		}
+		return ret;
+	}
+
+	public List<Adjustcourse> adjustRecordList(String semester) {
+		return manageDao.adjustRecord(semester);
+	}
+
+	public void checkAdjustApply(boolean isApprove, Integer id) {
+		if (isApprove)
+			manageDao.approveAdjust(id);
+		else
+			manageDao.disapproveAdjust(id);
+		
+	}
+
+	@Override
+	public ClassesModel getClassByStuId(String stuid) {		
+		return new ClassesModel(manageDao.getClassByStuID(stuid));
+	}
+	
+	public List<ChosenCourseModel> electiveCourseForSelectCourse (String stuid, String semester){
+		List<ChosenCourseModel> options = new ArrayList<ChosenCourseModel>();
+		for (SemesterChosenCourse i : manageDao.electiveCourseList(semester))
+			options.add(toModel(i, semester));
+		
+		//List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+        // 已选择课程
+		List<ChosenCourse> allreadyIn = manageDao.stuSyllabusList(stuid, semester);
+		for (ChosenCourseModel i : options) {
+			//boolean isfind = false;
+			for (ChosenCourse j : allreadyIn){
+				if (i.getCourse().getNum().equals(j.getCourseId())){
+					/*isfind = true;
+					break;*/
+					i.setSelected(true);
+				}
+			}
+			/*if (!isfind)
+				ret.add(i);*/
+		}
+		return options;
+	}
+	
+	
+	@Override
+	public List<ChosenCourseModel> allSelectiveCourses(String stuid, String semester) {
+		List<ChosenCourseModel> options = new ArrayList<ChosenCourseModel>();
+		// 所有该学期的课程
+		List<ChosenCourseModel> all = getAllChosenCourse(semester);
+		ClassesModel thisclass = getClassByStuId(stuid);
+		//如果找到所在班级，则找到所在班级在该学期的课程
+		if (thisclass.getId() != null){
+			for (ChosenCourseModel i : all) {
+				for (ClassesModel j : i.getClasses())
+					if (j.getId().equals(thisclass.getId())){
+						options.add(i);
+						break;
+					}
+				}
+			}
+		// 该学期的选修课
+		/*for (SemesterChosenCourse i : manageDao.electiveCourseList(semester))
+			options.add(toModel(i, semester));*/
+		
+		//List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+        // 已选择课程
+		List<ChosenCourse> allreadyIn = manageDao.stuSyllabusList(stuid, semester);
+		for (ChosenCourseModel i : options) {
+			//boolean isfind = false;
+			for (ChosenCourse j : allreadyIn){
+				if (i.getCourse().getNum().equals(j.getCourseId())){
+					/*isfind = true;
+					break;*/
+					i.setSelected(true);
+				}
+			}
+			/*if (!isfind)
+				ret.add(i);*/
+		}
+		return options;
+	}
+
+	@Override
+	public Map<String, Object> semesterselectcourselist(int page, int pageSize) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<SemesterChosenCourse> semestercourselist = manageDao.semesterselectcourselist();
+		//List<SemesterChosenCourse> semestercourses = new ArrayList<SemesterChosenCourse>();
+		for (int i = 0; i < semestercourselist.size(); i++) {
+			for (int j = semestercourselist.size()-1; j>i; j--) {
+			if (semestercourselist.get(i).getCoursenum().equals(semestercourselist.get(j).getCoursenum())) {
+				//semestercourses.add(semestercourselist.get(i));
+				semestercourselist.remove(semestercourselist.get(i));
+			}
+			}
+		}
+		long total = semestercourselist.size();
+		List<SemesterChosenCourseModel> semestercoursemodels = new ArrayList<SemesterChosenCourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < semestercourselist.size()) {
+				SemesterChosenCourseModel model = new SemesterChosenCourseModel();
+			    model.setId(semestercourselist.get(i).getId());
+			    Course courses = studentDao.loadcoursebycoursenum(semestercourselist.get(i).getCoursenum());
+			    model.setCoursename(courses.getCoursename());
+			    model.setBegainweek(semestercourselist.get(i).getBegainweek());
+			    model.setEndweek(semestercourselist.get(i).getEndweek());
+			    if (semestercourselist.get(i).getClass_()!=null) {
+			    	StringTokenizer fenxi = new StringTokenizer(semestercourselist.get(i).getClass_(),"&");
+					String classname = "";
+				    while(fenxi.hasMoreTokens()){
+						String sid = fenxi.nextToken();
+						int classid = Integer.valueOf(sid);
+						Classes cls = studentDao.loadclassbyid(classid);
+						classname = classname+cls.getClassname()+" ";
+					}
+				    model.setClasses(classname);
+				}			    
+			    model.setSemester(semestercourselist.get(i).getSemester());
+			    model.setCredits(semestercourselist.get(i).getCredits());
+			    model.setSlot(semestercourselist.get(i).getSlot());	
+			    model.setStuNum(semestercourselist.get(i).getStuNum());
+			    model.setLessonCount(semestercourselist.get(i).getLessonCount());
+			    model.setIsOddWeek(semestercourselist.get(i).getIsOddWeek());
+			    model.setIsElective(semestercourselist.get(i).getIsElective());
+			    Teacher teacher = userDao.loadteacherbyid(semestercourselist.get(i).getTeacherid());
+			    if (teacher!=null) {
+			    	model.setTeacherid(semestercourselist.get(i).getTeacherid());
+			    	model.setTeachername(teacher.getTeachername());
+				}			    
+			    model.setCoursenum(semestercourselist.get(i).getCoursenum());
+			    model.setRoomname(semestercourselist.get(i).getRoomname());
+			    model.setRoomtype(semestercourselist.get(i).getRoomtype());
+			    model.setWeekday(semestercourselist.get(i).getWeekday());
+			    semestercoursemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", semestercoursemodels);
+		return map;
+	}
+	
+	public void semesterselectcourseupdate(List<SemesterChosenCourse> listUpdated) {
+		
+		for (SemesterChosenCourse s :listUpdated) {
+			SemesterChosenCourse semestercourse = new SemesterChosenCourse();
+			semestercourse.setId(s.getId());
+			semestercourse.setStuNum(s.getStuNum());
+			manageDao.semesterselectcourseupdate(semestercourse);
+		}
+	}
+
+	public void selectCourse(boolean isSelect, String courseNum, String stuid, String semester) {
+		if (isSelect) {
+			String classNum = String.valueOf(getClassByStuId(stuid).getId());
+			List<SemesterChosenCourse> course = manageDao.getChosenCourseByClassNumAndCourseID(classNum, courseNum, semester);
+			
+			//必修中找不到该课程 到选修中找
+			if (course.size() == 0){
+				course = manageDao.getChosenCourseByCourseId(courseNum, semester);
+			}
+			
+			SemesterChosenCourse c = course.get(0);
+			ChosenCourse ic = new ChosenCourse();
+			ic.setStuId(Integer.parseInt(stuid));
+			ic.setCourseId(Integer.parseInt(courseNum));
+			ic.setSemester(semester);
+			ic.setWeekday(c.getWeekday());
+			ic.setSlot(c.getSlot());
+			ic.setRoom(c.getCoursenum());
+			ic.setRoomtype(c.getRoomtype());
+			manageDao.selectCourse(ic);
+			
+		} else {
+			List<ChosenCourse> isChosen = manageDao.getChosenCourseListByStuID(stuid, semester);
+			ChosenCourse course = null;
+			for (ChosenCourse c : isChosen)
+				if (c.getCourseId().equals(Integer.parseInt(courseNum))){
+					course = c;
+					break;
+				}
+			if (course == null)
+				return;
+			manageDao.diselectCourse(course);
+		}
+	}
+
+	@Override
+	public SemesterChosenCourse loadsemesterchosencoursebycourseid(Integer num) {
+		// TODO Auto-generated method stub
+		SemesterChosenCourse semesterChosenCourse = manageDao.loadsemesterselectcoursebycourseid(num);
+		return semesterChosenCourse;
+	}
+
+	@Override
+	public List<ChosenCourse> loadchosencoursebycourseid(Integer num) {
+		// TODO Auto-generated method stub
+		List<ChosenCourse> chosenCourses = manageDao.loadchosencoursebycourseid(num);
+		return chosenCourses;
+	}
+
+	@Override
+	public Map<String, Object> attendencecourselist(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		String semester = getCurrSemester();
+		List<SemesterChosenCourse> semestercourse = manageDao.loadattendencecourse(user.getUsernum(),semester);
+		for (int i = 0; i < semestercourse.size(); i++)  //外循环是循环的次数
+        {
+            for (int j = semestercourse.size() - 1 ; j > i; j--)  //内循环是 外循环一次比较的次数
+            {
+                if (semestercourse.get(i).getCoursenum().equals(semestercourse.get(j).getCoursenum()))
+                {
+                    semestercourse.remove(j);
+                }
+
+            }
+        }
+		//List<Course> courses = manageDao.loadattendencecourse((page - 1) * pageSize,pageSize , user.getUsernum());
+		List<Course> courses = new ArrayList<Course>();
+		for(SemesterChosenCourse c :semestercourse){
+			Course course = manageDao.loadCourseByIdent(c.getCoursenum());
+			Teacher teacher = manageDao.loadteacherbyidentificationnum(c.getTeacherid());
+			course.setTeacher(teacher.getTeachername());
+			courses.add(course);
+		}
+		long total = courses.size();
+		List<CourseModel> coursemodels = new ArrayList<CourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+		 if (i < courses.size()) {
+			CourseModel model = new CourseModel();
+			model.setId(courses.get(i).getId());
+			model.setNum(courses.get(i).getNum());
+			model.setCoursename(courses.get(i).getCoursename());
+			model.setTeacher(courses.get(i).getTeacher());
+			model.setCharacter(courses.get(i).getCharacter());
+			model.setCheckway(courses.get(i).getCheckway());
+			model.setCredits(courses.get(i).getCredits());
+			model.setBeginweeks(courses.get(i).getBeginweeks());
+			model.setEndweeks(courses.get(i).getEndweeks());
+			coursemodels.add(model);
+		}
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+
+	@Override
+	public Teacher loadteacherbynum(String usernum) {
+		// TODO Auto-generated method stub
+		Teacher teacher = manageDao.loadteacherbyidentificationnum(usernum);
+		return teacher;
+	}
+	@Override
+	public Map<String, Object> searchsemestercourselist(int page, int pageSize,String semester) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		List<SemesterChosenCourse> semestercourse = manageDao.loadattendencecourse(user.getUsernum(),semester);
+		//List<Course> courses = manageDao.loadattendencecourse((page - 1) * pageSize,pageSize , user.getUsernum());
+		for (int i = 0; i < semestercourse.size(); i++) {
+			for (int j = semestercourse.size()-1; j>i; j--) {
+			if (semestercourse.get(i).getCoursenum().equals(semestercourse.get(j).getCoursenum())) {
+				semestercourse.remove(semestercourse.get(i));
+			}
+			}
+		}
+		List<Course> courses = new ArrayList<Course>();
+		for(SemesterChosenCourse c :semestercourse){
+			Course course = manageDao.loadCourseByIdent(c.getCoursenum());
+			courses.add(course);
+		}
+		long total = courses.size();
+		List<CourseModel> coursemodels = new ArrayList<CourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+		 if (i < courses.size()) {
+			CourseModel model = new CourseModel();
+			model.setId(courses.get(i).getId());
+			model.setNum(courses.get(i).getNum());
+			model.setCoursename(courses.get(i).getCoursename());
+			model.setTeacher(courses.get(i).getTeacher());
+			model.setCharacter(courses.get(i).getCharacter());
+			model.setCheckway(courses.get(i).getCheckway());
+			model.setCredits(courses.get(i).getCredits());
+			model.setBeginweeks(courses.get(i).getBeginweeks());
+			model.setEndweeks(courses.get(i).getEndweeks());
+			model.setLessoncount(0);
+			model.setWeeklesson(0);
+			coursemodels.add(model);
+		}
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+	List<ChosenCourse> chosenCourses = new ArrayList<ChosenCourse>();
+	@Override
+	public List<ChosenCourse> courseclassscoreload(String semester, Integer num, Integer id) {
+		// TODO Auto-generated method stub
+		chosenCourses.clear();
+		List<Student> students = studentDao.loadstubyclassid(id);
+		for (Student s:students) {
+			List<ChosenCourse> chosencourses = manageDao.courseclassscoureload(semester,num,s.getStuid()); 
+		    chosenCourses.addAll(chosencourses);
+		}
+		return chosenCourses;
+	}
+	@Override
+	public Map<String, Object> stuscorelist(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = chosenCourses.size();
+		List<ChosenCourseModel> coursemodels = new ArrayList<ChosenCourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+		 if (i < chosenCourses.size()) {
+			ChosenCourseModel model = new ChosenCourseModel();
+			model.setAttendence(chosenCourses.get(i).getAttendence());
+			if(Integer.valueOf(chosenCourses.get(i).getFinalexam())<60){
+				String attendence = "<font color='red'>"+chosenCourses.get(i).getFinalexam()+"</font>";
+				model.setFinalexam(attendence);
+			}else {
+				model.setFinalexam(String.valueOf(chosenCourses.get(i).getFinalexam()));
+			}
+			if(Integer.valueOf(chosenCourses.get(i).getMidexam())<60){
+				String attendence = "<font color='red'>"+chosenCourses.get(i).getMidexam()+"</font>";
+				model.setMidexam(attendence);
+			}else {
+				model.setMidexam(String.valueOf(chosenCourses.get(i).getMidexam()));
+			}
+			model.setHomework(chosenCourses.get(i).getHomework());
+			model.setNum(String.valueOf(chosenCourses.get(i).getCourseId()));
+			Student stu = studentDao.loadstubystuid(String.valueOf(chosenCourses.get(i).getStuId()));
+			model.setStuname(stu.getStuname());
+			model.setStuid(stu.getStuid());
+			model.setIsmakeup(chosenCourses.get(i).getIsmakeup());
+			if (chosenCourses.get(i).getMakeup()!=null) {
+				model.setMakeup(String.valueOf(chosenCourses.get(i).getMakeup()));
+			}
+			Course course = manageDao.loadCourseByIdent(String.valueOf(chosenCourses.get(i).getCourseId()));
+			model.setCoursename(course.getCoursename());
+			model.setSemester(chosenCourses.get(i).getSemester());
+			coursemodels.add(model);
+		}
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+	@Override
+	public Map<String, Object> allstuscorelist(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+	    String semester = getCurrSemester();
+	    List<ChosenCourse> chosencourse = manageDao.loadstuscorelist(semester);
+		long total = chosencourse.size();
+		List<ChosenCourseModel> coursemodels = new ArrayList<ChosenCourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+		 if (i < chosencourse.size()) {
+			ChosenCourseModel model = new ChosenCourseModel();
+			model.setAttendence(chosencourse.get(i).getAttendence());
+			if(Integer.valueOf(chosencourse.get(i).getFinalexam())<60){
+				String attendence = "<font color='red'>"+chosencourse.get(i).getFinalexam()+"</font>";
+				model.setFinalexam(attendence);			
+			}else {
+				model.setFinalexam(String.valueOf(chosencourse.get(i).getFinalexam()));
+			}
+			if(Integer.valueOf(chosencourse.get(i).getMidexam())<60){
+				String attendence = "<font color='red'>"+chosencourse.get(i).getMidexam()+"</font>";
+				model.setMidexam(attendence);
+			}else {
+				model.setMidexam(String.valueOf(chosencourse.get(i).getMidexam()));
+			}
+			model.setHomework(chosencourse.get(i).getHomework());
+			model.setNum(String.valueOf(chosencourse.get(i).getCourseId()));
+			Student stu = studentDao.loadstubystuid(String.valueOf(chosencourse.get(i).getStuId()));
+			model.setStuname(stu.getStuname());
+			model.setStuid(stu.getStuid());
+			model.setClassname(stu.getClasses().getClassname());
+			model.setIsmakeup(chosencourse.get(i).getIsmakeup());
+			if (chosencourse.get(i).getMakeup()!=null) {
+				model.setMakeup(String.valueOf(chosencourse.get(i).getMakeup()));
+			}
+			Course course = manageDao.loadCourseByIdent(String.valueOf(chosencourse.get(i).getCourseId()));
+			model.setCoursename(course.getCoursename());
+			model.setSemester(chosencourse.get(i).getSemester());
+			coursemodels.add(model);
+		}
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+	List<ChosenCourse> stucourse = new ArrayList<ChosenCourse>();
+	@Override
+	public void loadstuscore(String semester, Integer id, String stuid,String coursenum){
+		stucourse.clear();
+		if (id==null) {//班级id
+			List<ChosenCourse> stuCourse = manageDao.searchstuscore(semester,stuid,coursenum);
+			stucourse.addAll(stuCourse);
+		}else {
+			List<Student> students = studentDao.loadstubyclassid(id);
+			for (int i = 0; i < students.size(); i++) {
+				List<ChosenCourse> stuCourse = manageDao.searchstuscore(semester,students.get(i).getStuid(),coursenum);
+				stucourse.addAll(stuCourse);
+			}
+		}
+	}
+	@Override
+	public Map<String, Object> searchstuscorelist(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();		
+		long total = stucourse.size();
+		List<ChosenCourseModel> coursemodels = new ArrayList<ChosenCourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+		 if (i < stucourse.size()) {
+			ChosenCourseModel model = new ChosenCourseModel();
+			model.setAttendence(stucourse.get(i).getAttendence());
+			if(Integer.valueOf(stucourse.get(i).getFinalexam())<60){
+				String attendence = "<font color='red'>"+stucourse.get(i).getFinalexam()+"</font>";
+				model.setFinalexam(attendence);
+			}else {
+				model.setFinalexam(String.valueOf(stucourse.get(i).getFinalexam()));
+			}
+			if(Integer.valueOf(stucourse.get(i).getMidexam())<60){
+				String attendence = "<font color='red'>"+stucourse.get(i).getMidexam()+"</font>";
+				model.setMidexam(attendence);
+			}else {
+				model.setMidexam(String.valueOf(stucourse.get(i).getMidexam()));
+			}
+			model.setIsmakeup(stucourse.get(i).getIsmakeup());
+			if (stucourse.get(i).getMakeup()!=null) {
+				model.setMakeup(String.valueOf(stucourse.get(i).getMakeup()));
+			}
+			model.setHomework(stucourse.get(i).getHomework());
+			model.setNum(String.valueOf(stucourse.get(i).getCourseId()));
+			Student stu = studentDao.loadstubystuid(String.valueOf(stucourse.get(i).getStuId()));
+			model.setStuname(stu.getStuname());
+			model.setStuid(stu.getStuid());
+			model.setClassname(stu.getClasses().getClassname());
+			Course course = manageDao.loadCourseByIdent(String.valueOf(stucourse.get(i).getCourseId()));
+			model.setCoursename(course.getCoursename());
+			model.setSemester(stucourse.get(i).getSemester());
+			coursemodels.add(model);
+		}
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+
+	@Override
+	public boolean stucheck(String stuid) {
+		// TODO Auto-generated method stub
+		List<Student> haveteacher = studentDao.stucheckstuid(stuid);
+		if (haveteacher.size() > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void courseclassscoreadd(ChosenCourse chosenCourse) {
+		// TODO Auto-generated method stub
+		ChosenCourse chosenCourse2 = manageDao.loadchosencoursebycourse(chosenCourse.getCourseId(),chosenCourse.getStuId());
+		chosenCourse.setId(chosenCourse2.getId());
+		chosenCourse.setIsmakeup(0);
+		manageDao.courseclassscoreadd(chosenCourse);
+	}
+
+	@Override
+	public List<ChosenCourseModel> getOtherOptionByCourseNum(String semesterChosenCourseID,
+			String semester) {
+		SemesterChosenCourse course = manageDao.loadSemesterChosenCourseById(semesterChosenCourseID);
+		return getOtherOption(toModel(course, semester), semester);
+	}
+
+	@Override
+	public void saveAdjustRecord (Syllabus p, Syllabus q, String reason, String semester) {
+		Adjustcourse ret = new Adjustcourse();
+		ret.setApplyteacher(p.getTeacherName());
+		SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd");
+		ret.setApplytime(dt1.format(new Date()));
+		
+		// 原教室可以用课程号与上课时间 大节确定
+		
+		ret.setOldcoursenum(p.getNum());
+		ret.setOlddate(p.getNote());
+		ret.setOldslot(String.valueOf(p.getSlot()));
+		ret.setOldRoomNum(p.getRoomNum());
+		List<Classroom> r1 = studentDao.roomcheck(p.getRoomNum());
+		if (r1 != null && r1.size() > 0){
+			ret.setOldRoomAddress(r1.get(0).getRoomplace() + r1.get(0).getRoomname());
+		}
+		
+		ret.setReason(reason);
+		ret.setSemester(semester);
+		ret.setStatus("0");
+		
+		ret.setNewcoursenum(q.getNum());
+		ret.setNewdate(q.getNote());
+		ret.setNewslot(String.valueOf(q.getSlot()));
+		ret.setNewRoomNum(q.getRoomNum());
+		List<Classroom> r2 = studentDao.roomcheck(q.getRoomNum());
+		if (r2 != null && r2.size() > 0){
+			ret.setNewRoomAddress(r2.get(0).getRoomplace() + r2.get(0).getRoomname());
+		}
+		
+		manageDao.saveAdjust(ret);
+		
+	}
+
+	@Override
+	public List<AdjustcourseModel> loadAdjustRocords(String semester) {
+		List<Adjustcourse> all = manageDao.adjustRecord(semester);
+		List<AdjustcourseModel> ret = new ArrayList<AdjustcourseModel>();
+		for (Adjustcourse i : all) {
+			AdjustcourseModel k = new AdjustcourseModel();
+			
+			k.setApplytime(i.getApplytime());
+			k.setId(i.getId());
+			Teacher t = manageDao.loadteacherbyidentificationnum(i.getApplyteacher());
+			k.setApplyTeacher(t);
+			
+			Course q = manageDao.getCourseByNum(i.getNewcoursenum());
+			if (q != null)
+				k.setNewCourseName(q.getCoursename());
+			k.setNewcoursenum(i.getNewcoursenum());
+			k.setNewslot(i.getNewslot());
+			k.setNewdate(i.getNewdate());
+			k.setOldroomName(i.getOldRoomAddress());
+			
+			k.setOldcoursenum(i.getOldcoursenum());
+			k.setOlddate(i.getOlddate());
+			k.setOldslot(i.getOldslot());
+			k.setNewroomName(i.getNewRoomAddress());
+			k.setReason(i.getReason());
+			k.setStatus(i.getStatus());
+			Course p = manageDao.getCourseByNum(i.getOldcoursenum());
+			
+			if (p != null) {
+				k.setOldCourseName(p.getCoursename());
+			}
+			ret.add(k);
+		}
+		
+		return ret;
+	}
+
+	@Override
+	public List<ChosenCourseModel> loadSemesterChosenCoruseByTeacher(
+			String ident, String semester) {
+		List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+		for (SemesterChosenCourse i : manageDao.getChosenCourseByTeacherId(ident, semester)) {
+			ret.add(toModel(i, semester));
+		}
+		return ret;
+	}
+	@Override
+	public void courseclassmakeupscoreadd(ChosenCourse chosenCourse) {
+		// TODO Auto-generated method stub
+		ChosenCourse chosenCourse2 = manageDao.loadchosencoursebycourse(chosenCourse.getCourseId(),chosenCourse.getStuId());
+		chosenCourse.setId(chosenCourse2.getId());
+		chosenCourse.setIsmakeup(1);
+		manageDao.courseclassscoreadd(chosenCourse);
+	}
+	@Override
+	public Map<String, Object> singlestuscorelist(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();		
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		if (user.getRoles().getRolerank()==3) {
+			List<ChosenCourse> stuchosencourse = manageDao.loadsinglestuscore(user.getUsernum());
+			long total = stuchosencourse.size();
+			List<ChosenCourseModel> coursemodels = new ArrayList<ChosenCourseModel>();
+			for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			 if (i < stuchosencourse.size()) {
+				ChosenCourseModel model = new ChosenCourseModel();
+				model.setAttendence(stuchosencourse.get(i).getAttendence());
+				if(Integer.valueOf(stuchosencourse.get(i).getFinalexam())<60){
+					String attendence = "<font color='red'>"+stuchosencourse.get(i).getFinalexam()+"</font>";
+					model.setFinalexam(attendence);
+				}else {
+					model.setFinalexam(String.valueOf(stuchosencourse.get(i).getFinalexam()));
+				}
+				if(Integer.valueOf(stuchosencourse.get(i).getMidexam())<60){
+					String attendence = "<font color='red'>"+stuchosencourse.get(i).getMidexam()+"</font>";
+					model.setMidexam(attendence);
+				}else {
+					model.setMidexam(String.valueOf(stuchosencourse.get(i).getMidexam()));
+				}
+				model.setIsmakeup(stuchosencourse.get(i).getIsmakeup());
+				if (stuchosencourse.get(i).getMakeup()!=null) {
+					model.setMakeup(String.valueOf(stuchosencourse.get(i).getMakeup()));
+				}
+				model.setHomework(stuchosencourse.get(i).getHomework());
+				model.setNum(String.valueOf(stuchosencourse.get(i).getCourseId()));
+				Student stu = studentDao.loadstubystuid(String.valueOf(stuchosencourse.get(i).getStuId()));
+				model.setStuname(stu.getStuname());
+				model.setStuid(stu.getStuid());
+				Course course = manageDao.loadCourseByIdent(String.valueOf(stuchosencourse.get(i).getCourseId()));
+				model.setCoursename(course.getCoursename());
+				model.setSemester(stuchosencourse.get(i).getSemester());
+				coursemodels.add(model);
+			}
+			}
+			map.put("Total", total);
+			map.put("Rows", coursemodels);
+		}
+			return map;
+		}
+
+
+    List<ChosenCourse> stuchosencourse = new ArrayList<ChosenCourse>();
+	@Override
+	public void loadsinglestuscore(String semester) {
+		// TODO Auto-generated method stub
+		stuchosencourse.clear();
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		stuchosencourse = manageDao.loadstuscore(semester, user.getUsernum());
+	}
+
+	@Override
+	public Map<String, Object> searchsinglestuscorelist(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();		
+		long total = stuchosencourse.size();
+		List<ChosenCourseModel> coursemodels = new ArrayList<ChosenCourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < stuchosencourse.size()) {
+				ChosenCourseModel model = new ChosenCourseModel();
+				model.setAttendence(stuchosencourse.get(i).getAttendence());
+				if(Integer.valueOf(stuchosencourse.get(i).getFinalexam())<60){
+					String attendence = "<font color='red'>"+stuchosencourse.get(i).getFinalexam()+"</font>";
+					model.setFinalexam(attendence);
+				}else {
+					model.setFinalexam(String.valueOf(stuchosencourse.get(i).getFinalexam()));
+				}
+				if(Integer.valueOf(stuchosencourse.get(i).getMidexam())<60){
+					String attendence = "<font color='red'>"+stuchosencourse.get(i).getMidexam()+"</font>";
+					model.setMidexam(attendence);
+				}else {
+					model.setMidexam(String.valueOf(stuchosencourse.get(i).getMidexam()));
+				}
+				model.setIsmakeup(stuchosencourse.get(i).getIsmakeup());
+				if (stuchosencourse.get(i).getMakeup()!=null) {
+					model.setMakeup(String.valueOf(stuchosencourse.get(i).getMakeup()));
+				}
+				model.setHomework(stuchosencourse.get(i).getHomework());
+				model.setNum(String.valueOf(stuchosencourse.get(i).getCourseId()));
+				Student stu = studentDao.loadstubystuid(String.valueOf(stuchosencourse.get(i).getStuId()));
+				model.setStuname(stu.getStuname());
+				model.setStuid(stu.getStuid());
+				Course course = manageDao.loadCourseByIdent(String.valueOf(stuchosencourse.get(i).getCourseId()));
+				model.setCoursename(course.getCoursename());
+				model.setSemester(stuchosencourse.get(i).getSemester());
+				coursemodels.add(model);
+			}
+			}
+			map.put("Total", total);
+			map.put("Rows", coursemodels);
+			return map;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.tjpu.service.ManageService#transcriptsearch(java.lang.String, java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	public List<ChosenCourse> transcriptsearch(String semester, String stuid) {
+		// TODO Auto-generated method stub
+		List<ChosenCourse> chosencourse = manageDao.loadstuscore(semester, stuid);
+		return chosencourse;
+	}
+
+	private AdjustcourseModel adjustToModel(Adjustcourse ad, String semester) {
+		AdjustcourseModel ret = new AdjustcourseModel();
+		ret.setId(ad.getId());
+		ret.setOldcoursenum(ad.getOldcoursenum());
+		Course oc = manageDao.getCourseByNum(ad.getOldcoursenum());
+		if (oc != null)
+			ret.setOldCourseName(oc.getCoursename());
+		ret.setReason(ad.getReason());
+		ret.setOlddate(ad.getOlddate());
+		ret.setOldslot(ad.getOldslot());
+		ret.setApplytime(ad.getApplytime());
+		Teacher t = manageDao.loadteacherbyid(Integer.parseInt(ad.getApplyteacher()));
+		if (t != null)
+			ret.setApplyTeacher(t);
+		
+		ret.setNewcoursenum(ad.getNewcoursenum());
+		Course nc = manageDao.getCourseByNum(ad.getNewcoursenum());
+		if (nc != null)
+			ret.setNewCourseName(nc.getCoursename());
+		ret.setNewdate(ad.getNewdate());
+		ret.setNewslot(ad.getNewslot());
+		ret.setStatus(ad.getStatus());
+		return ret;
+	}
+	
+	@Override
+	public List<AdjustcourseModel> loadRelateAdjustCourse(String teacehrIdent,
+			String semester) {
+		// 找出该老师所有课程
+		List<SemesterChosenCourse> thisSemester =  manageDao.getChosenCourseByTeacherId(teacehrIdent, semester);
+		
+		// 遍历找调课课号
+		List<AdjustcourseModel> ret = new ArrayList<AdjustcourseModel>();
+		for (SemesterChosenCourse i : thisSemester) {
+			List<Adjustcourse> t = manageDao.loadAjustCourseByRelateCourseNum(i.getCoursenum(), semester);
+			if (t != null && t.size() > 0) {
+				for (Adjustcourse p : t) {
+					if (p.getStatus().equals("1"))
+						ret.add(adjustToModel(p, semester));
+				}
+			}
+		}
+		
+		
+		return ret;
+	}
+
+	@Override
+	public boolean isclassteacher(String identificationnum) {
+		// TODO Auto-generated method stub
+		List<Classes> cls = studentDao.loadclassbyteacher(identificationnum);
+		if (cls.size()>0) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void sire(String semester) {
+		
+		manageDao.sireSemesterChosenCourse(semester);
+	}
+
+	@Override
+	public Map<String, List<String>> arrangePreChk(String semester) {
+		//TODO
+		// 找出本学期所有课
+		List<SemesterChosenCourse> all = manageDao.semesterCourseList(semester);
+		//fake ret
+		Map<String, List<String>> ret = new HashMap<String, List<String>>();
+		String roomtype = "no roomType";
+		String lesson = "no lesson";
+		String teacher = "no teacher";
+		String classes = "no class";
+		
+		ret.put(roomtype, new ArrayList<String>());
+		ret.put(lesson, new ArrayList<String>());
+		ret.put(teacher, new ArrayList<String>());
+		ret.put(classes, new ArrayList<String>());
+		
+		for (SemesterChosenCourse i : all){
+			if (i.getRoomtype() == null){
+				ret.get(roomtype).add(i.getCoursenum());
+			}
+			if (i.getWeeklesson() == null || i.getLessonCount() == null){
+				ret.get(lesson).add(i.getCoursenum());
+			}
+			if (i.getTeacherid() == null){
+				ret.get(teacher).add(i.getCoursenum());
+			}
+			if (i.getClass_() == null){
+				ret.get(classes).add(i.getCoursenum());
+			}
+		}
+		
+		Map<String, List<String>> fin = new HashMap<String, List<String>>();
+		fin.put(roomtype, new ArrayList<String>());
+		fin.put(lesson, new ArrayList<String>());
+		fin.put(teacher, new ArrayList<String>());
+		fin.put(classes, new ArrayList<String>());
+		
+//		getCourseByNum
+		
+		for (String i : ret.get(roomtype)) {
+			Course c = manageDao.getCourseByNum(i);
+			if (c != null && c.getCoursename() != null){
+				fin.get(roomtype).add(c.getCoursename());
+			}
+		}
+		
+		for (String i : ret.get(lesson)) {
+			Course c = manageDao.getCourseByNum(i);
+			if (c != null && c.getCoursename() != null){
+				fin.get(lesson).add(c.getCoursename());
+			}
+		}
+		
+		for (String i : ret.get(teacher)) {
+			Course c = manageDao.getCourseByNum(i);
+			if (c != null && c.getCoursename() != null){
+				fin.get(teacher).add(c.getCoursename());
+			}
+		}
+		
+		for (String i : ret.get(classes)) {
+			Course c = manageDao.getCourseByNum(i);
+			if (c != null && c.getCoursename() != null){
+				fin.get(classes).add(c.getCoursename());
+			}
+		}
+		
+		return fin;
+	}
+	List<ChosenCourse> selectchosencourse = new ArrayList<ChosenCourse>();
+	@Override
+	public List<ChosenCourse> loadselectcoursestu(Integer num, String semester) {
+		// TODO Auto-generated method stub
+		selectchosencourse.clear();
+		selectchosencourse = manageDao.loadselectcoursestu(num,semester);
+		return selectchosencourse;
+	}
+	@Override
+	public Map<String, Object> selectresultlist(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = selectchosencourse.size();
+		List<StudentModel> stumodels = new ArrayList<StudentModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < selectchosencourse.size()) {
+				StudentModel model = new StudentModel();
+				Student s = studentDao.loadstubystuid(String.valueOf(selectchosencourse.get(i).getStuId()));
+				try {
+					model.setClassid(s.getClasses().getId());
+				} catch (Exception e) {
+					model.setClassid(0);
+				}
+				model.setId(s.getId());
+				model.setPassword(s.getPassword());
+				model.setStusex(s.getSex());
+				model.setStuid(s.getStuid());
+				model.setStuname(s.getStuname());
+				model.setFirstname(s.getFirstname());
+				model.setLastname(s.getLastname());
+				model.setNation(s.getNation());
+				model.setPassport(s.getPassport());
+				model.setRoomplace(s.getRoomplace());
+				model.setTelephone(s.getTelephone());
+				model.setStudentType(s.getStudentType());
+				model.setSource(s.getSource());
+				model.setEnddate(s.getEnddate());
+				model.setStartdate(s.getStartdate());
+				model.setStatus(s.getStatus());
+				stumodels.add(model);
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", stumodels);
+		return map;
+	}
+
+	@Override
+	public List<Classroom> classroomList() {
+		return manageDao.classroomList();
+	}
+
+	@Override
+	public List<SemesterChosenCourse> courseListByWeekday(String weekday,
+			String semester) {
+		return manageDao.courseListByWeekday(weekday, semester);
+	}
+	
+	public List<Adjustcourse> approvedAdjustApplyListByWeekday (String weekday, String semester) {
+		return manageDao.approvedAdjustApplyListByWeekday(weekday, semester);
+	}
+	
+}
+
+	

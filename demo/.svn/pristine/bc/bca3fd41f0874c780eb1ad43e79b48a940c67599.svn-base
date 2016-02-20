@@ -1,0 +1,109 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>天津工业大学国际教育学院学生老师课务系统</title>
+    <!-- <meta http-equiv="refresh" content="5"> -->
+    <script src="js/jquery/jquery-1.3.2.min.js"type="text/javascript"></script>
+	<script src="js/ligerUI/core/base.js" type="text/javascript"></script>
+	<script src="js/ligerUI/ligerui.all.js" type="text/javascript"></script>
+ <style type="text/css">
+ .body{
+ font-size: 14px;
+ font-family: 微软雅黑;
+ }
+ #contain{
+   margin: 20px 10px auto;
+ }
+table{ 
+	border-collapse:collapse;
+	text-align:center; 
+	color:#5C6B87;
+	letter-spacing:1px;
+	width:100%;
+ 	}
+
+table,th,td{
+	border:1px solid #B6D5F3;
+	line-height:25px;
+	height:25px;
+	}
+
+thead th{
+	background:#F3F8FC;  
+	color: #2E7DBE;
+	}
+	
+tbody th{
+	background:#F3F8FC;
+	font-weight:normal;
+	}
+	
+tfoot td{
+	text-align:right;
+	color: #2E7DBE;
+	padding-right:4px;
+	}
+ </style>
+ <script type="text/javascript">
+   function evalution(){
+    var str = "${pageContext.request.contextPath}/system/Manage_evalutionlist.action?course.id="+encodeURI(encodeURI($("#courseid").val()));
+    top.f_addTab('evalutionlist','评价教师',str);
+    }
+ </script>
+  </head>  
+  <body>
+  <div id="contain">
+    <span >注意：<br>
+     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请选择课程，对老师进行相应评价</span><br><br>
+ <table>
+<thead>
+  <tr>
+    <th width="16%">课程编号</th>
+    <th width="26%" >课程名</th>
+    <th width="26%" >任课教师</th>
+    <th width="36%" >操作</th>
+  </tr>
+</thead>
+<tbody>
+  <s:iterator value="#map" id="column"> 
+     <s:if test="key==0">
+       <s:iterator value="#column.value" > 
+       <input type="hidden" value="<s:property value="num"/>" id="coursenum"/>
+       <input type="hidden" value="<s:property value="coursename"/>" id="coursenum"/>
+       <input type="hidden" value="<s:property value="id"/>" id="courseid"/>
+       <tr>
+          <td><s:property value="num"/></td>
+          <td><s:property value="coursename"/></td>
+          <td><s:property value="teacher"/></td>
+          <td><input type="button"value="评&nbsp;&nbsp;教" id="Button1"class="l-button l-button-submit" onclick="evalution()"  /></td>
+       </tr> 
+       </s:iterator> 
+       </s:if>
+       <s:elseif test="key==1">
+         <s:iterator value="#column.value" > 
+         <input type="hidden" value="<s:property value="num"/>" id="coursenum"/>
+       <input type="hidden" value="<s:property value="coursename"/>" id="coursenum"/>
+       <input type="hidden" value="<s:property value="id"/>" id="courseid"/>
+       <tr>
+          <td><s:property value="num"/></td>
+          <td><s:property value="coursename"/></td>
+          <td><s:property value="teacher"/></td>
+          <td><input type="button"value="已&nbsp;&nbsp;评" id="Button1"class="l-button l-button-submit" disabled="disabled"/></td>
+       </tr> 
+       </s:iterator> 
+       </s:elseif>
+    </s:iterator>
+  </tbody>
+</table>  
+</div>
+  </body>
+</html>

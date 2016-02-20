@@ -1,0 +1,37 @@
+$(document).ready(function(){			
+	var nowDate = new Date();
+	var nowYear = nowDate.getFullYear();  
+	var lastYear = nowYear-1;
+	var nextYear = nowYear+1;
+	var nowuptext = nowYear+"学年上学期";
+	var nowupvalue = nowYear+"01";
+	var nowdowntext = nowYear + "学年下学期";
+	var nowdownvalue = nowYear+"02";
+	var lastuptext = lastYear+"学年上学期";
+	var lastupvalue = lastYear+"01";
+	var lastdowntext = lastYear+"学年下学期";
+	var lastdownvalue = lastYear+"02";
+	var nextuptext = nextYear+"学年上学期";
+	var nextupvalue = nextYear+"01";
+	var nextdowntext = nextYear+"学年下学期";
+	var nextdownvalue = nextYear+"02";
+	var semester = document.getElementById("semester");
+	var objOption=document.createElement("OPTION"); 
+    var objOption1=document.createElement("OPTION");
+    var objOption2=document.createElement("OPTION"); 
+    var objOption3=document.createElement("OPTION"); 
+    var objOption4=document.createElement("OPTION"); 
+    var objOption5=document.createElement("OPTION"); 
+    objOption.value=nowupvalue;   objOption.text=nowuptext;
+    objOption1.value=nowdownvalue;  objOption1.text=nowdowntext;
+    objOption2.value=lastupvalue;  objOption2.text=lastuptext;
+    objOption3.value=lastdownvalue;  objOption3.text=lastdowntext;
+    objOption4.value=nextupvalue;  objOption4.text=nextuptext;
+    objOption5.value=nextdownvalue;  objOption5.text=nextdowntext;
+    semester.add(objOption2);
+    semester.add(objOption3);
+    semester.add(objOption);
+    semester.add(objOption1);   
+    semester.add(objOption4);
+    semester.add(objOption5);
+})

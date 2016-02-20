@@ -1,0 +1,225 @@
+<%@page import="com.tjpu.bean.ClassroomModel"%>
+<%@page import="com.opensymphony.xwork2.ActionContext"%>
+<%@page import="com.tjpu.bean.Syllabus"%>
+<%@page import="com.tjpu.bean.ChosenCourseModel"%>
+
+<%@ page import="java.util.*"%>
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
+<%@ page import="java.io.*"%>
+<%@taglib uri="/struts-tags" prefix="s"%>
+<%
+	String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<base href="<%=basePath%>">
+
+<title>天津工业大学排课管理系统</title>
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+
+ <script src="<%=basePath%>js/jquery/jquery-1.6.min.js" type="text/javascript"></script>
+<script src="js/ligerUI/ligerui.all.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+	function btnclose() {
+		parent.window.location.reload();
+		window.close();
+	}
+
+	function tonsubmit() {
+		if (!flag){
+			alert("不可交换的位置！");
+			return;
+		}
+		//var newnum = $("#options").val();
+		var newnum = $("#newnum").val();
+		var old = $("#oldnum").val();
+		//alert(newnum);
+		var str = "${pageContext.request.contextPath}/system/Manage_applyNewSyllabus.action?newnum="
+				+ newnum + "&oldnum=" + old;
+		$.post(str, null, function() {
+			parent.m.hide();
+			parent.window.location.reload();
+		});
+	}
+	
+	var flag = false;
+		
+	function tips() {
+		
+		var week = $("#week").val();
+		var slot = $("#slot").val();
+		var room = $("#room").val();
+		var oldnum = $("#oldnum").val();
+	
+		//alert(room);
+		var url = "${pageContext.request.contextPath}/system/Manage_adjustTips.action?newSlot=" + slot
+					+ "&plandate=" + week + "&newRoomNum=" + room + "&oldnum=" + oldnum;
+			$.ajax({  
+		        type : "POST",  
+		        url : url,
+		        dataType : "JSON", 
+		        error: function (){
+		        	alert("数据传输错误，请联系管理员！");
+		        },
+		        success : function(data) { 
+		        	
+		        	if (data.length > 0){
+		        		for(var n=0;n<data.length;n++){
+		        			//alert(data[n].courseName);
+		                	$("#newCourseName").val(data[n].courseName);
+		                	$("#newnum").val(data[n].num);
+		                	flag = true;
+		          		}
+		        	} else {
+		        		$("#newCourseName").val("不可交换的位置！");
+		        		$("#newnum").val("");
+		        		flag = false;
+		        	}
+		        }  
+		    }); 
+	}
+</script>
+
+<style type="text/css">
+body {
+	font-size: 12px;
+}
+
+.l-table-edit {
+	
+}
+
+.l-table-edit-td {
+	padding: 4px;
+}
+
+.l-button-submit,.l-button-test {
+	width: 80px;
+	float: left;
+	margin-left: 10px;
+	padding-bottom: 2px;
+}
+
+.l-verify-tip {
+	left: 230px;
+	top: 120px;
+}
+
+#errorLabelContainer {
+	padding: 10px;
+	width: 300px;
+	border: 1px solid #FF4466;
+	display: none;
+	background: #FFEEEE;
+	color: Red;
+}
+
+.link {
+	width: 170px;
+	height: 25px;
+	background: #fefefe;
+	border: 1px solid #bbb;
+	font-size: 12px;
+	color: #333;
+	border-radius: 3px;
+}
+/* .date_selector .month_nav{float: left;width: 40%;}
+.date_selector .year_nav{float: right;width: 35%;margin-right: 60px;} */
+textarea {
+	width: 100%;
+	height: 100px;
+}
+</style>
+</head>
+
+<body>
+	<%
+		ChosenCourseModel old = (ChosenCourseModel)ActionContext.getContext().get("old");
+	 %>
+	<input type="hidden" value=<%=old.getNum()%> id="oldnum">
+	<input type="hidden" id="newnum"> 
+	<table cellpadding="0" cellspacing="0" class="l-table-edit" >
+    	<tr style="font-size:12px">
+    		<td align="center" class="l-table-edit-td">课程名</td>
+    		<td align="center" class="l-table-edit-td">
+    			<input type="text" class="link" disabled value="<%=old.getCourse().getCoursename()%>">
+			</td>
+			<td align="center" class="l-table-edit-td">课程号</td>
+    		<td align="center" class="l-table-edit-td">
+    			<input type="text" class="link" disabled value="<%=old.getCourse().getNum()%>">
+			</td>
+			<td align="center" class="l-table-edit-td"></td>
+    		<td align="left"></td>
+    	</tr>
+    	<tr style="font-size:12px">
+    		<td align="center" class="l-table-edit-td"><strong>可调换位置</strong></td>
+    		<td align="left"></td>
+    	</tr>
+    	<tr style="font-size:12px">
+    		<td align="center" class="l-table-edit-td">礼拜</td>
+    		<td align="center" class="l-table-edit-td" class="link">
+    			<select id="week" onchange="tips()" class="link">
+    				<option value="0">星期一</option>
+    				<option value="1">星期二</option>
+    				<option value="2">星期三</option>
+    				<option value="3">星期四</option>
+    				<option value="4">星期五</option>
+    			</select>
+    		</td>
+    		
+			<td align="center" class="l-table-edit-td">节次</td>
+			<td align="center" class="l-table-edit-td">
+				<select id="slot" onchange="tips()" class="link">
+    				<option value="0">第一大节</option>
+    				<option value="1">第二大节</option>
+    				<option value="2">第三大节</option>
+    				<option value="3">第四大节</option>
+    				<option value="4">第五大节</option>
+    			</select>
+			</td>
+			<td align="left"></td>
+    	</tr>
+    	<tr style="font-size:12px">
+    		<td align="center" class="l-table-edit-td">可用教室</td>
+    		<td align="center" class="l-table-edit-td">
+    			<select id="room" onchange="tips()" class="link"  >
+    				<%
+    					List<ClassroomModel> rooms = (List<ClassroomModel>)ActionContext.getContext().get("rooms");
+    					for (ClassroomModel r : rooms){
+    				%>
+    					<option value="<%=r.getNum()%>"><%=r.getAddress() %></option>
+    				<%	
+    					}
+    				 %>
+    			</select>
+    		</td>
+    		
+			<td align="center" class="l-table-edit-td">课程名</td>
+			<td align="center" class="l-table-edit-td">
+				<input type="text" class="link" disabled id="newCourseName">
+			</td>
+			<td align="left"></td>
+    	</tr>
+		<tr>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="left" class="l-table-edit-td">
+					<input type="submit" value="申&nbsp;&nbsp;请" id="Button1" 
+						onclick="tonsubmit()" class="l-button l-button-submit" />
+				</td>
+				<td align="left">
+				<td align="left">
+		</tr>
+    </table>
+  
+    <script type="text/javascript">tips();</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+package com.tjpu.test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.hibernate.mapping.Array;
+
+import net.sf.json.JSON;
+import net.sf.json.util.JSONStringer;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.tjpu.bean.Cascade;
+
+
+public class OtherTest {
+	/**
+	 * 压缩文件夹生成后缀名为".zip"的文件并下载
+	 * 
+	 * @param folderPath,要压缩的文件夹的路径
+	 * @param zipFilePath,压缩后文件的路径
+	 * @param zipFileName,压缩后文件的名称
+	 * @throws BizException
+	 *//*
+	public void DownZipFile(String folderPath, String zipFilePath,
+	String zipFileName) throws BizException {
+	File srcPath = new File(folderPath);
+	String outFilename = new String(zipFilePath);
+	int len = srcPath.listFiles().length;
+	String[] filenames = new String[len]; // 需压缩的文件夹中的文件名
+	byte[] buf = new byte[1024];
+	try {
+	File[] files = srcPath.listFiles();
+	for (int i = 0; i < len; i++) {
+	// if(!files[i].isDirectory())
+	filenames[i] = srcPath.getPath() + File.separator
+	+ files[i].getName();
+	}
+	ZipOutputStream out = new ZipOutputStream(new FileOutputStream(
+	outFilename));
+	for (int i = 0; i < filenames.length; i++) {
+	FileInputStream in = new FileInputStream(filenames[i]);
+	out.putNextEntry(new org.apache.tools.zip.ZipEntry(files[i]
+	.getName()));
+	int bufLen;
+	while ((bufLen = in.read(buf)) > 0) {
+	out.write(buf, 0, bufLen);
+	}
+	out.closeEntry();
+	in.close();
+	}
+	out.close();
+	} catch (IOException e) {
+	log.error(e.getMessage()
+	+ " occurred in compress fileList operation", e);
+	throw new BizException(new SystemMessage("文件夹：" + folderPath
+	+ " 生成压缩文件 " + zipFileName + " 失败 !"));
+	}
+	try {
+	MyFacesHelper.downLoadFile(new FileInputStream(zipFilePath),
+	zipFileName + ".zip", "application/x-download");
+	} catch (FileNotFoundException e) {
+	log
+	.error(e.getMessage()
+	+ " occurred in down zipfile operation", e);
+	throw new BizException(new SystemMessage("文件没有找到：" + zipFileName
+	+ "，路径：" + zipFilePath));
+	} catch (IOException e) {
+	log
+	.error(e.getMessage()
+	+ " occurred in down zipfile operation", e);
+	throw new BizException(new SystemMessage("输入输出异常！"));
+	}
+	}*/
+	
+
+}

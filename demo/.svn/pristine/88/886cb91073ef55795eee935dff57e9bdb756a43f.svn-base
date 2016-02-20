@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<!-- 默认的视图主题 -->
+	<constant name="struts.ui.theme" value="simple" />
+	<constant value="3000000" name="struts.multipart.maxSize" />
+	<constant name="struts.objectFactory" value="spring" />
+	<constant name="struts.i18n.encoding" value="UTF-8"></constant>
+	<package name="systemlogin" namespace="/" extends="struts-default">
+		<action name="main" class="loginAction">
+		    <interceptor-ref name="defaultStack"></interceptor-ref>
+			<!-- <interceptor-ref name="token"></interceptor-ref>		 -->	
+			<result name="loginsuc">/WEB-INF/index.jsp</result>
+			<result name="loginfail">/login.jsp</result>
+		</action>
+		<action name="loginout" class="userAction" method="loginOut">
+			<result name="success" type="redirectAction">main</result>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+		</action> 
+		<!-- <action name="mains" class="stuloginAction">
+		    <interceptor-ref name="defaultStack"></interceptor-ref>
+		    <result name="loginsuccess">/WEB-INF/index.jsp</result>
+			<result name="loginfails">/stulogin.jsp</result>
+		</action> -->	 
+	</package>
+    <package name="system" namespace="/system" extends="struts-default">
+		<interceptors>
+			<interceptor name="permission" class="com.tjpu.action.PermissionInterceptor" />
+			<interceptor-stack name="permissionStack">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="permission" />
+			</interceptor-stack>
+		</interceptors>
+		<global-results>
+			<result name="permissionfail">/login.jsp</result>
+		</global-results>		
+			
+		<action name="User_*" class="userAction" method="{1}">
+		    <result name="changepwd">/WEB-INF/manage/changpwd.jsp</result>	
+			<result name="success" type="redirectAction">/login.jsp</result>
+			<result name="userlist">/WEB-INF/manage/userlist.jsp</result>	
+			<result name="useradd">/WEB-INF/manage/useradd.jsp</result>	
+			<result name="useredit">/WEB-INF/manage/useredit.jsp</result>
+			<result name="rolelist">/WEB-INF/manage/rolelist.jsp</result>
+			<result name="roleadd">/WEB-INF/manage/roleadd.jsp</result>	
+			<result name="rolemenu">/WEB-INF/manage/rolemenu.jsp</result>
+			<result name="menulist">/WEB-INF/manage/menulist.jsp</result>
+			<result name="systemlog">/WEB-INF/manage/systemlog.jsp</result>	
+			<result name="announcement">/WEB-INF/manage/announcement.jsp</result>
+			<result name="departmanage">/WEB-INF/manage/departmentmanagement.jsp</result>
+			<result name="deptadd">/WEB-INF/manage/deptadd.jsp</result>
+			<result name="departmembers">/WEB-INF/manage/deptmembers.jsp</result>
+			<result name="commonlinks">/WEB-INF/manage/commonlinks.jsp</result>
+			<result name="linksadd">/WEB-INF/manage/linksadd.jsp</result>
+			<result name="hellolinks">/WEB-INF/manage/hellolinks.jsp</result>
+			<result name="helloannouncement">/WEB-INF/manage/helloannouncement.jsp</result>
+			<result name="announcementdetail">/WEB-INF/manage/announcementdetail.jsp</result>
+		</action>
+		<action name="Menu_*" class="menuAction" method="{1}">		
+			<result name="menulist">/WEB-INF/manage/menulist.jsp</result>
+			<result name="menubeginadd">/WEB-INF/manage/menuadd.jsp</result>	
+		</action>
+		<action name="Stu_*" class="studentAction" method="{1}">
+<!-- 批量添加学生 -->
+			<result name="batchRegisteResult">/WEB-INF/student/batchRegisteResult.jsp</result>
+			<result name="batchSuccess">/WEB-INF/course/batchSuccessResult.jsp</result>
+			<result name="graduatestulist">/WEB-INF/student/graduatestulist.jsp</result>
+			<result name="stulist">/WEB-INF/student/studentlist.jsp</result>
+			<result name="changepwd">/WEB-INF/student/stuchangpwd.jsp</result>	
+			<result name="stuadd">/WEB-INF/student/studentadd.jsp</result>
+			<result name="classstuadd">/WEB-INF/student/classstudentadd.jsp</result>
+			<result name="studentedit">/WEB-INF/student/studentedit.jsp</result>
+			<result name="stubaseupdate">/WEB-INF/student/stubaseupdate.jsp</result>
+			<result name="stubatchadd">/WEB-INF/student/stubatchadd.jsp</result>
+			<result name="stubatchaddimage">/WEB-INF/student/stubatchadd.jsp</result>
+			<result name="classstubatchadd">/WEB-INF/student/classstubatchadd.jsp</result>
+			<result name="stubaseinfo">/WEB-INF/student/stubaseinfo.jsp</result>
+			<result name="studentsearch">/WEB-INF/student/studentsearch.jsp</result>
+			<result name="leavemanage">/WEB-INF/student/leavemanage.jsp</result>
+			<result name="uploadmsg">/upload/uploadmsg.jsp</result>
+			<result name="graduateprint">/WEB-INF/student/graduateprint.jsp</result>
+			<result name="graduatebatchprint">/WEB-INF/student/graduatebatchprint.jsp</result>
+			<result name="changeimg">/WEB-INF/student/changeimg.jsp</result>
+			<result name="showmessage">/WEB-INF/student/showmessage.jsp</result>
+		</action>
+		<action name="Class_*" class="classAction" method="{1}">
+		
+			<result name="batchSetUpClass">/WEB-INF/student/batchSetUpResult.jsp</result>
+		
+		
+<!-- 安排班主任 -->
+			<result name="setAssisTeacher">/WEB-INF/student/setAssisTeacher.jsp</result>
+			<result name="setHeadTeacher">/WEB-INF/student/setHeadTeacher.jsp</result>
+			
+		    <result name="classlist">/WEB-INF/student/classlist.jsp</result>
+		    <result name="teacherclasslist">/WEB-INF/student/teacherclasslist.jsp</result>
+			<result name="classadd">/WEB-INF/student/classadd.jsp</result>
+			<result name="classedit">/WEB-INF/student/classedit.jsp</result>
+			<result name="classbatchadd">/WEB-INF/student/classbatchadd.jsp</result>
+			<result name="classstulist">/WEB-INF/student/classstulist.jsp</result>
+			<result name="classteacherlist">/WEB-INF/manage/classteacherlist.jsp</result>
+			<result name="graduatestulist">/WEB-INF/student/graduatestulist.jsp</result>
+			<result name="graduateclassstulist">/WEB-INF/student/graduateclassstulist.jsp</result>
+			<result name="assistantteachermanage">/WEB-INF/student/assistantteachermanage.jsp</result>
+			<result name="assistantteacherlist">/WEB-INF/student/assistantteacherlist.jsp</result>
+			<result name="assistprint">/WEB-INF/student/assistprint.jsp</result>
+			<result name="assistapply">/WEB-INF/student/assistapply.jsp</result>
+			<result name="assistedit">/WEB-INF/student/assistedit.jsp</result>
+			<result name="clsroomload">/WEB-INF/student/clsroomload.jsp</result>
+			<result name="classroomedit">/WEB-INF/student/classroomedit.jsp</result>
+			<result name="uploadmsg">/WEB-INF/student/uploadmsg.jsp</result>
+			<result name="roomuploadmsg">/WEB-INF/student/roomuploadmsg.jsp</result>	
+			<result name="courselist">/WEB-INF/course/courselist.jsp</result>
+			<result name="coursestulist">/WEB-INF/course/coursestulist.jsp</result>
+			
+			<!-- <result name="courseadd">/WEB-INF/course/courseadd.jsp</result> -->
+			<result name="courseadd">/WEB-INF/course/newCourseAdd.jsp</result>
+			<result name="batchCourseAdd">/WEB-INF/course/courseBatchAdd.jsp</result>
+			<result name="batchCourseAddResult">/WEB-INF/course/batchRegisteResult.jsp</result>
+			<result name="batchSuccess">/WEB-INF/course/batchSuccessResult.jsp</result>
+			
+			
+			<result name="courseedit">/WEB-INF/course/courseedit.jsp</result>
+			<result name="classteacherworkrecord">/WEB-INF/student/classteacherworkrecord.jsp</result>			
+			<result name="workrecordadd">/WEB-INF/student/workrecordadd.jsp</result>
+			<result name="showmessage">/WEB-INF/student/showmessage.jsp</result>
+			<result name="workrecorddetail">/WEB-INF/student/workrecorddetail.jsp</result>
+			<result name="workrecordedit">/WEB-INF/student/workrecordedit.jsp</result>
+			<result name="studentsituation">/WEB-INF/student/studentsituation.jsp</result>
+			<result name="performanceadd">/WEB-INF/student/performanceadd.jsp</result>			
+			<result name="performanceedit">/WEB-INF/student/performanceedit.jsp</result>	
+			<result name="classroomlist">/WEB-INF/student/classroomlist.jsp</result>
+			<result name="roomadd">/WEB-INF/student/classroomadd.jsp</result>
+			<result name="roombatchadd">/WEB-INF/student/roombatchadd.jsp</result>
+			
+<!-- 课程表 -->
+			<result name="adminCurriculum">/WEB-INF/course/adminCurriculum.jsp</result>
+			<result name="curriculum">/WEB-INF/course/curriculum.jsp</result>
+			<result name="classTeacherCurriculum">/WEB-INF/course/classTeacherCurriculum.jsp</result>
+			<result name="stuCurriculum">/WEB-INF/course/stuCurriculum.jsp</result>
+			<result name="managecurriculum">/WEB-INF/course/managecurriculum.jsp</result>
+		</action>
+		
+		
+		<action name="Manage_*" class="manageAction" method="{1}">
+			<result name="semesterCourseBatchAdd">/WEB-INF/arrange/semesterCourseBatchAdd.jsp</result>
+			<result name="semesterCourseBatchResult">/WEB-INF/arrange/batchSetSemesterCourseResult.jsp</result>
+			<result name="batchSuccess">/WEB-INF/course/batchSuccessResult.jsp</result>
+			<result name="batchTeacher">/WEB-INF/manage/teacherBatchRegisteResult.jsp</result>
+			<result name="chkRooms">/WEB-INF/arrange/classroomlist.jsp</result>
+			<result name="arrangecourse">/WEB-INF/arrange/arrangecourse.jsp</result>
+<!--请假  -->
+		    <result name="leaveapply">/WEB-INF/leave/leaveapply.jsp</result>
+		    <result name="leavemanagelist">/WEB-INF/leave/leavemanagelist.jsp</result>
+		    <result name="shortleave">/WEB-INF/leave/shortleave.jsp</result>
+		    <result name="longleave">/WEB-INF/leave/longleave.jsp</result>
+		    <result name="shortleaveedit">/WEB-INF/leave/shortleaveedit.jsp</result>
+		    <result name="longleaveedit">/WEB-INF/leave/longleaveedit.jsp</result>
+		    <result name="leaveprint">/WEB-INF/leave/leaveprint.jsp</result>
+<!--评价  -->
+		    <result name="teachingevalution">/WEB-INF/leave/teachingevalution.jsp</result>
+		    <result name="evalutionteacher">/WEB-INF/leave/evalutionteacher.jsp</result>
+		    <result name="loadevalution">/WEB-INF/course/loadevalution.jsp</result>
+		    <result name="courseattendence">/WEB-INF/leave/courseattendencelist.jsp</result>
+		    <result name="courseattendenceclass">/WEB-INF/leave/courseattendenceclass.jsp</result>
+		    <result name="evalutionlist">/WEB-INF/course/evalutionlist.jsp</result>
+		    <result name="evalutionanalysis">/WEB-INF/course/evalutionanalysis.jsp</result>
+		    <result name="allevalutionanalysis">/WEB-INF/course/allevalutionanalysis.jsp</result>
+<!--教师  -->
+		    <result name="teacherbaseinfo">/WEB-INF/manage/teacherbaseinfo.jsp</result>
+		    <result name="teachermanage">/WEB-INF/manage/teacherlist.jsp</result>
+		    <result name="teacheradd">/WEB-INF/manage/teacheradd.jsp</result>
+		    <result name="teacherchangeimg">/WEB-INF/manage/teacherchangeimg.jsp</result>
+		    <result name="showmessage">/WEB-INF/student/showmessage.jsp</result>
+		    <result name="teacheredit">/WEB-INF/manage/teacheredit.jsp</result>
+		    <result name="teacherbatchadd">/WEB-INF/manage/teacherbatchadd.jsp</result>
+		    <result name="teacheradd">/WEB-INF/manage/teacheradd.jsp</result>
+		    <result name="teacherbaseedit">/WEB-INF/manage/teacherbaseedit.jsp.jsp</result>
+<!--考勤 -->
+		    <result name="attendenceset">/WEB-INF/course/attenenceset.jsp</result>
+		    <result name="tabcourseattendenceload">/WEB-INF/course/tabcourseattendenceload.jsp</result>
+		    <result name="courseattendenceload">/WEB-INF/course/courseattendenceload.jsp</result>
+		    <result name="courseattendencestatistical">/WEB-INF/course/courseattendencestatistical.jsp</result>
+		    <result name="personattendence">/WEB-INF/course/personattendence.jsp</result>
+		    <result name="courseclasslist">/WEB-INF/course/courseclasslist.jsp</result>
+		    <result name="courseclassstulist">/WEB-INF/course/courseclassstulist.jsp</result>
+		    <result name="searchattendence">/WEB-INF/course/searchattendence.jsp</result>
+		    <result name="statisticalcourse">/WEB-INF/course/statisticalcourse.jsp</result>
+<!--公告  -->
+		    <result name="announcement">/WEB-INF/manage/announcement.jsp</result>
+		    <result name="announcementbegainadd">/WEB-INF/manage/announcementadd.jsp</result>
+		    <result name="announcementedit">/WEB-INF/manage/announcementupdate.jsp</result>
+<!--证明  -->
+		    <result name="justicelist">/WEB-INF/manage/justicelist.jsp</result>
+		    <result name="justicelmanages">/WEB-INF/manage/justicelmanage.jsp</result>
+		    <result name="justicelbegainadd">/WEB-INF/manage/justicelbegainadd.jsp</result>
+		    <result name="justicelupdate">/WEB-INF/manage/justicelupdate.jsp</result>
+<!--成绩  -->
+		    <result name="scoreentry">/WEB-INF/student/scoreentry.jsp</result>
+		    <result name="makescoreentry">/WEB-INF/student/makeupstulist.jsp</result>
+		    <result name="scorecourselist">/WEB-INF/manage/scorecourselist.jsp</result>
+		    <result name="loadcoursescore">/WEB-INF/student/loadcoursescore.jsp</result>
+		    <result name="courseclassscore">/WEB-INF/student/courseclassscoreadd.jsp</result>
+		    <result name="courseclassscoreload">/WEB-INF/student/courseclassscoreload.jsp</result>
+		    <result name="setsummary">/WEB-INF/student/setsummary.jsp</result>
+		    <result name="stuscoreload">/WEB-INF/student/stuscoreload.jsp</result>
+		  <!--   <result name="stuscoreload">/WEB-INF/student/NewStuscoreload.jsp</result> -->
+		    
+		    <result name="makeupexamination">/WEB-INF/student/makeupcourse.jsp</result>
+		    <result name="courseclassscorebegainadd">/WEB-INF/student/courseclassscorebegainadd.jsp</result>
+		    <result name="courseclassmakeupscorebegainadd">/WEB-INF/student/courseclassmakeupscorebegainadd.jsp</result>
+		    <result name="scoreload">/WEB-INF/student/scoreload.jsp</result>
+		    <result name="courseclassscoreprint">/WEB-INF/manage/courseclassscoreprint.jsp</result>
+<!--选排课  -->
+			<result name="adminCurriculum">/WEB-INF/course/adminCurriculum.jsp</result>
+			<result name="JmpManualAdjust">/WEB-INF/arrange/manualAdjustCourse.jsp</result>
+			<result name="missingItem">/WEB-INF/arrange/missingItem.jsp</result>
+			<result name="manualArrange">/WEB-INF/arrange/manualSyllabus.jsp</result>
+			<!-- <result name="syllabusOption">/WEB-INF/arrange/syllabuschangecourse.jsp</result> -->
+			<!-- <result name="syllabusOption">/WEB-INF/arrange/NewSyllabusChangeCourse.jsp</result> -->
+			<result name="syllabusOption">/WEB-INF/arrange/adjustCourseInArrange.jsp</result>
+			<result name="semesteroldcourse">/WEB-INF/arrange/semesteroldcourse.jsp</result>
+			<result name="arranged">/WEB-INF/arrange/syllabus.jsp</result>
+			<result name="semestercourse">/WEB-INF/arrange/semestercourse.jsp</result>
+			<result name="choosecourse" >/WEB-INF/arrange/choosecourse.jsp</result>
+			<result name="setemptyslot">/WEB-INF/arrange/setemptyslot.jsp</result>
+			<result name="selectresultcourselist">/WEB-INF/arrange/selectresultcourselist.jsp</result>
+			<result name="selectresultlist">/WEB-INF/arrange/selectresult.jsp</result>
+<!-- 换课 -->
+			<result name="emptyroomApply">/WEB-INF/arrange/emptyRoomApply.jsp</result>
+			<result name="adjustCurrOptions">/WEB-INF/arrange/adjustCurrOptions.jsp</result>
+		    <result name="changecoursemanage">/WEB-INF/arrange/changecoursemanage.jsp</result>
+		    <result name="changecourses">/WEB-INF/arrange/changecourselist.jsp</result>
+		    <!-- <result name="changecourseapply">/WEB-INF/arrange/changecourseapply.jsp</result> -->
+		   <result name="changecourseapply">/WEB-INF/arrange/newChangeCourseApply.jsp</result>
+		   <!--  <result name="changecourseapply">/WEB-INF/arrange/adjustCurr.jsp</result> -->
+<!-- 学期课程 -->		    
+		    <result name="semestercoursesetteacher">/WEB-INF/arrange/semestercoursesetteacher.jsp</result>
+		    <result name="courseteacherselect">/WEB-INF/arrange/courseteacherselect.jsp</result>
+		    <result name="semesterclassselect">/WEB-INF/arrange/semesterclassselect.jsp</result>
+		    <result name="semesterclassroom">/WEB-INF/arrange/semesterclassroom.jsp</result>
+		    <result name="syllabuschangecourse">/WEB-INF/arrange/syllabuschangecourse.jsp</result>
+		    <result name="selectcourseset">/WEB-INF/arrange/selectcourseset.jsp</result>
+		    
+		    
+		    <result name="graduateaudit">/WEB-INF/manage/graduateaudit.jsp</result>
+		    <result name="transcriptprint">/WEB-INF/manage/transcriptprint.jsp</result>
+		    <result name="uploadmsg">/upload/uploadmsg.jsp</result>
+		    <result name="graduatemanagement">/WEB-INF/student/graduatemanagement.jsp</result>
+		    <result name="paymanagement">/WEB-INF/manage/paymanagement.jsp</result>
+		    <result name="scholarmanagement">/WEB-INF/manage/scholarmanagement.jsp</result>
+<!-- 课程表 -->
+			<result name="curriculum">/WEB-INF/arrange/curriculum.jsp</result>
+			
+		</action>
+	</package>
+</struts>    

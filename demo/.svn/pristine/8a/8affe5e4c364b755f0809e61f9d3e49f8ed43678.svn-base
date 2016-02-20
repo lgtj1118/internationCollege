@@ -1,0 +1,9 @@
+package com.tjpu.test.unitTest;
+
+import com.tjpu.bean.ChosenCourse;
+
+public class CourseArrangeTest {
+	public static void main(String[] args) {
+	
+	}
+}

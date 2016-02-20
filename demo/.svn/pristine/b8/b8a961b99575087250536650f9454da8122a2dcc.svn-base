@@ -1,0 +1,125 @@
+package com.tjpu.bean;
+
+
+public class AdjustcourseModel {
+
+	private Integer id;
+	private String oldcoursenum;
+	private String newcoursenum;
+	private String oldCourseName;
+	private String newCourseName;
+	private String reason;
+	private String olddate;
+	private String newdate;
+	private String oldslot;
+	private String newslot;
+	private String applytime;
+	private String status;
+	private Teacher applyTeacher;
+
+	
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getOldcoursenum() {
+		return this.oldcoursenum;
+	}
+
+	public void setOldcoursenum(String oldcoursenum) {
+		this.oldcoursenum = oldcoursenum;
+	}
+
+	public String getNewcoursenum() {
+		return this.newcoursenum;
+	}
+
+	public void setNewcoursenum(String newcoursenum) {
+		this.newcoursenum = newcoursenum;
+	}
+
+	public String getReason() {
+		return this.reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+
+	public String getOlddate() {
+		return this.olddate;
+	}
+
+	public void setOlddate(String olddate) {
+		this.olddate = olddate;
+	}
+
+	public String getNewdate() {
+		return this.newdate;
+	}
+
+	public void setNewdate(String newdate) {
+		this.newdate = newdate;
+	}
+
+	public String getOldslot() {
+		return this.oldslot;
+	}
+
+	public void setOldslot(String oldslot) {
+		this.oldslot = oldslot;
+	}
+
+	public String getNewslot() {
+		return this.newslot;
+	}
+
+	public void setNewslot(String newslot) {
+		this.newslot = newslot;
+	}
+
+	public String getApplytime() {
+		return this.applytime;
+	}
+
+	public void setApplytime(String applytime) {
+		this.applytime = applytime;
+	}
+
+	public String getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getNewCourseName() {
+		return newCourseName;
+	}
+
+	public void setNewCourseName(String newCourseName) {
+		this.newCourseName = newCourseName;
+	}
+
+	public String getOldCourseName() {
+		return oldCourseName;
+	}
+
+	public void setOldCourseName(String oldCourseName) {
+		this.oldCourseName = oldCourseName;
+	}
+
+	public Teacher getApplyTeacher() {
+		return applyTeacher;
+	}
+
+	public void setApplyTeacher(Teacher applyTeacher) {
+		this.applyTeacher = applyTeacher;
+	}
+
+}

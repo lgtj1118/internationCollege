@@ -1,0 +1,392 @@
+package com.tjpu.action;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.struts2.ServletActionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.google.gson.Gson;
+import com.opensymphony.xwork2.Action;
+import com.opensymphony.xwork2.ActionContext;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.Classroom;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.User;
+import com.tjpu.service.StudentService;
+
+@Controller
+public class StudentAction {
+	
+	@Autowired
+	StudentService studentService;
+	private File file;
+	private File image;
+	private String imageFileName;
+	private String fileFileName;
+    private Student stu;
+    private Classes cls;
+    private Course course;
+    public File getImage() {
+		return image;
+	}
+
+	public void setImage(File image) {
+		this.image = image;
+	}
+
+	public String getImageFileName() {
+		return imageFileName;
+	}
+
+	public void setImageFileName(String imageFileName) {
+		this.imageFileName = imageFileName;
+	}
+    public Course getCourse() {
+		return course;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	public String getFileFileName() {
+		return fileFileName;
+	}
+
+	public void setFileFileName(String fileFileName) {
+		this.fileFileName = fileFileName;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+	private String ids;
+    public String getIds() {
+		return ids;
+	}
+
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+	private int classid;
+    public int getClassid() {
+		return classid;
+	}
+
+	public void setClassid(int classid) {
+		this.classid = classid;
+	}
+	
+	public Student getStu() {
+		return stu;
+	}
+
+	public void setStu(Student stu) {
+		this.stu = stu;
+	}
+
+	public Classes getCls() {
+		return cls;
+	}
+
+	public void setCls(Classes cls) {
+		this.cls = cls;
+	}
+
+	private void datatojson(Map<String, Object> map) {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("application/json;charset=utf-8");
+		Gson gson = new Gson();
+		String json = gson.toJson(map);
+		// System.out.print(json);
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public String stumanage() {
+		String classlist = studentService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "stulist";
+	}
+
+	public String stulist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = studentService.studentmap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+    public String stuedit(){
+    	Student student = studentService.loadstubyid(stu.getId());
+    	ActionContext.getContext().put("student", student);
+    	List<Classes> classlist = studentService.classlist1();
+		ActionContext.getContext().put("classlist", classlist);
+    	return "studentedit";
+    }
+	public String stuupdate(){
+		studentService.stuupdate(stu, classid/* ,major */);
+		return null;
+	}
+	public String stubaseupdate(){
+		Student student = studentService.loadstubyid(stu.getId());
+		ActionContext.getContext().put("student", student);
+		return "stubaseupdate";
+	}
+	
+	public String stuendupdate(){
+		studentService.stubaseupdate(stu,classid);
+		return null;
+	}
+	
+	public String studelete(){
+		studentService.studelete(ids);
+		return null;
+	}
+	public String stubeginadd(){
+		List<Classes> classlist = studentService.classlist1();
+		ActionContext.getContext().put("classlist", classlist);
+		return "stuadd";
+	}
+	public String stucheck(){
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = studentService.stucheck(stu.getPassport());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	public String stuendadd(){
+		studentService.stuadd(stu,classid);
+		return null;
+	}
+	public String stubaseinfo(){	
+		User user = (User) ActionContext.getContext().getSession().get("user");
+        if (user.getRoles().getId()==4) {
+        	Student student = studentService.loadstubyid(user.getId());
+    		ActionContext.getContext().put("student", student);
+		}else {
+			ActionContext.getContext().put("message", "该基本信息只显示学生！！");
+		}		
+		return "stubaseinfo";
+	}
+	
+	public String stubatchadd(){
+		return "stubatchadd";
+	}
+	public String stuaddbytxt(){
+		String realpath = ServletActionContext.getServletContext().getRealPath("/upload");
+		Date dt = new Date();
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			System.out.println(filename);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ActionContext.getContext().put("msg", "添加成功");
+			studentService.stuaddbytxt(realpath + "\\" + filename);
+		} else {
+			ActionContext.getContext().put("msg", "添加失败,退出请重新添加！");
+		}
+		return "uploadmsg";
+	}
+    public String changepwd(){
+    	ActionContext.getContext().put("userid", stu.getId());
+		return "changepwd";
+    }
+    public String pwdcheck(){
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = studentService.pwdcheck(stu.getId(),stu.getPassword());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	public String stuchangepwd(){
+		studentService.userchangpwd(stu);
+		return null;
+	}
+    public String studentsearch(){
+    	return "studentsearch";
+    }
+    public String stusearch(){
+		List<Student> student = studentService.stusearch(stu);
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("text/html;charset=utf-8");
+		StringBuffer strb=new StringBuffer(); 
+		strb.append("<table id='resultlist' >");
+		strb.append("<tr class='resultlist_tr'>");
+		strb.append("<td>"+"护照号"+"</td>"); 
+		strb.append("<td>"+"学号"+"</td>"); 
+		strb.append("<td>"+"英文名"+"</td>"); 
+		strb.append("<td>"+"英文姓"+"</td>");
+		strb.append("<td>"+"中文名"+"</td>");
+		strb.append("<td>"+"性别"+"</td>");
+		strb.append("<td>"+"班级"+"</td>");
+		strb.append("<td>"+"电话"+"</td>");
+		strb.append("<td>"+"住址"+"</td>");
+		strb.append("<td>"+"国籍"+"</td>");
+		strb.append("</tr>"); 
+		  for(int i=0;i<student.size();i++){  
+			strb.append("<tr>");
+		    strb.append("<td>"+student.get(i).getPassport()+"</td>");
+		    strb.append("<td>"+student.get(i).getStuid()+"</td>");
+		    strb.append("<td>"+student.get(i).getFirstname()+"</td>");
+		    strb.append("<td>"+student.get(i).getLastname()+"</td>");
+		    strb.append("<td>"+student.get(i).getStuname()+"</td>");
+		    strb.append("<td>"+student.get(i).getSex()+"</td>");
+		    strb.append("<td>"+student.get(i).getClasses().getClassname()+"</td>");//+student.get(i).getClasses().getClassname()
+		    strb.append("<td>"+student.get(i).getTelephone()+"</td>");
+		    strb.append("<td>"+student.get(i).getRoomplace()+"</td>");
+		    strb.append("<td>"+student.get(i).getNation()+"</td>");
+		    strb.append("</tr>"); 		    
+		   }  	
+		  strb.append("</table>"); 	  
+		   try {
+			PrintWriter out = response.getWriter();
+			out.write(strb.toString());
+			 out.flush();    //刷新打印流
+		     out.close();    //关闭
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}  
+		   return null;    	
+    }
+    public String leavemanage(){
+    	
+    	return "leavemanage";
+    }
+    public String graduateprint(){
+    	Student student = studentService.loadstubyid(stu.getId());
+    	String brithyear = student.getBrithdate().substring(0,4);
+    	String brithmonth = student.getBrithdate().substring(5,7);
+    	String day = student.getBrithdate().substring(8,10);
+    	String startyear = student.getStartdate().substring(0,4);
+    	String startmonth = student.getStartdate().substring(5,7);
+    	String endyear = student.getEnddate().substring(0,4);
+    	String endmonth = student.getEnddate().substring(5,7);
+    	Integer summaryyear = Integer.valueOf(endyear)-Integer.valueOf(startyear);
+    	ActionContext.getContext().put("summaryyear", summaryyear);
+    	ActionContext.getContext().put("year", brithyear);
+    	ActionContext.getContext().put("month", brithmonth);
+    	ActionContext.getContext().put("day", day);
+    	ActionContext.getContext().put("student", student);
+    	ActionContext.getContext().put("startyear",startyear);
+    	ActionContext.getContext().put("startmonth",startmonth);
+    	ActionContext.getContext().put("endyear",endyear);
+    	ActionContext.getContext().put("endmonth",endmonth);
+    	return "graduateprint";
+    }
+    public String stucheckname(){
+    	HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = studentService.stucheckname(stu.getStuname());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+    }
+    public String begainchangeimg(){
+        ActionContext.getContext().put("stuid", stu.getId());    	
+    	return "changeimg";
+    }
+    public String changeimg(){
+    	String realpath = ServletActionContext.getServletContext().getRealPath("/image/stuimages");
+		File savedir = new File(realpath);
+		if (!savedir.exists())
+			savedir.mkdirs();
+		if (image != null) {
+			String name = imageFileName.substring(imageFileName.indexOf('.'));
+			if (name.toLowerCase().equals(".jpg") || name.toLowerCase().equals(".gif") || name.toLowerCase().equals(".bmp") || name.toLowerCase().equals(".png") || name.toLowerCase().equals(".jpeg")) {
+				User user = (User) ActionContext.getContext().getSession().get("user");
+				/*
+				 * if (stu.getStuimg() != null) { File file = new File(realpath+
+				 * stu.getStuimg().substring(stu.getStuimg().indexOf("\\"))); if
+				 * (file.exists()) { file.delete(); } }
+				 */
+				Student stu = studentService.loadstubyid(user.getId()); 
+				String imgname = stu.getStuid().concat(name);
+				File savefile = new File(savedir, imgname);
+				try {
+					FileUtils.copyFile(image, savefile);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				studentService.changeimg("image/stuimages" + "/" + imgname);
+				ActionContext.getContext().put("message", "修改成功");
+			} else {
+				ActionContext.getContext().put("message", "修改失败！请选择正确的图片格式");
+			}
+		}
+		return "showmessage";
+	}
+   
+}

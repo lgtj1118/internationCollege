@@ -1,0 +1,52 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>msg</title>
+<link href="<%=basePath%>js/ligerUI/skins/Gray/css/form.cssrel="stylesheet" type="text/css" />
+<link href="<%=basePath%>js/ligerUI/skins/Gray/css/common.css"rel="stylesheet" type="text/css" />
+<script src="<%=basePath%>js/jquery/jquery-1.3.2.min.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/core/base.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerForm.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerDateEditor.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerComboBox.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerDialog.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerDrag.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerSpinner.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerTextBox.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerTip.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/jquery.validate.min.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/jquery.metadata.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/messages_cn.js"type="text/javascript"></script>
+<script type="text/javascript">
+    var i = 5;
+	var intervalid;
+	intervalid = setInterval("fun()", 1000);
+	function fun(){
+		if (i == 0) {
+			parent.m.hide();
+			parent.g.loadData();
+			//top.f_closeTab();
+		}
+		document.getElementById("mes").innerHTML = i;
+		i--;
+	}
+	function tabclose(){
+	   parent.m.hide();
+	  // top.f_closeTab();
+	}
+</script>
+  </head>
+  
+  <body onload="fun()">
+   <div style="margin-top: 20%;font-size: 40px"align="center"> ${msg }</div>
+   <div align="center"><font size="4"><span id="mes" style="color: rgb(0, 0, 0);"><br>5</span><span id="mes1" style="color: rgb(0, 0, 0);">秒后<font color="#ff0000"><u><a o="" onclick="tabclose()">关闭</a></u></font></span></font></div>
+  </body>
+</html>

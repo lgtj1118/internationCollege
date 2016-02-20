@@ -1,0 +1,181 @@
+package com.tjpu.bean;
+
+
+public class CourseModel  {
+
+	private Integer id;
+	private String num;
+	private String coursename;
+	private String coursename_en;
+	private String teacher;
+	private Integer beginweeks;
+	private Integer endweeks;
+	private float credits;
+	private String character;
+	private String checkway;
+	private Integer lessoncount;
+	private Integer weeklesson;
+	private boolean isElective;
+	private String academic;
+	private Integer isDeleted;
+	public Integer getLessoncount() {
+		return lessoncount;
+	}
+
+	public void setLessoncount(Integer lessoncount) {
+		this.lessoncount = lessoncount;
+	}
+
+	public Integer getWeeklesson() {
+		return weeklesson;
+	}
+
+	public void setWeeklesson(Integer weeklesson) {
+		this.weeklesson = weeklesson;
+	}
+
+	public CourseModel (Course c){
+		id = c.getId();
+		num = c.getNum();
+		coursename = c.getCoursename();
+		teacher = c.getTeacher();
+		beginweeks = c.getBeginweeks();
+		endweeks = c.getEndweeks();
+		credits = c.getCredits();
+		character = c.getCharacter();
+		checkway = c.getCheckway();
+	}
+	
+	public CourseModel (CourseModel c) {
+		id = c.getId();
+		num = c.getNum();
+		coursename = c.getCoursename();
+		teacher = c.getTeacher();
+		beginweeks = c.getBeginweeks();
+		endweeks = c.getEndweeks();
+		credits = c.getCredits();
+		character = c.getCharacter();
+		checkway = c.getCheckway();
+	}
+	
+	public CourseModel (int id, String num, String courseName){
+		this.id = id;
+		this.num = num;
+		this.coursename = courseName;
+	}
+	
+	public CourseModel () {
+	
+	}
+	
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	
+	public String getCoursename() {
+		return this.coursename;
+	}
+
+	public void setCoursename(String coursename) {
+		this.coursename = coursename;
+	}
+
+	
+	public String getTeacher() {
+		return this.teacher;
+	}
+
+	public void setTeacher(String teacher) {
+		this.teacher = teacher;
+	}
+
+	
+	public Integer getBeginweeks() {
+		return this.beginweeks;
+	}
+
+	public void setBeginweeks(Integer beginweeks) {
+		this.beginweeks = beginweeks;
+	}
+	
+	public Integer getEndweeks() {
+		return endweeks;
+	}
+
+	public void setEndweeks(Integer endweeks) {
+		this.endweeks = endweeks;
+	}
+	
+	public float getCredits() {
+		return credits;
+	}
+
+	public void setCredits(float credits) {
+		this.credits = credits;
+	}
+  
+	public String getNum() {
+		return num;
+	}
+
+	public void setNum(String num) {
+		this.num = num;
+	}
+   
+	public String getCharacter() {
+		return character;
+	}
+
+	public void setCharacter(String character) {
+		this.character = character;
+	}
+  
+	public String getCheckway() {
+		return checkway;
+	}
+
+	public void setCheckway(String checkway) {
+		this.checkway = checkway;
+	}
+
+	public boolean isElective() {
+		return isElective;
+	}
+
+	public void setElective(boolean isElective) {
+		this.isElective = isElective;
+	}
+
+	public String getAcademic() {
+		return academic;
+	}
+
+	public void setAcademic(String academic) {
+		this.academic = academic;
+	}
+
+	public Integer getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Integer isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public String getCoursename_en() {
+		return coursename_en;
+	}
+
+	public void setCoursename_en(String coursename_en) {
+		this.coursename_en = coursename_en;
+	}
+
+	
+	
+
+}

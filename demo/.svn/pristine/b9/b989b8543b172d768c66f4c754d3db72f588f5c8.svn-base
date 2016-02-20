@@ -1,0 +1,16 @@
+package com.tjpu.test.unitTest;
+
+import java.util.List;
+
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.service.ManageService;
+import com.tjpu.service.ManageServiceImpl;
+
+public class SyllabusTest {
+	public static void main(String[] args) {
+		ManageService impl = new ManageServiceImpl();
+		List<ChosenCourseModel> ret =  impl.getStuSyllabus("1331137141", "201501");
+		for (ChosenCourseModel c : ret)
+			System.out.println(c);
+	}
+}

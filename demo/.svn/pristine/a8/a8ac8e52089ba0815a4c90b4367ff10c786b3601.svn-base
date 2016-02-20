@@ -1,0 +1,28 @@
+package com.tjpu.test.unitTest;
+
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+public class Test {
+	public static void main(String[] args) {
+		String semesters[] = new String[] {"201501","201502","201601"};
+		String semesterOrder[] = new String[semesters.length];
+		semesterOrder[0] = semesters[0];
+		int size = semesters.length;
+		if (semesters.length % 2 == 0) {
+			size--;
+			semesterOrder[size] = semesters[size];
+		}
+	
+		int offset = 1;
+		for (int i = 1; i < size; ++i) {
+			semesterOrder[i] = semesters[i + offset];
+			if (offset > 0) {
+				offset -= 2;
+			} else {
+				offset += 2;
+			}
+		}
+		System.out.println(semesterOrder);
+	}
+}

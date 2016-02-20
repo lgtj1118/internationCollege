@@ -1,0 +1,16 @@
+package com.tjpu.test.unitTest;
+
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+public class Test {
+	public static void main(String[] args) {
+		String cmd = "cmd /c start /min winword  e:/outFile.doc  /q /n /f /mFilePrint /mFileExit";
+	  try {
+		Runtime.getRuntime().exec(cmd);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	}
+}

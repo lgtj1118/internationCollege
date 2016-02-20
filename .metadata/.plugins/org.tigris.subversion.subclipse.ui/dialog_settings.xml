@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item value="101" key="HistoryTableProvider.revisions.修订"/>
+	<item value="0" key="UpdateDialogWithConflictHandling.location.y"/>
+	<item value="102" key="HistoryTableProvider.MergeWizardUnblockRevisionsPage.修订"/>
+	<item value="201" key="HistoryTableProvider.revisionsBlock.作者"/>
+	<item value="252" key="HistoryTableProvider.revisions.日期"/>
+	<item value="101" key="HistoryTableProvider.revisionsBlock.修订"/>
+	<item value="543" key="SetSvnPropertyDialog.size.y"/>
+	<item value="202" key="HistoryTableProvider.MergeWizardUnblockRevisionsPage.作者"/>
+	<item value="525" key="SetSvnPropertyDialog.size.x"/>
+	<item value="421" key="LockDialog.location.x"/>
+	<item value="36" key="LockDialog.location.y"/>
+	<item value="252" key="HistoryTableProvider.revisionsBlock.日期"/>
+	<item value="503" key="HistoryTableProvider.revisionsBlock.注释"/>
+	<item value="500" key="CommitDialog.weights.0"/>
+	<item value="500" key="CommitDialog.weights.1"/>
+	<item value="2" key="SetSvnPropertyDialog.location.y"/>
+	<item value="252" key="HistoryTableProvider.MergeWizardUnblockRevisionsPage.日期"/>
+	<item value="421" key="SetSvnPropertyDialog.location.x"/>
+	<item value="525" key="LockDialog.size.x"/>
+	<item value="505" key="HistoryTableProvider.MergeWizardUnblockRevisionsPage.注释"/>
+	<item value="493" key="LockDialog.size.y"/>
+	<item value="47" key="CommitDialog.location.y"/>
+	<item value="701" key="UpdateDialogWithConflictHandling.size.y"/>
+	<item value="47" key="CommitDialog.location.x"/>
+	<item value="525" key="UpdateDialogWithConflictHandling.size.x"/>
+	<item value="201" key="HistoryTableProvider.revisions.作者"/>
+	<item value="1186" key="CommitDialog.size.x"/>
+	<item value="421" key="UpdateDialogWithConflictHandling.location.x"/>
+	<item value="503" key="CommitDialog.size.y"/>
+	<item value="503" key="HistoryTableProvider.revisions.注释"/>
+	<section name="CommitWizard">
+		<item value="false" key="ShowCompare"/>
+		<item value="500" key="VWeight2"/>
+		<item value="500" key="VWeight1"/>
+	</section>
+</section>

@@ -1,0 +1,173 @@
+<%@page import="org.springframework.web.context.request.SessionScope"%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">   
+    <title>天津工业大学排课管理系统</title>	    
+	<link href="<%=basePath%>js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet"type="text/css" />	
+	<link href="<%=basePath %>js/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css"/>	
+    <script type="text/javascript" src="js/jquery-validation/jquery.validate.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/json2.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/jquery.metadata.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/messages_cn.js" charset="utf-8"></script>
+    <script src="js/jquery/jquery-1.3.2.min.js"type="text/javascript"></script>
+	<script src="js/ligerUI/core/base.js" type="text/javascript"></script>
+	<script src="js/ligerUI/ligerui.all.js" type="text/javascript"></script>
+<script type="text/javascript">  
+   var CourseData = { 
+	        Rows: [<%String s=(String) request.getAttribute("courselist");%><%=s%>]};
+   var CourseList = CourseData.Rows;
+   var CoursecreditData = { 
+	         Rows: [<%String ss=(String) request.getAttribute("coursecredit");%><%=ss%>]};
+   var CourseCredit = CoursecreditData.Rows;
+   var CourseCharacterData = { 
+	        Rows: [ <%String sss=(String) request.getAttribute("character");%> <%=sss%>]};
+   var CourseCharacter = CourseCharacterData.Rows;
+   var CourseCheckwayData = { 
+	        Rows: [<%String ssss=(String) request.getAttribute("checkway");%> <%=ssss%>]};
+   var CourseCheckway = CourseCheckwayData.Rows;
+	$(f_initGrid);
+	var manager, g;
+	function f_initGrid() {
+		g = manager = $("#maingrid").ligerGrid(
+				{
+				columns : [{
+				display : 'ID',
+				name : 'id',
+				width : 60,
+				hide:true,
+				type : 'int'
+			}, {
+				display : '课程编号',
+				name : 'num',
+				minWidth : 120,
+				editor: { type: 'text'}
+			} , {
+				display : '班级',
+				name : 'classes',
+				minWidth : 120,
+				editor: { type: 'text'}
+			} , {
+				display : '课程名称',
+				name : 'courseName',
+				minWidth : 120,
+				editor: { type: 'text'}
+			} , {
+				display : '开课周数',columns:[
+				{ display:'起始周' , name:'beginWeek',minWidth : 60,editor: { type: 'int'} },
+				{ display:'结束周' , name:'endWeek',  minWidth : 60,editor: { type: 'int'} }
+				]			
+			} , {
+				display : '学分',
+				name : 'credits',
+				minWidth : 60,
+				editor: { type: 'select', data: CourseCredit, valueColumnName: 'Coursecredit', displayColumnName: 'Coursecredit' }, 
+                  render: function (item)
+                    {
+                        for (var i = 0; i < CourseCredit.length; i++)
+                        {
+                            if (CourseCredit[i]['Coursecredit'] == item.credits)
+                                return CourseCredit[i]['Coursecredit'];
+                        }
+                        return item.Coursecredit;
+                    }
+			} , {
+				display : '课程性质',
+				name : 'courseType',
+				minWidth : 120,
+				editor: { type: 'select', data: CourseCharacter, valueColumnName: 'Coursecharacter', displayColumnName: 'Coursecharacter' }, 
+                  render: function (item)
+                    {
+                        for (var i = 0; i < CourseCharacter.length; i++)
+                        {
+                            if (CourseCharacter[i]['Coursecharacter'] == item.courseType)
+                                return CourseCharacter[i]['Coursecharacter'];
+                        }
+                        return item.Coursecharacter;
+                    }
+			} , {
+				display : '考核方式',
+				name : 'checkway',
+				minWidth : 120,
+				editor: { type: 'select', data: CourseCheckway, valueColumnName: 'Coursecheckway', displayColumnName: 'Coursecheckway' }, 
+                  render: function (item)
+                    {
+                        for (var i = 0; i < CourseCheckway.length; i++)
+                        {
+                            if (CourseCheckway[i]['Coursecheckway'] == item.checkway)
+                                return CourseCheckway[i]['Coursecheckway'];
+                        }
+                        return item.Coursecheckway;
+                    } 
+			} , {
+				display : '负责教师',
+				name : 'teacher',
+				width : 120,
+				editor: { type: 'text'}
+			} ],
+					onSelectRow : function(rowdata, rowindex) {
+						$("#txtrowindex").val(rowindex);
+					},
+					enabledEdit : true,
+					clickToEdit : false,
+					isScroll : false,
+					checkbox:false,
+			        rownumbers:true,
+					url :'${pageContext.request.contextPath}/system/Manage_SemesterCourse.action',
+					width : '100%'
+				});
+	}
+    function f_next(){
+       var semester = $("#semester option:selected").val();
+       var str ="system/Manage_chkRooms.action?semChosenCourse.semester="+semester; 
+       if(semester.length!=0){
+         window.location.href=str;
+       }else{
+         alert("请先选定学期");
+       }
+    }
+</script>
+<style type="text/css">
+body {
+	font-size: 12px;
+}
+.l-button{
+  font-size: 12px;
+}
+</style>
+	</head>
+	<body style="padding: 2px">			
+	<dir style="float: left; padding-left:10px">
+	<div style="margin:10px;" ><font size="4"><strong>注：</strong></font><br>&nbsp;&nbsp; &nbsp; 排课之前，请先设置学期开课课程，学期使用教室</div>
+	<table >
+			<tr>
+				<td colspan="4"><img alt="flow_chat" src="images/flow_chat1.jpg" height="100px"></td>
+			</tr>
+			<tr>
+			    <td width="60px" >学期：&nbsp;</td>			    
+			    <td width="80px" >
+			    <select id="semester" name="semester" >
+			     <option value="" ></option>
+			     <option value="201401" >2014学年上学期</option>
+			     <option value="201402" >2014学年下学期</option>
+			     <option value="201501" >2015学年上学期</option>
+			     <option value="201502" >2015学年下学期</option>
+			   </select></td>
+				<td height="25px">
+					<a class="l-button" style="width:60px;float:left; margin-left:10px" onclick="f_next()" >下一步</a>
+				</td>				
+				
+				<td></td>
+			</tr>
+		</table>
+		</dir>
+		<div class="l-clear"></div>
+		<div id="maingrid" ></div>
+	</body>
+</html>

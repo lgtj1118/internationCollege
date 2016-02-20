@@ -1,0 +1,928 @@
+package com.tjpu.service;
+
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.io.File;
+import java.io.OutputStream;
+
+import jxl.CellView;
+import jxl.Workbook;  
+import jxl.format.Alignment;
+import jxl.format.Border;
+import jxl.format.BorderLineStyle;
+import jxl.format.VerticalAlignment;
+import jxl.write.Label;  
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;  
+import jxl.write.WritableWorkbook;
+
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.ClassesModel;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.CourseModel;
+import com.tjpu.bean.TeacherModel;
+
+/**
+ * @author SiyuLi
+ * 
+ */
+public class CourseArrangementImpl implements CourseArrangement{
+	private BitSet time_table[][][] = null;
+	private List<ChosenCourseModel> unable = new ArrayList<ChosenCourseModel>();
+	public List<ChosenCourseModel> getUnable() {
+		return unable;
+	}
+
+	private List<ClassroomModel> rooms = new ArrayList<ClassroomModel>();
+	private List<ChosenCourseModel> courses = new ArrayList<ChosenCourseModel>();
+	private static final int weekday = 5;
+	private static final int slot = 5;
+	// 同时包含已放置课程的位置与未放置位置的课程
+	private List<ChosenCourseModel> fullTable = new ArrayList<ChosenCourseModel>();
+
+	public List<ChosenCourseModel> getCertainSlot(int weekday, int slot,
+			List<String> roomOrder) {
+		List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+		for (String room : roomOrder) 
+			for (ChosenCourseModel c : fullTable) 
+				if (c.getRoom().getNum().equals(room) && slot == c.getSlot() && c.getWeekday() == weekday)
+					ret.add(c);
+		return ret;
+	}
+	
+	/**
+	 * @param path
+	 * @param ident 如果ident为null则输出课程总表
+	 * 
+	 */
+	public void toExcel (OutputStream os, String ident) {
+		WritableWorkbook wwb;
+		 try{  
+	            wwb = Workbook.createWorkbook(os);  
+	            WritableSheet ws = wwb.createSheet("课程总表", 0);
+	            WritableFont writableFont = new WritableFont(WritableFont.createFont("宋体"),11, WritableFont.NO_BOLD, false);	
+	            WritableCellFormat cellFormat = new WritableCellFormat(writableFont);
+	            cellFormat.setAlignment(Alignment.CENTRE);
+	            cellFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+	            cellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+	            cellFormat.setWrap(true);
+	            CellView cv = new CellView();
+	            cv.setAutosize(true);
+	            
+	            ws.setRowView(0, 800);
+	            ws.setColumnView(0, 15);
+	            
+	            int row = 1, col = 0;
+	            for (String p : new String[]{"星期一","星期二","星期三","星期四","星期五",}) 
+	            	for (int i = 0; i < slot; ++i) {
+	            		ws.addCell(new Label(col, row, String.format("%s\n第%d大节", p, i + 1), cellFormat));
+	            		ws.mergeCells(col, row, col, row + 2);
+	            		row += 3;
+	            	}
+	            
+	            row = 0;
+	            col = 1;
+	            for (ClassroomModel r : rooms) {
+	            	ws.addCell(new Label(col, row, r.getAddress(), cellFormat));
+	            	col ++;
+	            }
+
+	            col = 1;
+	            row = 1;
+	            ws.addCell(new Label(0, 0,"时间\\教室", cellFormat));
+	            
+	            List<ChosenCourseModel> out = null;
+	            if (ident == null)
+	            	out = fullTable;
+	            else
+	            	out = getCertainTeacherCourses(ident);
+	            
+	            for (int r = 0; r < rooms.size(); ++r) {
+	            	ws.setColumnView(col, 800);
+            		for (int d = 0; d < weekday; ++d)
+            			for (int s = 0; s < slot; ++s)
+            				for (ChosenCourseModel course : out)
+            					if (course.getWeekday() == d && course.getSlot() == s 
+            					&& course.getRoom().getNum().equals(rooms.get(r).getNum())) {
+            						String classname = "";
+            						String content = "";
+            						if (course.getCourse() != null && course.getTeacher() != null) {
+            							for (ClassesModel i : course.getClasses())
+	            							classname += i.getClassname() + "\n";
+            							content = String.format("%s\n%s%s",
+            									course.getCourse().getCoursename(), classname, course.getTeacher().getTeachername());
+            						}
+            						ws.mergeCells(col, row, col, row + 2);
+            						ws.addCell(new Label(col, row, content, cellFormat));
+            						ws.setRowView(row, 1500);
+            						row += 3;
+            					}
+            		row = 1;
+            		col ++;
+	            }
+	           
+	            /*
+	             * ws.addCell(new Label(0, 1, "1行0列"));  
+	             * ws.addCell(new Label(1, 1, "1行1列"));
+	             */  
+	            wwb.write();  
+	            wwb.close();
+        }catch(Exception e){  
+            e.printStackTrace();  
+        } 
+	}
+	
+	
+	public void toExcel (String path) {
+		WritableWorkbook wwb;
+		 try{  
+	            wwb = Workbook.createWorkbook(new File(path));  
+	            WritableSheet ws = wwb.createSheet("课程总表", 0);
+	            WritableFont writableFont = new WritableFont(WritableFont.createFont("宋体"),11, WritableFont.NO_BOLD, false);	
+	            WritableCellFormat cellFormat = new WritableCellFormat(writableFont);
+	            cellFormat.setAlignment(Alignment.CENTRE);
+	            cellFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+	            cellFormat.setBorder(Border.ALL, BorderLineStyle.THIN);
+	            cellFormat.setWrap(true);
+	            CellView cv = new CellView();
+	            cv.setAutosize(true);
+	            
+	            ws.setRowView(0, 800);
+	            ws.setColumnView(0, 15);
+	            
+	            int row = 1, col = 0;
+	            for (String p : new String[]{"星期一","星期二","星期三","星期四","星期五",}) 
+	            	for (int i = 0; i < slot; ++i) {
+	            		ws.addCell(new Label(col, row, String.format("%s\n第%d大节", p, i + 1), cellFormat));
+	            		ws.mergeCells(col, row, col, row + 2);
+	            		row += 3;
+	            	}
+	            
+	            row = 0;
+	            col = 1;
+	            for (ClassroomModel r : rooms) {
+	            	ws.addCell(new Label(col, row, r.getNum(), cellFormat));
+	            	col ++;
+	            }
+
+	            col = 1;
+	            row = 1;
+	            ws.addCell(new Label(0, 0,"时间\\教室", cellFormat));
+	            
+	            List<ChosenCourseModel> out = fullTable;     
+	            for (int r = 0; r < rooms.size(); ++r) {
+	            	ws.setColumnView(col, 800);
+            		for (int d = 0; d < weekday; ++d)
+            			for (int s = 0; s < slot; ++s)
+            				for (ChosenCourseModel course : out)
+            					if (course.getWeekday() == d && course.getSlot() == s 
+            					&& course.getRoom().getNum().equals(rooms.get(r).getNum())) {
+            						String classname = "";
+            						String content = "";
+            						if (course.getCourse() != null && course.getTeacher() != null) {
+            							for (ClassesModel i : course.getClasses())
+	            							classname += i.getClassname() + "\n";
+            							content = String.format("%s\n%s%s",
+            									course.getCourse().getCoursename(), classname, course.getTeacher().getTeachername());
+            						}
+            						ws.mergeCells(col, row, col, row + 2);
+            						ws.addCell(new Label(col, row, content, cellFormat));
+            						ws.setRowView(row, 1500);
+            						row += 3;
+            					}
+            		row = 1;
+            		col ++;
+	            }
+	           
+	            /*
+	             * ws.addCell(new Label(0, 1, "1行0列"));  
+	             * ws.addCell(new Label(1, 1, "1行1列"));
+	             */  
+	            wwb.write();  
+	            wwb.close();
+        }catch(Exception e){  
+            e.printStackTrace();  
+        } 
+	}
+	
+	
+	private List<ChosenCourseModel> getCertainTeacherCourses (String ident) {
+		List<ChosenCourseModel> ret = new ArrayList<ChosenCourseModel>();
+		for (ChosenCourseModel c : fullTable) {
+			if (c.getTeacher() == null || !c.getTeacher().getIdentificationnum().equals(ident)){
+				ChosenCourseModel t = new ChosenCourseModel(c.getWeekday(), c.getSlot(), c.getRoom());
+				ret.add(t);
+			} else
+				ret.add(c);
+		}
+		return ret;
+	}
+	
+	public List<ChosenCourseModel> getCourses() {
+		courses.clear();
+		for (ChosenCourseModel i : fullTable)
+			if (i.getTeacher() != null && i.getClasses() != null && i.getRoom() != null)
+				courses.add(i);
+		return courses;
+	}
+	
+	private List<Integer> noClass = null;
+	public CourseArrangementImpl(List<ChosenCourseModel> courses,
+			List<ClassroomModel> rooms , List<Integer> noclass) {
+		this.noClass = noclass;
+		this.rooms = rooms;
+		this.courses = courses;
+		this.courses = generateUnrelateCourseSequence(courses);
+		buildOriginalBitTable();
+		
+		for (int i = 0; i < courses.size(); ++i) {
+			Spacetime st = placeAndDoConstraint(i);
+			setSpacetimeToChosenCourse(i, st);
+		}
+		//print_state();
+		fullTable.addAll(this.courses);
+		fullTable.addAll(getEmptyPlace());
+		int num = 0;
+		for (ChosenCourseModel c : fullTable) {
+			c.setNum(String.valueOf(num));
+			num ++;
+		}
+		for (ChosenCourseModel c : unable)
+		{
+			c.setNum(String.valueOf(num));
+			num++;
+		}
+	}
+	
+	private void print_state () {
+		for (int r = 0; r < rooms.size(); ++r) 
+			for (int d = 0; d < weekday; ++d) 
+				for (int s = 0; s < slot; ++s) 
+					System.out.println(time_table[r][d][s].toString());
+	}
+	
+	
+	public List<ChosenCourseModel> otherOption(ChosenCourseModel course) {
+		TableState currState = new TableState(fullTable, weekday, slot);
+		List<ChosenCourseModel> otherOption = new ArrayList<ChosenCourseModel>();
+		for (ChosenCourseModel i : fullTable){
+			if (currState.chkOption(course, i))
+				otherOption.add(i);
+		}
+		return otherOption;
+	}
+
+	public List<ChosenCourseModel> otherOption(String num) {
+		ChosenCourseModel course = null;
+		for (ChosenCourseModel c : fullTable)
+			if (c.getNum().equals(c.getNum())){
+				course = c;
+				break;
+			}
+		TableState currState = new TableState(fullTable, weekday, slot);
+		List<ChosenCourseModel> otherOption = new ArrayList<ChosenCourseModel>();
+		for (ChosenCourseModel i : fullTable){
+			if (currState.chkOption(course, i))
+				otherOption.add(i);
+		}
+		return otherOption;
+	}
+	
+	/**
+	 * @param teacher
+	 * @return
+	 */
+	public List<ChosenCourseModel> getSpecificTeacherTable(TeacherModel teacher) {
+		List<ChosenCourseModel> table = new ArrayList<ChosenCourseModel>();
+		for (ChosenCourseModel c : courses){
+			if (c.getTeacher().equals(teacher))
+				table.add(c);
+		}
+		return table;
+	}
+	
+	
+	private int getOffset (ChosenCourseModel c, List<ChosenCourseModel> where){
+		for (int i = 0; i < where.size(); ++i){
+			/*if (c.equals(where.get(i)))
+					return i;*/
+			if (c.getNum().equals(where.get(i).getNum()))
+					return i;
+		}
+		return -1;
+	}
+	
+	
+	/**
+	 * Only used by Apply method
+	 */
+	private void swap (List<ChosenCourseModel> where1, int offset1, List<ChosenCourseModel> where2, int offset2) {
+		
+		/*ChosenCourseModel k = where1.get(offset1);
+		ChosenCourseModel p = where2.get(offset2);
+		
+		int ts = k.getSlot();
+		int td = k.getWeekday();
+		
+		
+		where1.get(offset1).setSlot(p.getSlot());
+		where1.get(offset1).setWeekday(p.getWeekday());
+		
+		where2.get(offset2).setSlot(ts);
+		where2.get(offset2).setWeekday(td);*/
+		
+		CourseModel ct = null;
+		if (where1.get(offset1).getCourse() != null)
+			ct = new CourseModel(where1.get(offset1).getCourse());
+		
+		TeacherModel tt = null;
+		if (where1.get(offset1).getTeacher() != null)
+			tt = new TeacherModel(where1.get(offset1).getTeacher());
+		
+		List<ClassesModel> lct = new ArrayList<ClassesModel>();
+		if (where1.get(offset1).getClasses() != null && where1.get(offset1).getClasses().size() > 0)
+			lct.addAll(where1.get(offset1).getClasses());
+		
+		where1.get(offset1).setCourse(where2.get(offset2).getCourse());
+		where1.get(offset1).setTeacher(where2.get(offset2).getTeacher());
+		List<ClassesModel> t = new ArrayList<ClassesModel>();
+		if (where2.get(offset2).getClasses() != null && where2.get(offset2).getClasses().size() > 0)
+			t.addAll(where2.get(offset2).getClasses());
+		where1.get(offset1).setClasses(t);
+		
+		where2.get(offset2).setCourse(ct);
+		where2.get(offset2).setTeacher(tt);
+		where2.get(offset2).setClasses(lct);
+	}
+	
+	
+	public void applyNewArrangementByNum (String oldNum, String newNum){
+		boolean getOld = false, getNew = false;
+		ChosenCourseModel p = null, q = null;
+		for (ChosenCourseModel c : fullTable) {
+			if (!getOld)
+				if (c.getNum().equals(oldNum)){
+					p = c;
+					getOld = true;
+					if (getOld && getNew)
+						break;
+				}
+			if (!getNew)
+				if (c.getNum().equals(newNum)){
+					q = c;
+					getNew = true;
+					if (getOld && getNew)
+						break;
+				}
+		}
+		
+		if (unable.size() > 0 && (!getOld || !getNew)){
+			for (ChosenCourseModel c : unable) {
+				if (!getOld)
+					if (c.getNum().equals(oldNum)){
+						p = c;
+						getOld = true;
+						if (getOld && getNew)
+							break;
+					}
+				if (!getNew)
+					if (c.getNum().equals(newNum)){
+						q = c;
+						getNew = true;
+						if (getOld && getNew)
+							break;
+					}
+			}
+		}
+		
+		if (!getOld || !getNew)
+			return;
+		applyNewArrangement(p,q);
+	}
+	
+	/***
+	 * 
+	 */
+	public void applyNewArrangement(ChosenCourseModel old, ChosenCourseModel newer) {
+		boolean qUnable = true, pUnable = true;
+		int p = getOffset(old,unable);
+		int q = getOffset(newer, unable);
+		if (p == -1) {
+			p = getOffset(old, fullTable);
+			pUnable = false;
+		}
+		if (q == -1){
+			q = getOffset(newer, fullTable);
+			qUnable = false;
+		}
+		if (q == -1 || p == -1) {
+			System.out.println("ErrLog can not find course in courses");
+			return;
+		}
+		
+		if (pUnable && qUnable){
+			System.out.println("ErrLog Unable contains both two courses");
+			return;
+		} else if (!pUnable && !qUnable) {
+			swap (fullTable, p, fullTable, q);
+		} else if (pUnable && !qUnable) {
+			swap (unable, p, fullTable, q);
+		}else if (!pUnable && qUnable) {
+			swap (fullTable, p, unable, q);
+		}
+		
+		
+		
+		/*if (newer.getTeacher() == null || newer.getCourse() == null){
+			fullTable.get(q).setTeacher(old.getTeacher());
+			fullTable.get(q).setCourse(old.getCourse());
+			List<ClassesModel> t = new ArrayList<ClassesModel>();
+			t.addAll(old.getClasses());
+			fullTable.get(q).setClasses(t);
+			fullTable.get(p).setTeacher(null);
+			fullTable.get(p).setCourse(null);
+			fullTable.get(p).setClasses(null);
+		} else{
+			CourseModel ct = new CourseModel(old.getCourse());
+			TeacherModel tt = new TeacherModel(old.getTeacher());
+			List<ClassesModel> lct = new ArrayList<ClassesModel>();
+			lct.addAll(old.getClasses());
+			
+			fullTable.get(p).setCourse(newer.getCourse());
+			fullTable.get(p).setTeacher(newer.getTeacher());
+			List<ClassesModel> t = new ArrayList<ClassesModel>();
+			t.addAll(newer.getClasses());
+			fullTable.get(p).setClasses(t);
+			
+			fullTable.get(q).setCourse(ct);
+			fullTable.get(q).setTeacher(tt);
+			fullTable.get(q).setClasses(lct);
+		}*/
+	}
+	
+
+	
+	/**
+	 * @author SiyuLi
+	 * 每次更新表之后需要重新初始化
+	 */
+	class TableState {
+		/*
+		 * 需要检查的属性
+		 * 1.老师在某时段有没有空
+		 * 2.某班级在某天有没有上过某课
+		 * 3.某班级在某时段有没有空
+		 * 4.某教室在某时段有没有空
+		 */
+		/**
+		 * teacherState 标识每个时段都有哪些老师在上课
+		 */
+		private List<Set<String>> teacherState = new ArrayList<Set<String>>();
+		/**
+		 * classesState  标识每个时段都有哪些班级在上课
+		 */
+		private List<Set<Integer>> classesState = new ArrayList<Set<Integer>>();
+		
+		public TableState (List<ChosenCourseModel> placedCourses, int weekday, int slot) {
+			for (int i = 0; i < weekday * slot; ++i){
+				teacherState.add(new HashSet<String>());
+				classesState.add(new HashSet<Integer>());
+			}
+			teacherState.add(new HashSet<String>());
+			classesState.add(new HashSet<Integer>());
+			for (ChosenCourseModel c : placedCourses) {
+				int n = c.getWeekday() * weekday + c.getSlot();
+				/*
+				 * 把教师的identificationnum放入当天的集合之中
+				 */
+				if (c.getTeacher() == null)
+					continue;
+				if (n < 0)
+					n = 5;
+				teacherState.get(n).add(c.getTeacher().getIdentificationnum());
+				/*
+				 * 把班级的id放入当天的集合中
+				 */
+				if (c.getClasses() == null)
+					continue;
+				for (ClassesModel i:c.getClasses())
+					classesState.get(n).add(i.getId());
+			}
+		}
+		
+		private boolean islegal (ChosenCourseModel currPlace, ChosenCourseModel newPlace){
+			/*
+			 * 先检查那个时间段中上课的老师是否在上其他课程
+			 * 再检查班级是否在上其他课程
+			 */
+			if (newPlace.getCourse() == null || newPlace.getTeacher() == null
+					|| currPlace.getCourse() == null || currPlace.getTeacher() == null)
+				return true;
+			String teacher = currPlace.getTeacher().getIdentificationnum();
+			Set<Integer> classes = new HashSet<Integer>();
+			int n = newPlace.getWeekday() * weekday + newPlace.getSlot();
+			if (n < 0)
+				n = 5;
+			for (ClassesModel c : currPlace.getClasses())
+				classes.add(c.getId());
+			if (teacherState.get(n).contains(teacher))
+				return false;
+			for (Integer i  : classes)
+				if (classesState.get(n).contains(i))
+					return false;
+			return true;
+		}
+	
+		
+		/**
+		 * @param currPlace
+		 * @param newPlace
+		 * @return
+		 * 检查currPlace的课程能否与newPlace位置进行调换
+		 */
+		public boolean chkOption (ChosenCourseModel currPlace, ChosenCourseModel newPlace){
+			return islegal(currPlace, newPlace) && islegal(newPlace, currPlace);
+		}
+	}
+	
+	private List<ChosenCourseModel> getEmptyPlace (){
+		List<ChosenCourseModel> empty = new ArrayList<ChosenCourseModel>();
+		for (int r = 0; r < rooms.size(); ++r) 
+			for  (int d = 0; d < weekday; ++d)
+				for (int s = 0; s < slot; ++s)
+					if (!time_table[r][d][s].isEmpty())
+						empty.add(new ChosenCourseModel(d, s, rooms.get(r)));
+		return empty;
+	}
+	
+	/*
+	 * public List<ChosenCourse> otherOption (ChosenCourse course) {
+		if (!courses.contains(course))
+			return null;
+		List<Spacetime> forbidden = new ArrayList<CourseArrangementImpl.Spacetime>();
+		
+		 *得到不可放置的位置
+		 *1.当天已放置相同课程，则一天都不可放置
+		 *2.老师不能同时出现不同地点
+		 *3.班级不能同时出现不同地点
+		 *4.至少包含原位置
+		 *5.教室类型约束
+		
+		for (ChosenCourse c : courses){
+			if (c.getCourse().getCoursename().equals(course.getCourse().getCoursename())
+					&& c.getClasses().equals(course.getClass()))
+				forbidden.addAll(exceptDiff(new Spacetime(c.getWeekday(),-1,-1)));
+			if (c.getTeacher().equals(course.getTeacher()))
+				forbidden.addAll(exceptDiff(new Spacetime(c.getWeekday(), c.getSlot(),-1)));
+			for (ClassesModel cm : course.getClasses())
+				if (c.getClasses().contains(cm)){
+					forbidden.addAll(exceptDiff(new Spacetime(c.getWeekday(), c.getSlot(),-1)));
+					break;
+				}		
+		}
+		for (int r = 0; r < roomNum; ++r)
+			if (rooms.get(r).getRoomtype() != course.getRoomType() 
+			|| course.getStudentNum() > Integer.parseInt(rooms.get(r).getRealcapacity()))
+				forbidden.addAll(exceptDiff(new Spacetime(-1,-1,r)));
+		List<Spacetime> possiblePlace = new ArrayList<CourseArrangementImpl.Spacetime>();
+		for (int r = 0; r < roomNum; ++r)
+			for (int d = 0; d < weekday; ++d)
+				for (int s = 0; s < slot; ++s)
+					possiblePlace.add(new Spacetime(d, s, r));
+		Set<Spacetime> forbiddenSet = new HashSet<CourseArrangementImpl.Spacetime>(forbidden);
+		for (Spacetime st : forbiddenSet)
+			possiblePlace.remove(possiblePlace.indexOf(st));
+		List<ChosenCourse> ret = new ArrayList<ChosenCourse>();
+		for (Spacetime st : possiblePlace)
+			ret.add(new ChosenCourse(st.getDay(), st.getSlot(), rooms.get(st.getRoom())));
+		return ret;
+	}*/
+	
+
+/*	public List<Spacetime> exceptDiff(Spacetime st) {
+		List<Spacetime> ret = new ArrayList<CourseArrangementImpl.Spacetime>();
+		for (int s = 0; s < slot; ++s)
+			for (int d = 0; d < weekday; ++d)
+				for (int r = 0; r < roomNum; ++r)
+					ret.add(new Spacetime(d,s,r));
+					
+		List<Spacetime> earse = new ArrayList<CourseArrangementImpl.Spacetime>();
+		if (st.getDay() != -1)
+			for (Spacetime t : ret)
+				if (t.getDay() != st.getDay())
+					earse.add(t);
+		if (st.getRoom() != -1)
+			for (Spacetime t : ret)
+				if (t.getRoom() != st.getRoom())
+					earse.add(t);
+		if (st.getSlot() != -1)
+			for (Spacetime t : ret)
+				if (t.getSlot() != st.getSlot())
+					earse.add(t);
+		ret.removeAll(earse);
+		return ret;
+	}*/
+
+	/**
+	 * @param offset
+	 * @param st
+	 */
+	private void setSpacetimeToChosenCourse(int offset, Spacetime st) {
+		if (st == null)
+			return;
+		courses.get(offset).setRoom(rooms.get(st.getRoom()));
+		courses.get(offset).setSlot(st.getSlot());
+		courses.get(offset).setWeekday(st.getDay());
+	}
+
+	/**
+	 * @param courses
+	 * @return
+	 */
+	private List<ChosenCourseModel> generateUnrelateCourseSequence(
+			List<ChosenCourseModel> courses) {
+		Set<String> roomTypes = new HashSet<String>();
+		List<ChosenCourseModel> seq = new ArrayList<ChosenCourseModel>();
+		for (ClassroomModel room : rooms)
+			roomTypes.add(room.getRoomtype());
+		for (String type : roomTypes) {
+			List<ChosenCourseModel> thisType = getCertainRoomType(type);
+			if (thisType.size() == 0)
+				continue;
+			BitSet isPlaced = new BitSet(thisType.size());
+			seq.add(thisType.get(0));
+			isPlaced.set(0);
+			for (int i = 1; i < thisType.size(); ++i) {
+				ChosenCourseModel t = getMostUnrelateCourse(thisType,
+						seq.get(seq.size() - 1), isPlaced);
+				seq.add(t);
+				isPlaced.set(thisType.indexOf(seq.get(seq.size() - 1)));
+			}
+		}
+		return seq;
+	}
+
+	/**
+	 * @param pervSet
+	 * @param course
+	 * @param isPlaced
+	 * @return 某一与当前课程最无关的课程
+	 */
+	private ChosenCourseModel getMostUnrelateCourse(List<ChosenCourseModel> pervSet,
+			ChosenCourseModel course, BitSet isPlaced) {
+		List<ChosenCourseModel> candSet = new ArrayList<ChosenCourseModel>(); // 候选课程列表
+		for (int i = 0; i < pervSet.size(); ++i)
+			if (!isPlaced.get(i))
+				candSet.add(pervSet.get(i));
+		/* 计算无关程度的比重，使用曼哈顿距离 */
+		int teacherWeight = 2, classWeight = 1;
+		List<Integer> distant = new ArrayList<Integer>();
+		for (ChosenCourseModel cand : candSet) {
+			Integer t = 0;
+			if (cand.getTeacher().equals(course.getTeacher()))
+				t += teacherWeight;
+			for (ClassesModel c : course.getClasses())
+				if (cand.getClasses().contains(c))
+					t += classWeight;
+			distant.add(t);
+		}
+
+		if (distant.contains(0)) { /* 一般都会有完全无关的课程 */
+			List<Integer> zero = new ArrayList<Integer>();
+			for (int i = 0; i < distant.size(); ++i)
+				if (distant.get(i) == 0)
+					zero.add(i);
+			return candSet.get((new Random().nextInt(zero.size())));
+		} else { /* 选择相关度最小的课程, 除非最后几个课程一般不会执行到这里 */
+			int minOffset = 0;
+			for (int i = 1; i < distant.size(); ++i)
+				if (distant.get(i) < distant.get(minOffset))
+					minOffset = i;
+			return candSet.get(minOffset);
+		}
+	}
+
+	/**
+	 * @param roomType
+	 * @param capacity
+	 * @return
+	 */
+	private List<ChosenCourseModel> getCertainRoomType(String roomType) {
+		List<ChosenCourseModel> rType = new ArrayList<ChosenCourseModel>();
+		if ( roomType == null)
+			return rType;
+		for (ChosenCourseModel c : courses)
+			if (c.getRoomType().equals(roomType))
+				rType.add(c);
+				
+		return rType;
+	}
+
+	/**
+	 * @param courseOffset
+	 * @return null or Spacetime
+	 */
+	private Spacetime placeAndDoConstraint(int courseOffset) {
+		Spacetime st = findPossibleSpacetimeAndPlaceIt(courseOffset);
+		if (st != null) {
+			teacherUniqueness(courseOffset, st);
+			classUniquencess(courseOffset, st);
+		} else {
+			unable.add(courses.get(courseOffset));
+			/*System.out.println("ErrLog unable to place "
+					+ courses.get(courseOffset).getCourse().getCoursename());*/
+		}
+		return st;
+	}
+
+	/**
+	 * @param courseOffset
+	 * @param st
+	 *            班级的唯一性约束， 一个班级在同一天中不能上同一门课
+	 */
+	private void classUniquencess(int courseOffset, Spacetime st) {
+		List<ClassesModel> classes = courses.get(courseOffset).getClasses();
+		List<Integer> offsets = new ArrayList<Integer>(); // 包含当前班级的课程偏移量列表
+		for (int i = 0; i < courses.size(); ++i)
+			for (ClassesModel k : classes)
+				if (courses.get(i).getClasses().contains(k))
+					offsets.add(i);
+		/* 班级唯一性约束 */
+		for (int r = 0; r < rooms.size(); ++r)
+			for (Integer i : offsets)
+				noPlace(i, r, st.getDay(), st.getSlot());
+		/* 一天之内不能上同一节课 */
+		List<Integer> sameCourseOffset = new ArrayList<Integer>();
+		for (int i = 0; i < courses.size(); ++i)
+			if (i != courseOffset
+					&& courses.get(i).equals(courses.get(courseOffset)))
+				sameCourseOffset.add(i);
+		for (int i = 0; i < sameCourseOffset.size(); ++i)
+			for (int r = 0; r < rooms.size(); ++r)
+				for (int s = 0; s < slot; ++s)
+					noPlace(courseOffset, r, st.getDay(), s);
+
+	}
+
+	/**
+	 * @param courseOffset
+	 * @param st
+	 *            教师的唯一性约束
+	 */
+	private void teacherUniqueness(int courseOffset, Spacetime st) {
+		int tid = courses.get(courseOffset).getTeacher().getId();
+		List<Integer> coursesOfSameTeacher = new ArrayList<Integer>();
+		// 找到当前课程老师要上的所有课
+		for (int i = 0; i < courses.size(); ++i)
+			if (courses.get(i).getTeacher().getId() == tid)
+				coursesOfSameTeacher.add(i);
+		// 取消该教师当前时段的所有课程
+		for (int r = 0; r < rooms.size(); ++r)
+			for (int i = 0; i < coursesOfSameTeacher.size(); ++i)
+				noPlace(coursesOfSameTeacher.get(i), r, st.getDay(),
+						st.getSlot());
+	}
+
+	/**
+	 * @param courseOffset
+	 * @return 如果能放置则返回放置的时间地点，否则返回空
+	 */
+	private Spacetime findPossibleSpacetimeAndPlaceIt(int courseOffset) {
+		for (int s = 0; s < slot; ++s)
+			for (int d = 0; d < weekday; ++d)
+				for (int r = 0; r < rooms.size(); ++r)
+					if (time_table[r][d][s].get(courseOffset)) {
+						Spacetime st = new Spacetime(d, s, r);
+						setCourse(st);
+						return st;
+					}
+		return null;
+	}
+
+	/**
+	 * @param courseOffset
+	 * @param room
+	 * @param day
+	 * @param slot
+	 *            表示某个时间地点不能放置某课程
+	 */
+	private void noPlace(int courseOffset, int room, int day, int slot) {
+		time_table[room][day][slot].set(courseOffset, false);
+	}
+
+	/**
+	 * @param st
+	 *            时间地点 用于把某个时间地点清空
+	 */
+	private void setCourse(Spacetime st) {
+		time_table[st.getRoom()][st.getDay()][st.getSlot()].clear();
+	}
+
+	/**
+	 * 建立原始表，并放入所有课程
+	 */
+	private void buildOriginalBitTable() {
+		time_table = new BitSet[rooms.size()][weekday][slot];
+		// 初始化 BitSet
+		for (int r = 0; r < rooms.size(); ++r)
+			for (int d = 0; d < weekday; ++d)
+				for (int s = 0; s < slot; ++s)
+					time_table[r][d][s] = new BitSet(courses.size() + 1);
+		// 填入相应课程的下标
+		for (int c = 0; c < courses.size(); ++c)
+			for (int r = 0; r < rooms.size(); ++r){
+				// 判断某课程是否能使用某教室
+				int realCap = Integer.parseInt(rooms.get(r).getRealcapacity());
+				int stuNum = courses.get(c).getStudentNum();
+				if (realCap > stuNum
+						&& rooms.get(r).getRoomtype()
+								.equals(courses.get(c).getRoomType()))
+					for (int d = 0; d < weekday; ++d)
+						for (int s = 0; s < slot; ++s)
+							time_table[r][d][s].set(c);
+			}
+		
+
+
+		// 某天某个大节只能上选修课
+		if (noClass != null) {
+			for (Integer sn : noClass) {
+				int d = sn / slot;
+				int s = sn % slot;
+				
+				if (d > 4 || s > 4)
+					continue;
+				
+				for (int r = 0; r < rooms.size(); ++r) {
+					time_table[r][d][s].clear();
+					int realCap = Integer.parseInt(rooms.get(r).getRealcapacity());
+					
+					for (int c = 0; c < courses.size(); ++c){
+						int stuNum = courses.get(c).getStudentNum();
+						if (courses.get(c).isElective() 
+								&& rooms.get(r).getRoomtype().equals(courses.get(c).getRoomType())
+								&& realCap > stuNum){
+							time_table[r][d][s].set(c);
+						}
+					}
+				}
+			}
+		}
+		
+		// 为空位也填入一个不可能的课程
+		for (int r = 0; r < rooms.size(); ++r)
+			for (int d = 0; d < weekday; ++d)
+				for (int s = 0; s < slot; ++s)
+					time_table[r][d][s].set(courses.size());
+		
+	}
+
+	/**
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static boolean lessOrEqual(String a, int b) {
+		
+		return Integer.parseInt(a) <= b;
+	}
+	
+	
+
+	/**
+	 * @author SiyuLi 用于传递时间与地点的内部类
+	 */
+	private class Spacetime {
+		public Spacetime(int day, int slot, int room) {
+			this.day = day;
+			this.room = room;
+			this.slot = slot;
+		}
+
+		private int day;
+		private int slot;
+		private int room;
+
+		public String toString() {
+			return String.format("room%d, day%s, slot%s", room, day, slot);
+		}
+
+		public int getDay() {
+			return day;
+		}
+
+		public int getSlot() {
+			return slot;
+		}
+
+		public int getRoom() {
+			return room;
+		}
+	}
+
+}

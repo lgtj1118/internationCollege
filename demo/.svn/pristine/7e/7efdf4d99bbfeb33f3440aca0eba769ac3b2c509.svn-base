@@ -1,0 +1,11 @@
+package com.tjpu.test.unitTest;
+
+import java.util.regex.Pattern;
+
+public class Test {
+	public static void main(String[] args) {
+		String reg = "(?!0)[0-9]{8}";
+		String str = "02345678";
+		System.out.println(Pattern.matches(reg, str));
+	}
+}

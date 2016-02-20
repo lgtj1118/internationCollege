@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+myeclipseTomcatServer.demo.IEARProjectName=
+myeclipseTomcatServer.demo.altContextRoot=
+myeclipseTomcatServer.demo.contextRoot=/demo
+myeclipseTomcatServer.demo.deployIsOverProject=false
+myeclipseTomcatServer.demo.deploymentPath=H\:\\work\\.metadata\\.me_tcat\\webapps\\demo
+myeclipseTomcatServer.demo.isDeployed=true
+myeclipseTomcatServer.demo.isExploded=true
+myeclipseTomcatServer.demo.isUptoDate=true
+myeclipseTomcatServer.demo.noFileCopy=false
+myeclipseTomcatServer.demo.shouldBackup=false
+myeclipseTomcatServer.demo.shouldOverwrite=false
+myeclipseTomcatServer.demo.type=WebDeployment

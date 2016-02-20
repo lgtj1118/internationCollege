@@ -1,0 +1,967 @@
+package com.tjpu.service;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.opensymphony.xwork2.ActionContext;
+import com.tjpu.bean.Assistantteacher;
+import com.tjpu.bean.AssistantteacherModel;
+import com.tjpu.bean.AttendenceModel;
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.ClassRecord;
+import com.tjpu.bean.ClassRecordModel;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.Classroom;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.CourseModel;
+import com.tjpu.bean.Evalution;
+import com.tjpu.bean.MD5;
+import com.tjpu.bean.Performance;
+import com.tjpu.bean.PerformanceModel;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.StudentModel;
+import com.tjpu.bean.Teacher;
+import com.tjpu.bean.User;
+import com.tjpu.dao.ManageDao;
+import com.tjpu.dao.StudentDao;
+
+@Service
+public class ClassServiceImpl implements ClassService {
+	@Autowired
+	StudentDao studentDao;
+    @Autowired
+    ManageDao manageDao;
+	public String classlist() {
+		List<Classes> classes = studentDao.loadclasses();
+		String classlist = "";
+		int i = 1;
+		for (Classes c : classes) {
+			Student student = studentDao.loadstubyid(c.getClassminitorid());
+			String s = null;
+			if (student == null) {
+				s = "{\"Classid\":" + c.getId() + "," 
+			+ "\"Classname\":" + "\""+ c.getClassname() + "\"," 
+			+ "\"Classminitor\":" + "\""+ "未设置" + "\"," 
+			/*+ "\"ClassTeacher\":" + "\"" +c.getClassTeacher().getName() + "\","
+			+ "\"Assistantteacher\":" + "\"" + c.getAssistantteachers().getName() + "\","
+			*/+ "\"Classmajor\":" + "\""+ c.getMajor() + "\"}";
+			} else {
+				s = "{\"Classid\":" + c.getId() + "," 
+			+ "\"Classname\":" + "\""+ c.getClassname() + "\","
+			+ "\"Classminitor\":" + "\""+ student.getStuname() + "\","
+			/*+ "\"ClassTeacher\":"+ "\"" +c.getClassTeacher().getName() + "\","
+			+"\"Assistantteacher\":" + "\"" +c.getAssistantteachers().getName() + "\","
+			*/+ "\"Classmajor\":"+ "\"" + c.getMajor() + "\"}";
+			}
+			if (i < classes.size()) {
+				classlist += s + ",";
+			} else {
+				classlist += s;
+			}
+			i++;
+		}
+		return classlist;
+	}
+
+	@Override
+	public boolean classcheck(String classname) {
+		List<Classes> havestu = studentDao.classcheck(classname);
+		if (havestu.size() > 0) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public void classadd(Classes cls) {
+		String classname = null;
+		String major = null;
+		try {
+			classname = java.net.URLDecoder.decode(cls.getClassname(), "UTF-8");
+			major = java.net.URLDecoder.decode(cls.getMajor(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		cls.setClassname(classname);
+		cls.setMajor(major);
+		studentDao.classadd(cls);
+	}
+
+	@Override
+	public void classupdate(Classes cls) {
+
+		String classname = null;
+		String major = null;
+		try {
+			classname = java.net.URLDecoder.decode(cls.getClassname(), "UTF-8");
+			major = java.net.URLDecoder.decode(cls.getMajor(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		cls.setClassname(classname);
+		cls.setMajor(major);
+		studentDao.classupdate(cls);
+	}
+
+	@Override
+	public void classdelete(Integer id) {
+
+		studentDao.classdelete(id);
+	}
+
+	public Map<String, Object> courselist(int page, int pageSize) {
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		/*
+		 * User user = (User)
+		 * ActionContext.getContext().getSession().get("user");
+		 */
+		List<Course> courses = studentDao.loadcourse((page - 1) * pageSize,pageSize/* , user.getRoles().getRolerank() */);
+		long total = studentDao.coursetotal();
+		List<CourseModel> coursemodels = new ArrayList<CourseModel>();
+		for (Course p : courses) {
+			CourseModel model = new CourseModel();
+			model.setId(p.getId());
+			model.setNum(p.getNum());
+			model.setCoursename(p.getCoursename());
+			model.setTeacher(p.getTeacher());
+			model.setCharacter(p.getCharacter());
+			model.setCheckway(p.getCheckway());
+			model.setCredits(p.getCredits());
+			model.setBeginweeks(p.getBeginweeks());
+			model.setEndweeks(p.getEndweeks());
+			coursemodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+
+	@Override
+	public void courseadd(Course course) {
+
+		Integer num = null;
+		String coursename = null;
+		Integer beginweeks = null;
+		Integer endweeks = null;
+		String teacher = null;
+		Integer credits = null;
+		String character = null;
+		String checkway = null;
+		try {
+			num = course.getNum();
+			coursename = java.net.URLDecoder.decode(course.getCoursename(),"UTF-8");
+			beginweeks = course.getBeginweeks();
+			endweeks = course.getEndweeks();
+			teacher = java.net.URLDecoder.decode(course.getTeacher(), "UTF-8");
+			character = java.net.URLDecoder.decode(course.getCharacter(),"UTF-8");
+			checkway = java.net.URLDecoder.decode(course.getCheckway(), "UTF-8");
+			credits = course.getCredits();
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		course.setNum(num);
+		course.setBeginweeks(beginweeks);
+		course.setCharacter(character);
+		course.setCheckway(checkway);
+		course.setCoursename(coursename);
+		course.setCredits(credits);
+		course.setEndweeks(endweeks);
+		course.setTeacher(teacher);
+		studentDao.courseadd(course);
+	}
+
+	@Override
+	public void courseupdate(Course course) {
+
+		Integer num = null;
+		String coursename = null;
+		Integer beginweeks = null;
+		Integer endweeks = null;
+		String teacher = null;
+		Integer credits = null;
+		String character = null;
+		String checkway = null;
+		try {
+			num = course.getNum();
+			coursename = java.net.URLDecoder.decode(course.getCoursename(),"UTF-8");
+			beginweeks = course.getBeginweeks();
+			endweeks = course.getEndweeks();
+			teacher = java.net.URLDecoder.decode(course.getTeacher(), "UTF-8");
+			character = java.net.URLDecoder.decode(course.getCharacter(),"UTF-8");
+			checkway = java.net.URLDecoder.decode(course.getCheckway(), "UTF-8");
+			credits = course.getCredits();
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+		course.setNum(num);
+		course.setBeginweeks(beginweeks);
+		course.setCharacter(character);
+		course.setCheckway(checkway);
+		course.setCoursename(coursename);
+		course.setCredits(credits);
+		course.setEndweeks(endweeks);
+		course.setTeacher(teacher);
+		studentDao.courseupdate(course);
+	}
+
+	@Override
+	public void coursedelete(Integer id) {
+
+		studentDao.coursedelete(id);
+	}
+
+	@Override
+	public boolean coursecheck(String coursename) {
+
+		List<Course> havecourse = studentDao.coursecheck(coursename);
+		if (havecourse.size() > 0) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean coursecheck1(Integer num) {
+
+		List<Course> havecourse = studentDao.coursecheck1(num);
+		if (havecourse.size() > 0) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public Map<String, Object> roomlist(int page, int pageSize) {
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Classroom> room = studentDao.loadroom((page - 1) * pageSize,pageSize);
+		// long total = room.size();
+		long total = studentDao.totalroom();
+		List<ClassroomModel> roommodels = new ArrayList<ClassroomModel>();
+		for (Classroom s : room) {
+			ClassroomModel model = new ClassroomModel();
+			model.setId(s.getId());
+			model.setNum(s.getNum());
+			model.setRoomname(s.getRoomname());
+			model.setRoomplace(s.getRoomplace());
+			model.setRoomtype(s.getRoomtype());
+			model.setRoomcapacity(s.getRoomcapacity());
+			model.setRealcapacity(s.getRealcapacity());
+			model.setNote(s.getNote());
+			roommodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", roommodels);
+		return map;
+	}
+
+	@Override
+	public void roomadd(Classroom room) {
+
+		String num = null;
+		String roomname = null;
+		String roomplace = null;
+		String roomtype = null;
+		String roomcapacity = null;
+		String realcapacity = null;
+		String note = null;
+		try {
+			num = java.net.URLDecoder.decode(room.getNum(), "UTF-8");
+			roomname = java.net.URLDecoder.decode(room.getRoomname(), "UTF-8");
+			roomplace = java.net.URLDecoder.decode(room.getRoomplace(), "UTF-8");
+			roomtype = java.net.URLDecoder.decode(room.getRoomtype(), "UTF-8");
+			roomcapacity = java.net.URLDecoder.decode(room.getRoomcapacity(),"UTF-8");
+			realcapacity = java.net.URLDecoder.decode(room.getRealcapacity(),"UTF-8");
+			note = java.net.URLDecoder.decode(room.getNote(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		room.setNote(note);
+		room.setNum(num);
+		room.setRoomcapacity(roomcapacity);
+		room.setRealcapacity(realcapacity);
+		room.setRoomname(roomname);
+		room.setRoomname(roomname);
+		room.setRoomplace(roomplace);
+		room.setRoomtype(roomtype);
+		studentDao.roomadd(room);
+	}
+
+	@Override
+	public void roomupdate(Classroom room) {
+
+		String num = null;
+		String roomname = null;
+		String roomplace = null;
+		String roomtype = null;
+		String roomcapacity = null;
+		String realcapacity = null;
+		String note = null;
+		try {
+			num = java.net.URLDecoder.decode(room.getNum(), "UTF-8");
+			roomname = java.net.URLDecoder.decode(room.getRoomname(), "UTF-8");
+			roomplace = java.net.URLDecoder
+					.decode(room.getRoomplace(), "UTF-8");
+			roomtype = java.net.URLDecoder.decode(room.getRoomtype(), "UTF-8");
+			roomcapacity = java.net.URLDecoder.decode(room.getRoomcapacity(),
+					"UTF-8");
+			realcapacity = java.net.URLDecoder.decode(room.getRealcapacity(),
+					"UTF-8");
+			note = java.net.URLDecoder.decode(room.getNote(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		room.setNote(note);
+		room.setNum(num);
+		room.setRoomcapacity(roomcapacity);
+		room.setRealcapacity(realcapacity);
+		room.setRoomname(roomname);
+		room.setRoomplace(roomplace);
+		room.setRoomtype(roomtype);
+		studentDao.roomupdate(room);
+	}
+
+	@Override
+	public void roomdelete(Integer id) {
+
+		studentDao.roomdelete(id);
+	}
+
+	@Override
+	public boolean roomcheck(String num) {
+
+		List<Classroom> haveroom = studentDao.roomcheck(num);
+		if (haveroom.size() > 0) {
+			return false;
+		}
+		return true;
+	}
+
+	List<Student> stus = new ArrayList<Student>();
+
+	@Override
+	public List<Student> loadstulistbyclassid(int classid) {
+
+		stus.clear();
+		stus = studentDao.loadstubyclassid(classid);
+		return null;
+	}
+
+	@Override
+	public Map<String, Object> classstumap(int page, int pageSize) {
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = stus.size();
+		List<StudentModel> stumodels = new ArrayList<StudentModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < stus.size()) {
+				StudentModel model = new StudentModel();
+				try {
+					model.setClassid(stus.get(i).getClasses().getId());
+				} catch (Exception e) {
+					model.setClassid(0);
+				}
+				model.setId(stus.get(i).getId());
+				model.setPassword(stus.get(i).getPassword());
+				model.setStusex(stus.get(i).getSex());
+				model.setStuid(stus.get(i).getStuid());
+				model.setStuname(stus.get(i).getStuname());
+				model.setFirstname(stus.get(i).getFirstname());
+				model.setLastname(stus.get(i).getLastname());
+				model.setNation(stus.get(i).getNation());
+				model.setPassport(stus.get(i).getPassport());
+				model.setRoomplace(stus.get(i).getRoomplace());
+				model.setTelephone(stus.get(i).getTelephone());
+				model.setStudentType(stus.get(i).getStudentType());
+				model.setBrithdate(stus.get(i).getBrithdate());
+				model.setEnddate(stus.get(i).getEnddate());
+				model.setStartdate(stus.get(i).getStartdate());
+				model.setStatus(stus.get(i).getStatus());
+				stumodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", stumodels);
+		return map;
+	}
+
+	@Override
+	public String classteacherlist() {
+		return null;
+	}
+
+	@Override
+	public String assistteacherlist() {
+		return null;
+	}
+
+	@Override
+	public List<Course> loadcourse() {
+		List<Course> courses = studentDao.loadstucourse();
+		return courses;
+	}
+
+	@Override
+	public Map<Integer, List<Course>> coursemap() {
+
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		List<Course> courses = studentDao.loadstucourse();
+		List<Evalution> evalutions = studentDao.loadevalutions(user.getId());
+		List<Course> course1 = courses;
+
+		Map<Integer, List<Course>> map = new HashMap<Integer, List<Course>>();
+		for (int i = 0; i < courses.size(); i++) {
+			List<Course> course2 = new ArrayList<Course>();
+			for (int j = 0; j < evalutions.size(); j++) {
+				if ((user.getId().equals(evalutions.get(j).getStuid()))&& (courses.get(i).getId().equals(evalutions.get(j).getCourseid()))) {
+					course2.add(courses.get(i));
+					course1.remove(i);
+				}
+			}
+			map.put(1, course2);
+			map.put(0, course1);
+		}
+		return map;
+	}
+
+	@Override
+	public Course loadcoursebyid(Integer id) {
+		Course course = studentDao.loadcoursebyid(id);
+		return course;
+	}
+
+	@Override
+	public void assistantteacherapply(Assistantteacher assistantteacher) {
+
+		String name = null;
+		String classname = null;
+		String major = null;
+		String secondlanguagetype = null;
+		String secondlanguagelevel = null;
+		String nation = null;
+		String brithdate = null;
+		String politicalstatus = null;
+		String forte = null;
+		String telephone = null;
+		String email = null;
+		String assistnum = null;
+		String department = null;
+		String edulevel = null;
+		String gender = null;
+		try {
+			name = java.net.URLDecoder.decode(assistantteacher.getName(),"UTF-8");
+			classname = java.net.URLDecoder.decode(assistantteacher.getClassname(), "UTF-8");
+			major = java.net.URLDecoder.decode(assistantteacher.getMajor(),"UTF-8");
+			secondlanguagetype = java.net.URLDecoder.decode(assistantteacher.getSecondlanguagetype(), "UTF-8");
+			secondlanguagelevel = java.net.URLDecoder.decode(assistantteacher.getSecondlanguagelevel(), "UTF-8");
+			nation = java.net.URLDecoder.decode(assistantteacher.getNation(),"UTF-8");
+			brithdate = java.net.URLDecoder.decode(assistantteacher.getBrithdate(), "UTF-8");
+			politicalstatus = java.net.URLDecoder.decode(assistantteacher.getPoliticalstatus(), "UTF-8");
+			forte = java.net.URLDecoder.decode(assistantteacher.getForte(),"UTF-8");
+			telephone = java.net.URLDecoder.decode(assistantteacher.getTelephone(), "UTF-8");
+			email = java.net.URLDecoder.decode(assistantteacher.getEmail(),"UTF-8");
+			assistnum = java.net.URLDecoder.decode(assistantteacher.getAssistantnum(), "UTF-8");
+			department = java.net.URLDecoder.decode(assistantteacher.getDepartment(), "UTF-8");
+			edulevel = java.net.URLDecoder.decode(assistantteacher.getEdulevel(), "UTF-8");
+			gender = java.net.URLDecoder.decode(assistantteacher.getGender(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		assistantteacher.setName(name);
+		assistantteacher.setClassname(classname);
+		assistantteacher.setMajor(major);
+		assistantteacher.setSecondlanguagelevel(secondlanguagelevel);
+		assistantteacher.setSecondlanguagetype(secondlanguagetype);
+		assistantteacher.setNation(nation);
+		assistantteacher.setBrithdate(brithdate);
+		assistantteacher.setPoliticalstatus(politicalstatus);
+		assistantteacher.setForte(forte);
+		assistantteacher.setTelephone(telephone);
+		assistantteacher.setEmail(email);
+		assistantteacher.setEdulevel(edulevel);
+		assistantteacher.setAssistantnum(assistnum);
+		assistantteacher.setGender(gender);
+		assistantteacher.setDepartment(department);
+		assistantteacher.setAcademictype(0);
+		studentDao.assistantteacheradd(assistantteacher);
+	}
+
+	@Override
+	public Map<String, Object> assistmap(int page, int pageSize) {
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Assistantteacher> stus = studentDao.loadassist((page - 1)* pageSize, pageSize);
+		long total = studentDao.totalstu();
+		List<AssistantteacherModel> stumodels = new ArrayList<AssistantteacherModel>();
+		for (Assistantteacher s : stus) {
+			AssistantteacherModel model = new AssistantteacherModel();
+			model.setId(s.getId());
+			model.setAssistantnum(s.getAssistantnum());
+			model.setBrithdate(s.getBrithdate());
+			model.setClassname(s.getClassname());
+			model.setDepartment(s.getDepartment());
+			model.setEdulevel(s.getEdulevel());
+			model.setEmail(s.getEmail());
+			model.setForte(s.getForte());
+			model.setGender(s.getGender());
+			model.setMajor(s.getMajor());
+			model.setName(s.getName());
+			model.setNation(s.getNation());
+			model.setPoliticalstatus(s.getPoliticalstatus());
+			model.setSecondlanguagelevel(s.getSecondlanguagelevel());
+			model.setSecondlanguagetype(s.getSecondlanguagetype());
+			model.setTelephone(s.getTelephone());
+			model.setAcademicadvice(s.getAcademicadvice());
+			model.setAcademictype(s.getAcademictype());
+			stumodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", stumodels);
+		return map;
+	}
+
+	@Override
+	public void assistagree(Integer id) {
+
+		studentDao.assistagree(id);
+	}
+
+	private List<String> readTxtFile(String filePath) {
+		List<String> linelist = new ArrayList<String>();
+		try {
+			String encoding = "GBK";
+			File file = new File(filePath);
+			if (file.isFile() && file.exists()) { // 判断文件是否存在
+				InputStreamReader read = new InputStreamReader(
+						new FileInputStream(file), encoding);// 考虑到编码格式
+				BufferedReader bufferedReader = new BufferedReader(read);
+				String lineTxt = null;
+				while ((lineTxt = bufferedReader.readLine()) != null) {
+					linelist.add(lineTxt);
+				}
+				read.close();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return linelist;
+	}
+
+	@Override
+	public void classaddbytxt(String path) {
+
+		try {
+			List<String> linelist = readTxtFile(path);
+			for (String line : linelist) {
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				if (tokenizer.hasMoreTokens()) {
+					// String s = tokenizer.nextToken();
+					Classes classes = new Classes();
+					classes.setClassname(tokenizer.nextToken());
+					classes.setMajor(tokenizer.nextToken());
+					studentDao.classadd(classes);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		File file = new File(path);
+		if (file.exists()) {
+			file.delete();
+		}
+	}
+
+	@Override
+	public void classminitorset(Integer classid, Integer stuid) {
+
+		studentDao.classminitorset(classid, stuid);
+	}
+
+	@Override
+	public Map<String, Object> workrecordmap(int page, int pageSize) {
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<ClassRecord> classrecord = studentDao.loadworkrecord((page - 1)* pageSize, pageSize,user.getId());
+		long total = studentDao.totalclassrecord();
+		List<ClassRecordModel> stumodels = new ArrayList<ClassRecordModel>();
+		for (ClassRecord s : classrecord) {
+			ClassRecordModel model = new ClassRecordModel();
+			model.setId(s.getId());
+			model.setAppointmentnumber(s.getAppointmentnumber());
+			Classes classes = studentDao.loadclassbyid(s.getClassid());
+			model.setClassname(classes.getClassname());
+			model.setClassmeetingfrequency(s.getClassmeetingfrequency());
+			model.setDate(s.getDate());
+			model.setFeedback(s.getFeedback());
+			model.setPhysicalmentalcondition(s.getPhysicalmentalcondition());
+			model.setStudyingcondition(s.getStudyingcondition());
+			stumodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", stumodels);
+		return map;
+	}
+
+	@Override
+	public void workrecordedit(ClassRecord classrecord) {
+
+		String date = null;
+		Integer classid = null;
+		Integer teacherid = null;
+		Integer selfevalution = null;
+		String classmeetingfrequency = null;
+		String appointmentnumber = null;
+		String physicalmentalcondition = null;
+		String studyingcondition = null;
+		String feedback = null;
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd");
+		Date nowdate = new Date();
+		date = df.format(nowdate);
+		try {
+			classmeetingfrequency = java.net.URLDecoder.decode(classrecord.getClassmeetingfrequency(), "UTF-8");
+			appointmentnumber = java.net.URLDecoder.decode(classrecord.getAppointmentnumber(), "UTF-8");
+			physicalmentalcondition = java.net.URLDecoder.decode(classrecord.getPhysicalmentalcondition(), "UTF-8");
+			studyingcondition = java.net.URLDecoder.decode(classrecord.getStudyingcondition(), "UTF-8");
+			feedback = java.net.URLDecoder.decode(classrecord.getFeedback(),"UTF-8");
+			classid = classrecord.getClassid();
+			//teacherid = classrecord.getTeacherid();
+			selfevalution = classrecord.getSelfevalution();
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		classrecord.setAppointmentnumber(appointmentnumber);
+		classrecord.setClassid(classid);
+		classrecord.setClassmeetingfrequency(classmeetingfrequency);
+		classrecord.setDate(date);
+		classrecord.setFeedback(feedback);
+		classrecord.setPhysicalmentalcondition(physicalmentalcondition);
+		classrecord.setStudyingcondition(studyingcondition);
+		//classrecord.setTeacherid(teacherid);
+		classrecord.setSelfevalution(selfevalution);
+		studentDao.workrecordupdate(classrecord);
+	}
+
+	@Override
+	public void workrecorddelete(String ids) {
+
+		Integer id = Integer.valueOf(ids);
+		studentDao.workrecorddelete(id);
+	}
+
+	@Override
+	public void workrecordadd(ClassRecord classrecord) {
+
+		String date = null;
+		Integer classid = null;
+		String  teacherid = null;
+		Integer selfevalution = null;
+		String classmeetingfrequency = null;
+		String appointmentnumber = null;
+		String physicalmentalcondition = null;
+		String studyingcondition = null;
+		String feedback = null;
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Date nowdate = new Date();
+		date = df.format(nowdate);
+		try {
+			classmeetingfrequency = java.net.URLDecoder.decode(classrecord.getClassmeetingfrequency(), "UTF-8");
+			appointmentnumber = java.net.URLDecoder.decode(classrecord.getAppointmentnumber(), "UTF-8");
+			physicalmentalcondition = java.net.URLDecoder.decode(classrecord.getPhysicalmentalcondition(), "UTF-8");
+			studyingcondition = java.net.URLDecoder.decode(classrecord.getStudyingcondition(), "UTF-8");
+			feedback = java.net.URLDecoder.decode(classrecord.getFeedback(),"UTF-8");
+			classid = classrecord.getClassid();
+			//teacherid = classrecord.getTeacherid();
+			selfevalution = classrecord.getSelfevalution();
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		Teacher teacher = manageDao.loadteacherbyid(user.getId());
+		classrecord.setAppointmentnumber(appointmentnumber);
+		classrecord.setClassid(classid);
+		classrecord.setClassmeetingfrequency(classmeetingfrequency);
+		classrecord.setDate(date);
+		classrecord.setFeedback(feedback);
+		classrecord.setPhysicalmentalcondition(physicalmentalcondition);
+		classrecord.setStudyingcondition(studyingcondition);
+		classrecord.setTeacherid(teacher.getIdentificationnum());
+		classrecord.setSelfevalution(selfevalution);
+		studentDao.workrecordadd(classrecord);
+	}
+
+	@Override
+	public ClassRecord workrecorddetail(Integer id) {
+
+		ClassRecord classrecords = studentDao.workrecorddetail(id);
+		return classrecords;
+	}
+
+	@Override
+	public Classes classteacherclass(Integer id) {
+
+		Classes classes = studentDao.classteacherclass(id);
+		return classes;
+	}
+
+	@Override
+	public Student loadminitor(Integer classminitorid) {
+
+		Student student = studentDao.loadstubyid(classminitorid);
+		return student;
+	}
+
+	@Override
+	public ClassRecord loadworkrecord(Integer id) {
+
+		ClassRecord classrecord = studentDao.workrecorddetail(id);
+		return classrecord;
+	}
+
+	@Override
+	public Map<String, Object> performancemap(int page, int pageSize) {
+        User user = (User)ActionContext.getContext().getSession().get("user");
+        Teacher teacher = manageDao.loadteacherbyid(user.getId());
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Performance> performances = studentDao.loadperformance((page - 1)* pageSize, pageSize,teacher.getIdentificationnum());
+		long total = studentDao.totalperformance();
+		List<PerformanceModel> stumodels = new ArrayList<PerformanceModel>();
+		for (Performance s : performances) {
+			PerformanceModel model = new PerformanceModel();
+			model.setId(s.getId());
+			model.setDailylife(s.getDailylife());
+			model.setDate(s.getDate());
+			model.setEvent(s.getEvent());
+			model.setOutstanding(s.getOutstanding());
+			model.setPsychicology(s.getPsychicology());
+			model.setRemark(s.getRemark());
+			model.setStudy(s.getStudy());
+			Student student = studentDao.loadstubystuid(s.getStuid());
+			model.setStuname(student.getStuname());
+			model.setSex(student.getSex());
+			stumodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", stumodels);
+		return map;
+	}
+
+	@Override
+	public void performanceadd(Performance performance) {
+		String study = null;
+		String outstanding = null;
+		String psychicology = null;
+		String date = null;
+		String dailylife = null;
+		String event = null;
+		String stuid = null;
+		String remark = null;
+		String teachernum = null;
+		try {
+			study = java.net.URLDecoder.decode(performance.getStudy(), "UTF-8");
+			outstanding = java.net.URLDecoder.decode(performance.getOutstanding(), "UTF-8");
+			psychicology = java.net.URLDecoder.decode(performance.getPsychicology(), "UTF-8");
+			dailylife = java.net.URLDecoder.decode(performance.getDailylife(),"UTF-8");
+			event = java.net.URLDecoder.decode(performance.getEvent(), "UTF-8");
+			stuid = performance.getStuid();
+			remark = java.net.URLDecoder.decode(performance.getRemark(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Date nowdate = new Date();
+		date = df.format(nowdate);
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		Teacher teacher = manageDao.loadteacherbyid(user.getId());
+		teachernum = teacher.getIdentificationnum();
+		performance.setTeachernum(teachernum);
+		performance.setDailylife(dailylife);
+		performance.setDate(date);
+		performance.setEvent(event);
+		performance.setOutstanding(outstanding);
+		performance.setPsychicology(psychicology);
+		performance.setRemark(remark);
+		performance.setStudy(study);
+		List<Student> student = studentDao.loadstubystuname(stuid);
+		performance.setStuid(student.get(0).getStuid());
+		studentDao.performanceadd(performance);
+	}
+
+	@Override
+	public void performanceupdate(Performance performance) {
+
+		String study = null;
+		String outstanding = null;
+		String psychicology = null;
+		String date = null;
+		String dailylife = null;
+		String event = null;
+		String stuid = null;
+		String remark = null;
+		try {
+			study = java.net.URLDecoder.decode(performance.getStudy(), "UTF-8");
+			outstanding = java.net.URLDecoder.decode(performance.getOutstanding(), "UTF-8");
+			psychicology = java.net.URLDecoder.decode(performance.getPsychicology(), "UTF-8");
+			dailylife = java.net.URLDecoder.decode(performance.getDailylife(),"UTF-8");
+			event = java.net.URLDecoder.decode(performance.getEvent(), "UTF-8");
+			// stuid = performance.getStuid();
+			remark = java.net.URLDecoder.decode(performance.getRemark(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Date nowdate = new Date();
+		date = df.format(nowdate);
+		performance.setDailylife(dailylife);
+		performance.setDate(date);
+		performance.setEvent(event);
+		performance.setOutstanding(outstanding);
+		performance.setPsychicology(psychicology);
+		performance.setRemark(remark);
+		performance.setStudy(study);
+		// performance.setStuid(stuid);
+		studentDao.performanceupdate(performance);
+	}
+
+	@Override
+	public void performancedelete(String ids) {
+		Integer id = Integer.valueOf(ids);
+		studentDao.performancedelete(id);
+	}
+
+	@Override
+	public void assistagainst(Integer id) {
+		studentDao.assistagainst(id);
+	}
+
+	@Override
+	public Assistantteacher loadassistbyid(Integer id) {
+		Assistantteacher assistantteacher = studentDao.loadassistbyid(id);
+		return assistantteacher;
+	}
+
+	List<Classroom> classrooms = new ArrayList<Classroom>();
+
+	@Override
+	public List<Classroom> roomsearch(Classroom room) {
+		classrooms.clear();
+		classrooms = studentDao.roomsearch(room);
+		return classrooms;
+	}
+
+	public Map<String, Object> searchroomlist(int page, int pageSize) {
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = classrooms.size();
+		List<ClassroomModel> roommodels = new ArrayList<ClassroomModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < classrooms.size()) {
+				ClassroomModel model = new ClassroomModel();
+				model.setId(classrooms.get(i).getId());
+				model.setId(classrooms.get(i).getId());
+				model.setNum(classrooms.get(i).getNum());
+				model.setRoomname(classrooms.get(i).getRoomname());
+				model.setRoomplace(classrooms.get(i).getRoomplace());
+				model.setRoomtype(classrooms.get(i).getRoomtype());
+				model.setRoomcapacity(classrooms.get(i).getRoomcapacity());
+				model.setRealcapacity(classrooms.get(i).getRealcapacity());
+				model.setNote(classrooms.get(i).getNote());
+				roommodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", roommodels);
+		return map;
+	}
+
+	public List<Student> loadstubyclassid(Integer id) {
+		List<Student> students = studentDao.loadstubyclassid(id);
+		return students;
+	}
+
+	public List<ChosenCourseModel> getArrangedCourse(CourseArrangement ca) {
+		return ca.getCourses();
+	}
+
+	public List<ChosenCourseModel> getUnarrangedCourse(CourseArrangement ca) {
+		return ca.getUnable();
+	}
+    List<Course> courselist = new ArrayList<Course>();
+	@Override
+	public void coursesearch(Course course) {		 
+		courselist.clear();
+		courselist = studentDao.coursesearch(course);
+	}
+
+	@Override
+	public Map<String, Object> coursesearchlist(int page, int pageSize) {		 
+		Map<String, Object> map = new HashMap<String, Object>();
+		/*
+		 * User user = (User)ActionContext.getContext().getSession().get("user");
+		 */		
+		long total = courselist.size();
+		List<CourseModel> coursemodels = new ArrayList<CourseModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < courselist.size()) {
+			CourseModel model = new CourseModel();
+			model.setId(courselist.get(i).getId());
+			model.setNum(courselist.get(i).getNum());
+			model.setCoursename(courselist.get(i).getCoursename());
+			model.setTeacher(courselist.get(i).getTeacher());
+			model.setCharacter(courselist.get(i).getCharacter());
+			model.setCheckway(courselist.get(i).getCheckway());
+			model.setCredits(courselist.get(i).getCredits());
+			model.setBeginweeks(courselist.get(i).getBeginweeks());
+			model.setEndweeks(courselist.get(i).getEndweeks());
+			coursemodels.add(model);
+			}else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", coursemodels);
+		return map;
+	}
+
+	@Override
+	public Classroom loadclassroombyid(Integer id) {		 
+		Classroom classroom = studentDao.loadclassroombyid(id);
+		return classroom;
+	}
+
+	@Override
+	public Classes loadclassbyid(Integer id) {		 
+		Classes classes = studentDao.loadclassbyid(id);
+		return classes;
+	}
+
+}

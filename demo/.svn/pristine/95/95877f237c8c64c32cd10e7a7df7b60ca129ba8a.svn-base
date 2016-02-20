@@ -1,0 +1,475 @@
+package com.tjpu.dao;
+
+import java.util.List;
+import java.util.Set;
+
+import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tjpu.bean.Dept;
+import com.tjpu.bean.Links;
+import com.tjpu.bean.MD5;
+import com.tjpu.bean.Menu;
+import com.tjpu.bean.Role;
+import com.tjpu.bean.Teacher;
+import com.tjpu.bean.User;
+
+@Repository
+@Transactional
+public class UserDaoImpl implements UserDao {
+	@Autowired
+	SessionFactory sessionFactory;
+
+	@SuppressWarnings("unchecked")
+	@Override
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	public List<User> loginDao(String username, String password,Integer role) {
+		 
+		/*left join fetch u.roles r where r.rolerank=:rolerank and */
+		String pass = MD5.generate(password);
+		String queryString = "from User u left join fetch u.roles r where r.rolerank=:id and u.usernum=:uname and u.password=:pwd  ";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setString("uname", username);
+		query.setString("pwd",pass );
+		query.setInteger("id", role);
+		List<User> loginuser = (List<User>) query.list();
+		return loginuser;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> usercheck(String username) {
+		 
+		String queryString = "from User u  where u.username=:uname ";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setString("uname", username);
+		List<User> user = (List<User>) query.list();
+		return user;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> pwdcheck(Integer id, String password) {
+		 
+		String pass = MD5.generate(password);
+		String queryString = "from User u  where u.id=:id and u.password=:password ";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setString("password", pass);
+		query.setInteger("id", id);
+		List<User> user = (List<User>) query.list();
+		return user;
+	}
+	@Override
+	public void userchangpwd(User user) {
+		 
+		User user1 = (User) sessionFactory.getCurrentSession().load(User.class, user.getId());
+		String pass = MD5.generate(user.getPassword());
+		user1.setPassword(pass);		
+		sessionFactory.getCurrentSession().update(user1);
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> usercheck1(String usernum) {
+		 
+		String queryString = "from User u  where  u.usernum =:num ";/*u.username=:uname and*/
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		/*query.setString("uname", username);*/
+		query.setString("num", usernum);
+		List<User> user = (List<User>) query.list();
+		return user;
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> usercheck1again(Integer id,String usernum) {
+		 
+		String queryString = "from User u  where  u.usernum =:num and u.id=:id ";/*u.username=:uname and*/
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		/*query.setString("uname", username);*/
+		query.setString("num", usernum);
+		query.setInteger("id", id);
+		List<User> user = (List<User>) query.list();
+		return user;
+	}
+
+	@Override
+	public void useradd(User u) {
+		 
+		sessionFactory.getCurrentSession().save(u);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Dept> loaddepts() {
+		 
+		String queryString = "from Dept d";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		List<Dept> dept = (List<Dept>) query.list();
+		return dept;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> loadusers(int i, int pageSize) {
+		 
+		String queryString = "from User u ";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setFirstResult(i);
+		query.setMaxResults(pageSize);
+		List<User> user = (List<User>) query.list();
+		return user;
+	}
+
+	@Override
+	public long totalstu() {
+		 
+		String hql = "select count(*) from User";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		long total = ((Number) query.uniqueResult()).intValue();
+		return total;
+	}
+
+	@Override
+	public void userupdate(User user, int deptid) {
+		 
+		Dept dept = (Dept) sessionFactory.getCurrentSession().load(Dept.class, deptid);
+		User user1 = (User) sessionFactory.getCurrentSession().load(User.class, user.getId());
+		user1.setDepts(dept);
+		user1.setUsernum(user.getUsernum());
+		user1.setEmail(user.getEmail());
+		//String pass = MD5.generate(user.getPassword());
+		//user1.setPassword(pass);
+		user1.setRealname(user.getRealname());
+		user1.setSex(user.getSex());
+		user1.setTelephone(user.getTelephone());
+		user1.setUsername(user.getUsername());
+		sessionFactory.getCurrentSession().update(user1);
+	}
+
+	@Override
+	public void userdelete(int userid) {
+		 
+		User user = (User) sessionFactory.getCurrentSession().load(User.class, userid);		
+		user.setDepts(null);
+		sessionFactory.getCurrentSession().delete(user);
+	}
+
+	@Override
+	public Dept loaddeptbyid(int deptid) {
+		 
+		Dept dept = (Dept) sessionFactory.getCurrentSession().load(Dept.class, deptid);
+		return dept;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Role loadrolebyid(int roles) {
+		 
+		String queryString = "from Role r where r.rolerank=:roles";
+		Query query= sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setInteger("roles", roles);
+		List<Role> roles2 = (List<Role>)query.list();
+		Role role = roles2.get(0);
+		return role;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Role> loadroles(int i, int pageSize) {
+		 
+       String querString = "from Role r where r.rolerank!=0";
+       Query query = sessionFactory.getCurrentSession().createQuery(querString);
+       List<Role> roles = (List<Role>) query.list();
+       return roles;
+	}
+
+	@Override
+	public void roleadd(Role role) {
+		 
+		sessionFactory.getCurrentSession().save(role);
+	}
+
+	@Override
+	public void roledelete(int roleid) {
+		 
+		Role role = (Role) sessionFactory.getCurrentSession().load(Role.class, roleid);
+		//role.setMenus(null);
+		for (User u : role.getUsers()) {
+			u.setRoles(null);
+		}
+		sessionFactory.getCurrentSession().delete(role);
+	}
+
+	@Override
+	public void roleupdate(Role role) {
+		 
+		Role role1 = (Role)sessionFactory.getCurrentSession().load(Role.class, role.getId());
+		role1.setCreatedate(role.getCreatedate());
+		role1.setRoledescribe(role.getRoledescribe());
+		role1.setRolename(role.getRolename());
+		role1.setRolerank(role.getRolerank());
+		sessionFactory.getCurrentSession().update(role1);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Role> rolecheck(String rolename) {
+		 
+		String queryString = "from Role r  where r.rolename=:name";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setString("name", rolename);
+		List<Role> role = (List<Role>) query.list();
+		return role;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Role> loadroles() {
+		 
+		String queryString = "from Role r";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		List<Role> roles = (List<Role>) query.list();
+		return roles;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Menu> loadmenu() {
+		 
+		String querString = "from Menu m order by m.id";
+		Query query = sessionFactory.getCurrentSession().createQuery(querString);
+		List<Menu> menus = (List<Menu>)query.list();
+		return menus;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Menu> loadfirstmenu() {
+		 
+		int parentnav = 1;
+		String querString = "from Menu m left join fetch m.menu u where u.id=:parentnav order by m.id";
+		Query query = sessionFactory.getCurrentSession().createQuery(querString);
+		query.setInteger("parentnav", parentnav);
+		List<Menu> menus = (List<Menu>)query.list();
+		return menus;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Menu> loadsecondmenu(Integer id) {
+		 
+		String querString = "from Menu m left join fetch m.menu u where u.id=:parentnav order by m.id";
+		Query query = sessionFactory.getCurrentSession().createQuery(querString);
+		query.setInteger("parentnav", id);
+		List<Menu> menus = (List<Menu>)query.list();
+		return menus;
+	}
+
+	@Override
+	public void menuupdate(Menu menu) {
+		 
+		sessionFactory.getCurrentSession().update(menu);
+	}
+
+	@Override
+	public void menudelete(Menu menu1) {
+		 				
+		sessionFactory.getCurrentSession().delete(menu1);
+	}
+
+	@Override
+	public void menuadd(Menu menu) {
+		 
+		sessionFactory.getCurrentSession().save(menu);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Menu> loadrolemenu(Integer id) {
+		 
+		String querString = "from Menu m left join fetch m.roles r where r.rolerank=:id order by m.id";
+		Query query = sessionFactory.getCurrentSession().createQuery(querString);
+		query.setInteger("id", id);
+		List<Menu> rolemenuList = (List<Menu>)query.list();
+		return rolemenuList;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Menu loadmenubyid(int id) {
+		 
+		String quString = "from Menu m where m.id=:id order by m.id";
+		Query query = sessionFactory.getCurrentSession().createQuery(quString);
+		query.setInteger("id", id);
+		List<Menu> menus = (List<Menu>)query.list();
+		return menus.get(0);
+	}
+
+	@Override
+	public void updaterolemenu(Set<Menu> menuset, int id) {
+		 
+		Role role = (Role) sessionFactory.getCurrentSession().load(Role.class, id);
+		role.setMenus(menuset);
+		sessionFactory.getCurrentSession().update(role);
+	}
+
+	@Override
+	public void deptadd(Dept dept) {
+		 
+		sessionFactory.getCurrentSession().save(dept);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void deptdelete(int deptid) {
+		 
+		Dept dept = (Dept)sessionFactory.getCurrentSession().load(Dept.class, deptid);
+		String queryString = "from Teacher t left join fetch t.dept d where d.id=:deptid";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		List<Teacher> teachers = (List<Teacher>)query.list();
+		if (teachers.size()>0) {
+			return;
+		}else{
+			sessionFactory.getCurrentSession().delete(dept);
+		}		
+	}
+
+	@Override
+	public void deptupdate(Dept dept) {
+		 
+		Dept dept1 = (Dept)sessionFactory.getCurrentSession().load(Dept.class, dept.getDeptid());
+		dept1.setDeptname(dept.getDeptname());
+		dept1.setDeptresponsible(dept.getDeptresponsible());
+		sessionFactory.getCurrentSession().update(dept1);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Dept> loaddeptbyname(String deptname) {
+		 
+		String querysString = "from Dept d where d.deptname=:deptname";
+		Query query = sessionFactory.getCurrentSession().createQuery(querysString);
+		query.setString("deptname", deptname);
+		List<Dept> depts = (List<Dept>)query.list();
+		return depts;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Teacher> loaddeptmember(Integer deptid) {
+		 
+		String querysString = "from Teacher t left join fetch t.dept d where d.deptid=:deptid";
+		Query query = sessionFactory.getCurrentSession().createQuery(querysString);
+		query.setInteger("deptid", deptid);
+		List<Teacher> teachers = (List<Teacher>)query.list();
+		return teachers;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Links> linkslist() {
+		 
+		String queryString = "from Links l ";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		List<Links> links = (List<Links>)query.list();
+		return links;
+	}
+
+	@Override
+	public void linksadd(Links links) {
+		 
+		sessionFactory.getCurrentSession().save(links);
+	}
+
+	@Override
+	public void linksupdate(Links links) {
+		 
+		Links links2 = (Links)sessionFactory.getCurrentSession().load(Links.class, links.getId());
+		links2.setTitle(links.getTitle());
+		links2.setLinksaddress(links.getLinksaddress());
+		sessionFactory.getCurrentSession().update(links2);
+	}
+
+	@Override
+	public void linksdelete(Integer id) {
+		 
+		Links links = (Links)sessionFactory.getCurrentSession().load(Links.class, id);
+		sessionFactory.getCurrentSession().delete(links);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Links> linkscheck(String title) {
+		 
+		String queryString ="from Links l where l.title=:title";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setString("title", title);
+		List<Links> links = (List<Links>)query.list();
+		return links;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Role> loadrolesbymenuid(Integer id) {
+		 
+		String queryString ="from Role r left join fetch r.menus m where m.id=:id";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setInteger("id", id);
+		List<Role> roles =(List<Role>)query.list();
+		return roles;
+	}
+
+	@Override
+	public long totalrole() {
+		 
+		String hql = "select count(*) from Role";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+		long total = ((Number) query.uniqueResult()).intValue();
+		return total;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public User loaduserbyid(Integer id) {
+		 
+		String querystring = "from User u where u.id=:id";
+		Query query = sessionFactory.getCurrentSession().createQuery(querystring);
+		query.setInteger("id", id);
+		List<User> users = (List<User>)query.list();
+		return users.get(0);
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public Teacher loadteacherbyid(String  teacherid) {
+		if (teacherid==null) {
+			return null;
+		}else {
+			String querystring = "from Teacher u where u.identificationnum=:id";
+			Query query = sessionFactory.getCurrentSession().createQuery(querystring);
+			query.setString("id", teacherid);
+			List<Teacher> teachers = (List<Teacher>)query.list();
+			return teachers.get(0);
+		}
+		
+	}
+
+	@Override
+	public Dept loaddeptresponsible(Integer deptid) {
+		// TODO Auto-generated method stub
+		Dept dept = (Dept)sessionFactory.getCurrentSession().load(Dept.class, deptid);
+		return dept;
+	}
+
+	@Override
+	public void updatedept(Integer deptid, String teachername) {
+		// TODO Auto-generated method stub
+		Dept dept = (Dept)sessionFactory.getCurrentSession().load(Dept.class, deptid);
+		dept.setDeptresponsible(teachername);
+		sessionFactory.getCurrentSession().update(dept);
+	}
+
+}

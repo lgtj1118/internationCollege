@@ -1,0 +1,219 @@
+package com.tjpu.bean;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+
+import static javax.persistence.GenerationType.IDENTITY;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * Teacher entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "teacher")
+public class Teacher implements java.io.Serializable {
+
+	// Fields
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Integer id;
+	private String identificationnum;
+	private String teachername;
+	private String sex;
+	private Dept dept;
+	private Integer roleid;
+	private String email;
+	private String telephone;
+	private Integer type;
+	private Integer courseid;
+	private String position;
+	private String password;
+	private String imgurl;
+	private Integer deleted = 0;
+	private Set<ChosenCourse> chosencourses = new HashSet<ChosenCourse>(0);
+	//private Classes classes;
+	// Constructors
+
+	/** default constructor */
+	public Teacher() {
+	}
+
+	/** full constructor */
+	public Teacher(String identificationnum, String teachername, String sex, Dept dept, Integer roleid, 
+			String email, String telephone, Integer type, Integer courseid, String position,
+			String password,String imgurl/*,Classes classes*/,Set<ChosenCourse> chosencourses) {
+		this.identificationnum = identificationnum;
+		this.teachername = teachername;
+		this.sex = sex;
+		this.dept = dept;
+		this.roleid = roleid;
+		this.email = email;
+		this.telephone = telephone;
+		this.type = type;
+		this.courseid = courseid;
+		this.position = position;
+		this.password = password;
+		this.imgurl = imgurl;
+		//this.classes = classes;
+		this.chosencourses = chosencourses;
+	}
+
+	// Property accessors
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@Column(name = "identificationnum")
+	public String getIdentificationnum() {
+		return this.identificationnum;
+	}
+
+	public void setIdentificationnum(String identificationnum) {
+		this.identificationnum = identificationnum;
+	}
+
+	@Column(name = "teachername")
+	public String getTeachername() {
+		return this.teachername;
+	}
+
+	public void setTeachername(String teachername) {
+		this.teachername = teachername;
+	}
+
+	@Column(name = "sex")
+	public String getSex() {
+		return this.sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	@ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="dept_id")
+	public Dept getDept() {
+		return this.dept;
+	}
+
+	public void setDept(Dept dept) {
+		this.dept = dept;
+	}
+
+	@Column(name = "role_id")
+	public Integer getRoleid() {
+		return this.roleid;
+	}
+
+	public void setRoleid(Integer roleid) {
+		this.roleid = roleid;
+	}
+
+	@Column(name = "email")
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@Column(name = "telephone")
+	public String getTelephone() {
+		return this.telephone;
+	}
+
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
+
+	@Column(name = "type")
+	public Integer getType() {
+		return this.type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	@Column(name = "courseid")
+	public Integer getCourseid() {
+		return this.courseid;
+	}
+
+	public void setCourseid(Integer courseid) {
+		this.courseid = courseid;
+	}
+
+	@Column(name = "position")
+	public String getPosition() {
+		return this.position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	/*@OneToOne(fetch=FetchType.LAZY,mappedBy="assistantteachers") 
+	@JoinColumn(name="class_teacher_id")
+	public Classes getClasses() {
+		return classes;
+	}
+
+	public void setClasses(Classes classes) {
+		this.classes = classes;
+	}*/
+    @Column(name="password")
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	@Column(name="imgurl")
+	public String getImgurl() {
+		return imgurl;
+	}
+
+	public void setImgurl(String imgurl) {
+		this.imgurl = imgurl;
+	}
+	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinTable(name = "teacher_chosencourse", joinColumns = { @JoinColumn(name = "teacher_id", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "chosencourse_id", nullable = false, updatable = false) })
+	public Set<ChosenCourse> getChosencourses() {
+		return this.chosencourses;
+	}
+
+	public void setChosencourses(Set<ChosenCourse> chosencourses) {
+		this.chosencourses = chosencourses;
+	}
+
+	public Integer getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(Integer deleted) {
+		this.deleted = deleted;
+	}
+}

@@ -1,0 +1,24 @@
+package com.tjpu.test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+
+public class OtherTest {
+	
+	interface f {
+		public int returnZero ();
+	}
+	
+	class fi implements f{
+		public int returnZero() {
+			return 0;
+		}
+		
+	}
+	
+
+}

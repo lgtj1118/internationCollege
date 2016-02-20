@@ -1,0 +1,13 @@
+package com.tjpu.test;
+
+import java.util.regex.Pattern;
+
+
+public class OtherTest {
+	public static void main(String[] args) {
+		String reg = "\\w*[a-zA-Z\u4e00-\u9fa5]+\\w*";
+		String str = "1我23";
+		System.out.println(Pattern.matches(reg, str));
+	}
+
+}

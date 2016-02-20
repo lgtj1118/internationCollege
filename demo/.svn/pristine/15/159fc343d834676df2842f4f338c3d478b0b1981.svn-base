@@ -1,0 +1,99 @@
+package com.tjpu.service;
+
+import java.util.BitSet;
+import java.util.List;
+
+import com.tjpu.bean.ChosenCourse;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.CourseModel;
+
+
+/**
+ * @author SiyuLi
+ *
+ */
+public class CourseArrangement {
+	private BitSet time_table[][][] = null;
+	private List<ClassroomModel> rooms = null;
+	private List<ChosenCourse> courses = null;
+	private int weekday = 5;
+	private int slot = 5;
+	public CourseArrangement (){
+	}
+	
+
+	/**
+	 * 建立原始表，并放入所有课程
+	 */
+	private void buildOriginalBitTable (){
+		time_table = new BitSet[rooms.size()][weekday][slot];
+		//初始化 BitSet
+		for (int r = 0; r < rooms.size(); ++r) 
+			for (int d = 0; d < weekday; ++d)
+				for (int s = 0; s < slot; ++s)
+					time_table[r][d][s] = new BitSet(courses.size());
+		//填入相应课程的下标
+		for (int c = 0; c < courses.size(); ++c) 
+			for (int r = 0; r < rooms.size(); ++r)
+				if (rooms.get(r).getRealcapacity())
+	}
+	
+	private bool
+	
+	
+	/**
+	 * 用于传递时间与地点的内部类
+	 */
+	private class Spacetime {
+		public Spacetime(int day, int slot, int room){
+			this.day = day;
+			this.room = room;
+			this.slot = slot;
+		}
+		private int day;
+		private int slot;
+		private int room;
+		public String toString () {
+			return String.format("room%d, day%s, slot%s", room, day, slot);
+		}
+		public int getDay() {
+			return day;
+		}
+		public void setDay(int day) {
+			this.day = day;
+		}
+		public int getSlot() {
+			return slot;
+		}
+		public void setSlot(int slot) {
+			this.slot = slot;
+		}
+		public int getRoom() {
+			return room;
+		}
+		public void setRoom(int room) {
+			this.room = room;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

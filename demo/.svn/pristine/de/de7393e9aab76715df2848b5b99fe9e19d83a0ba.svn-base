@@ -1,0 +1,21 @@
+package com.tjpu.test;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.tjpu.bean.ClassesModel;
+import com.tjpu.bean.Student;
+
+public class OtherTest {
+	public static void main(String[] args) {
+		List<ClassesModel> c1 = new ArrayList<ClassesModel>();
+		Set<Student> stus = new HashSet<Student>();
+		stus.add(new Student("123"));
+		c1.add(new ClassesModel("abc","computer", stus));
+		List<ClassesModel> c2 = new ArrayList<ClassesModel>();
+		c2.add(new ClassesModel("abcd","computer", stus));
+		System.out.println(c1.equals(c2));
+	}
+}

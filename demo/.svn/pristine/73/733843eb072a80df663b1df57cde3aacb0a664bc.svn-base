@@ -1,0 +1,29 @@
+package com.tjpu.test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import net.sf.json.JSON;
+import net.sf.json.util.JSONStringer;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.tjpu.bean.Cascade;
+
+
+public class OtherTest {
+	
+	public static void main(String[] args) {
+		String s = "abc%s%s";
+		s = String.format(s, "HH", "GG");
+		//String q = String.format(p, "GG");
+		//System.out.println(s);
+		//System.out.println(p);
+		System.out.println(s);
+	}
+	
+
+}

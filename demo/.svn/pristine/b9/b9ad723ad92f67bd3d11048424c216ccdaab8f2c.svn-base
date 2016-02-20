@@ -1,0 +1,153 @@
+package com.tjpu.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.tjpu.bean.Adjustcourse;
+import com.tjpu.bean.Announcement;
+import com.tjpu.bean.Attendence;
+import com.tjpu.bean.Certify1;
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.ClassesModel;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.Evalution;
+import com.tjpu.bean.InfoBean;
+import com.tjpu.bean.Leave;
+import com.tjpu.bean.SemesterChosenCourse;
+import com.tjpu.bean.Teacher;
+
+public interface ManageService {
+	
+	public List<ChosenCourseModel> allSelectiveCourses (String stuid, String semester);
+	
+	public ClassesModel getClassByStuId (String stuid);
+	
+	public void checkAdjustApply (boolean isApprove, Integer id);
+	
+	public List<Adjustcourse> adjustRecordList (String semester);
+	
+	public List<ChosenCourseModel> loadAllChosenCourse (String semester); 
+	
+	public List<ChosenCourseModel> getOtherOption (ChosenCourseModel course, String semester);
+
+	public List<ChosenCourseModel> getStuSyllabus (String stuid, String semester);
+	
+	public void saveArrangedCourse (List<ChosenCourseModel> arranged, String semester);
+	
+	public void evalutionteacheradd(Evalution evalution);
+	
+	public List<InfoBean> getUnarrangeCourses (int page, int pageSize, String semester);
+	
+	public List<ChosenCourseModel> getAllChosenCourse (String semester);
+	
+	public List<ClassroomModel> getAllAvlRooms(String semester);
+	
+	public List<ClassroomModel> getAvlRooms (int page, int pageSize,String semester);
+	
+	public int getTotalUnarrangedCourseNum (String semester);
+	
+	public int getTotalAvlRoomsNum (String semester);
+	
+	public String loadevalution(Integer id);
+
+	public Map<String, Object> teachermap(int page, int pageSize);
+
+	public void teacherupdate(Teacher teacher);
+
+	public void teacherdelete(String ids);
+
+	public void stuattendenceadd(Attendence attendence, String ids);
+
+	public Map<String, Object> attendencestulistmap(int page, int pageSize);
+
+	public void loadattendence(Integer id);
+
+	public List<Course> loadstucourse();
+
+	public List<Attendence> searchstuattendence(Attendence attendence);
+
+	public void leaveadd(Leave leave);
+
+	public Map<String, Object> stuleavemap(int page, int pageSize);
+
+	public void stuleaveupdate(Leave leave);
+
+	public void leavedelete(Leave leave);
+
+	public String courseattendencesearch(Attendence attendence);
+
+	public Teacher loginService(String usernum, String password);
+
+	public void teacheradd(Teacher teacher, Integer depid);
+
+	public boolean teachercheck(String identificationnum);
+
+	public void teacheraddbytxt(String path);
+
+	public Teacher loadteacherbyid(Integer id);
+
+	public void justiceladd(Certify1 certify1);
+
+	public void announcementadd(Announcement announcement);
+
+	public Map<String, Object> announcementmap(int page, int pageSize);
+
+	public Announcement loadannouncement(Integer id);
+
+	public void announcementupdate(Announcement announcement);
+
+	public void announcementdelete(String ids);
+
+	public String loadjusticel();
+
+	public void justiceldelete(String ids);
+
+	public List<Certify1> loadjusticellist();
+
+	public Certify1 loadjusticelbyid(Integer id);
+
+	public void justicelupdate(Certify1 certify);
+
+	public String loadattendencelist(Integer id);
+
+	public List<Announcement> announcementlist();
+
+	public Map<String, Object> stuattendencelistmap(int page, int pageSize);
+
+	public Map<String, Object> personattendencelistmap(int page, int pageSize);
+
+	public List<Attendence> loadattendencebycourseid(Integer id);
+
+	public void teacherchangeimg(String imgurl);
+
+	public Leave loadleavebyid(Integer id);
+
+	public Map<String, Object> semestercourselist(int page, int pageSize);
+
+	public void semestercourseadd(String ids);
+
+	public void semestercoursedelete(String ids);
+
+	public Map<String, Object> courselist(int page, int pageSize);
+
+	public Map<String, Object> roomlist(int page, int pageSize);
+
+	public Map<String, Object> semesterroomlist(int page, int pageSize);
+
+	public void semesterroomadd(String ids);
+
+	public void semesterroomdelete(String ids);
+
+	public void semestercourseteacheradd(List<SemesterChosenCourse> listUpdated);
+
+	public void semesterteacherendadd(String identificationnum, Integer semestercourseid);
+
+	public void semesterclassset(Integer id, String ids);
+
+	public Map<String, Object> semesterselectcourselist(int page, int pageSize);
+
+	public void semesterselectcourseupdate(List<SemesterChosenCourse> listUpdated);
+
+
+}

@@ -1,0 +1,14 @@
+package com.tjpu.test;
+
+import java.util.regex.Pattern;
+
+
+public class OtherTest {
+	public static void main(String[] args) {
+		String reg = "(?!0)\\d{12}";
+		String str = "123456789123";
+		System.out.println(Pattern.matches(reg, str));
+		
+	}
+
+}

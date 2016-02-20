@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 3 elements from project &apos;demo&apos;&#x0D;&#x0A;- Original project: &apos;demo&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     justicelmanage.jsp.mine&#x0D;&#x0A;     justicelmanage.jsp.r371&#x0D;&#x0A;     justicelmanage.jsp.r375" description="Delete elements" element1="WebRoot/WEB-INF/manage/justicelmanage.jsp.r375" element2="WebRoot/WEB-INF/manage/justicelmanage.jsp.mine" element3="WebRoot/WEB-INF/manage/justicelmanage.jsp.r371" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="3" stamp="1438603283604" subPackages="false" version="1.0"/>
+</session>

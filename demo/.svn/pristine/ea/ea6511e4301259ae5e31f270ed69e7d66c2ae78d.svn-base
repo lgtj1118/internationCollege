@@ -1,0 +1,112 @@
+<%@page import="org.springframework.web.context.request.SessionScope"%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">   
+    <title>天津工业大学排课管理系统</title>	   
+	<link href="<%=basePath%>js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet"type="text/css" />	
+	<link href="<%=basePath %>js/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css"/>	
+    <script type="text/javascript" src="js/jquery-validation/jquery.validate.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/json2.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/jquery.metadata.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/messages_cn.js" charset="utf-8"></script>
+    <script src="js/jquery/jquery-1.3.2.min.js"type="text/javascript"></script>
+	<script src="js/ligerUI/core/base.js" type="text/javascript"></script>
+	<script src="js/ligerUI/ligerui.all.js" type="text/javascript"></script>
+<script type="text/javascript">  
+   var CourseData = { 
+	        Rows: [<%String s=(String) request.getAttribute("courselist");%><%=s%>]};
+   var CourseList = CourseData.Rows;
+   var CoursecreditData = { 
+	         Rows: [<%String ss=(String) request.getAttribute("coursecredit");%><%=ss%>]};
+   var CourseCredit = CoursecreditData.Rows;
+   var CourseCharacterData = { 
+	        Rows: [ <%String sss=(String) request.getAttribute("character");%> <%=sss%>]};
+   var CourseCharacter = CourseCharacterData.Rows;
+   var CourseCheckwayData = { 
+	        Rows: [<%String ssss=(String) request.getAttribute("checkway");%> <%=ssss%>]};
+   var CourseCheckway = CourseCheckwayData.Rows;
+	$(f_initGrid);
+	var manager, g;
+	function f_initGrid() {
+		g = manager = $("#maingrid").ligerGrid(
+				{
+				columns : [{
+				display : 'ID',
+				name : 'id',
+				width : 60,
+				hide:true,
+				type : 'int'
+			}, {
+				display : '课程编号',
+				name : 'num',
+				width : 160,
+				editor: { type: 'text'}
+			} , {
+				display : '课程名称',
+				name : 'coursename',
+				minWidth : 300,
+				editor: { type: 'text'}
+			} /* , {
+				display : '负责教师',
+				name : 'teacher',
+				minWidth : 120,
+				editor: { type: 'text'}
+			} */,{
+					display : '操作',
+					isSort : false,
+					width : 120,
+					render : function() {
+						var h = "";
+						h += "<a style='color:#000;' href='javascript:courseattendence("+ ")'>考勤</a> ";
+						return h;
+					}
+			} ],
+					onSelectRow : function(rowdata, rowindex) {
+						$("#txtrowindex").val(rowindex);
+					},
+					enabledEdit : true,
+					clickToEdit : false,
+					isScroll : false,
+					checkbox:false,
+			        rownumbers:true,
+					url :'${pageContext.request.contextPath}/system/Manage_attendencecourselist.action',
+					width : '100%'
+				});
+	}
+	function courseattendence(){
+	  var row = manager.getSelectedRow();
+	   if(!row){
+	     alert('请选择一个课程！');
+	     return;
+	  }	
+      var str = "${pageContext.request.contextPath}/system/Manage_courseclasslist.action?course.id="+row.id+"&course.coursename="+row.coursename+"&course.num="+row.num;		  
+	  // var str = "${pageContext.request.contextPath}/system/Manage_attendenceset.action?course.id="+row.id+"&course.coursename="+row.coursename;	  	    
+      var tabid = "attendencecourseclasslist";
+     top.f_addTab(tabid,row.coursename,str);	
+}
+	function load(){
+	  var row = manager.getSelectedRow();
+	  if(!row){
+	     alert('请选择一个条目！');
+	     return;
+	  }else{
+	    var str = "${pageContext.request.contextPath}/system/Manage_tabcourseattendenceload?course.num="+row.num;
+	    var tabid= "courseattendenceload";
+	    top.f_addTab(tabid,row.coursename,str);
+	  }
+	}
+</script>
+	</head>
+	<body style="padding: 2px">	
+	    <a class="l-button" style="width:70px;float:left; margin:3px;" onclick="load()">查&nbsp;&nbsp;看</a>	
+		<div class="l-clear"></div>
+		<div id="maingrid" ></div>
+	</body>
+</html>

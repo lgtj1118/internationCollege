@@ -1,0 +1,90 @@
+<%@page import="com.tjpu.bean.Syllabus"%>
+<%@page import="com.tjpu.bean.ChosenCourseModel"%>
+<%@page import="org.springframework.web.context.request.SessionScope"%>
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">   
+    <title>天津工业大学排课管理系统</title>	 
+    <link href="<%=basePath%>js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet"type="text/css" />	
+	<link href="<%=basePath %>js/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css"/>	  
+<style type="text/css">
+.content-td{
+height: 120px; 
+ float:left;
+ width:100px;
+ overflow: hidden;
+ border: 1px solid #000 ;
+}
+.content-table{
+ margin-top: 50px;
+ 
+}
+</style>
+</head>
+	<body style="padding: 2px; font-size:12px">			
+	<dir style="float: left; padding-left:10px">
+	   <table >
+			<tr>
+				<td colspan="4"><img alt="flow_chat" src="images/flow_chat3.jpg" height="100px"></td>
+			</tr>
+			<tr style="visibility: hidden;">
+				<td height="25px">
+					<a class="l-button" style="width:60px;float:left; margin-left:10px " onclick="add()">添&nbsp;加</a>
+					<a class="l-button" style="width:60px;float:left; margin-left:10px " onclick="deleterow()">删&nbsp;除</a>
+					<a class="l-button" style="width:60px;float:left; margin-left:10px " onclick="beginEdit()">修&nbsp;改</a>
+					<a class="l-button" style="width:60px;float:left; margin-left:10px" href="system/Manage_chkRooms.action">下一步</a>
+				</td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+	</dir>
+			<%-- <table border="1">
+				<%
+					List<List<Syllabus>> list = (List<List<Syllabus>>)session.getAttribute("arrangedCourses");
+					for (int i = 0; i < list.size(); ++i) {
+						List<Syllabus> courses = (List<Syllabus>) list.get(i);
+				%>
+					<tr>
+				<%
+						for (int j = 0; j < courses.size(); ++j) {
+							Syllabus course = courses.get(j);
+				 %>
+				 		<td>
+				 			<table>
+				 				<tr><td><%=course.getCourseName()%><br></td></tr>
+				 				<tr><td><%=course.getTeacherName()%></td></tr>
+				 				<tr><td><%=course.getClassName()%></td></tr>
+				 			</table>
+				 		</td>
+				 <% 	} %>
+					</tr>
+				<%
+					}	
+				 %>
+			</table> --%>
+			<table class="content-table" >
+			 <s:iterator value="#arrangedCourses"  >
+			    <tr class="content-tr">
+			      <s:iterator value="top" id="courses" >
+			      <td>
+			        <div class="content-td" >
+			            ${courses.courseName }<br>${courses.teacherName }<br>${courses.className }	
+			        </div>	
+			        <td>		      			        		     
+			      </s:iterator>
+			     </tr><br/>
+			 </s:iterator>
+			  
+			</table>
+</body>
+</html>

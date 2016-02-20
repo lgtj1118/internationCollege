@@ -1,0 +1,2476 @@
+package com.tjpu.action;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import jxl.Workbook;
+import jxl.format.Alignment;
+import jxl.format.UnderlineStyle;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.struts2.ServletActionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.google.gson.Gson;
+import com.opensymphony.xwork2.ActionContext;
+import com.tjpu.bean.Adjustcourse;
+import com.tjpu.bean.AdjustcourseModel;
+import com.tjpu.bean.Announcement;
+import com.tjpu.bean.Attendence;
+import com.tjpu.bean.Cascade;
+import com.tjpu.bean.Certify1;
+import com.tjpu.bean.ChosenCourse;
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.Classroom;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.CourseModel;
+import com.tjpu.bean.Dept;
+import com.tjpu.bean.Evalution;
+import com.tjpu.bean.InfoBean;
+import com.tjpu.bean.Leave;
+import com.tjpu.bean.SemesterChosenCourse;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.Syllabus;
+import com.tjpu.bean.Teacher;
+import com.tjpu.bean.User;
+import com.tjpu.service.ClassService;
+import com.tjpu.service.CourseArrangement;
+import com.tjpu.service.CourseArrangementImpl;
+import com.tjpu.service.ManageService;
+import com.tjpu.service.StudentService;
+import com.tjpu.service.UserService;
+
+/**
+ * @author ZhangChong
+ * 
+ */
+@Controller
+public class ManageAction {
+	@Autowired
+	StudentService studentService;
+	@Autowired
+	ClassService classService;
+	@Autowired
+	ManageService manageService;
+	@Autowired
+	UserService userService;
+	private Course course;
+	private Evalution evalution;
+	private Attendence attendence;
+	private Announcement announcement;
+	private SemesterChosenCourse semChosenCourse;
+	private Student stu;
+	private ChosenCourse chosenCourse;
+
+	private Adjustcourse adjustcourse;
+	private CourseArrangement ca = null;
+	private Teacher teacher;
+	private Leave leave;
+	private String ids;
+	private Integer depid;
+	private String date;
+	private String time;
+	private Classes cls;
+	private File file;
+	private File image;
+	private String imageFileName;
+	private String fileFileName;
+	private String fileContentType;
+	private String title;
+	private Certify1 certify;
+	private String newnum;
+	private String oldnum;
+	private String oldAdjustApplyID;
+	private String newAdjustApplyID;
+	private String isApprove;
+	private String adjustcourseID;
+	private String selectiveCourseNum;
+
+	private String semester;
+	private String origndate;
+	private String plandate;
+	private String oldSlot;
+	private String newSlot;
+	
+	private String newRoomNum;
+	private String oldRoomNum;
+	
+	public String getOrigndate() {
+		return origndate;
+	}
+
+	public void setOrigndate(String origndate) {
+		this.origndate = origndate;
+	}
+
+	public String getPlandate() {
+		return plandate;
+	}
+
+	public void setPlandate(String plandate) {
+		this.plandate = plandate;
+	}
+
+	public ChosenCourse getChosenCourse() {
+		return chosenCourse;
+	}
+
+	public void setChosenCourse(ChosenCourse chosenCourse) {
+		this.chosenCourse = chosenCourse;
+	}
+
+	private String adjustReason;
+
+	public String getAdjustReason() {
+		return adjustReason;
+	}
+
+	public void setAdjustReason(String adjustReason) {
+		this.adjustReason = adjustReason;
+	}
+
+	public String getSelectiveCourseNum() {
+		return selectiveCourseNum;
+	}
+
+	public void setSelectiveCourseNum(String selectiveCourseNum) {
+		this.selectiveCourseNum = selectiveCourseNum;
+	}
+
+	public String getNewnum() {
+		return newnum;
+	}
+
+	public void setNewnum(String newnum) {
+		this.newnum = newnum;
+	}
+
+	public SemesterChosenCourse getSemChosenCourse() {
+		return semChosenCourse;
+	}
+
+	public void setSemChosenCourse(SemesterChosenCourse semChosenCourse) {
+		this.semChosenCourse = semChosenCourse;
+	}
+
+	public Adjustcourse getAdjustcourse() {
+		return adjustcourse;
+	}
+
+	public void setAdjustcourse(Adjustcourse adjustcourse) {
+		this.adjustcourse = adjustcourse;
+	}
+
+	public String getIsApprove() {
+		return isApprove;
+	}
+
+	public void setIsApprove(String isApprove) {
+		this.isApprove = isApprove;
+	}
+
+	public String getAdjustcourseID() {
+		return adjustcourseID;
+	}
+
+	public void setAdjustcourseID(String adjustcourseID) {
+		this.adjustcourseID = adjustcourseID;
+	}
+
+	public String getNewAdjustApplyID() {
+		return newAdjustApplyID;
+	}
+
+	public void setNewAdjustApplyID(String newAdjustApplyID) {
+		this.newAdjustApplyID = newAdjustApplyID;
+	}
+
+	public String getOldAdjustApplyID() {
+		return oldAdjustApplyID;
+	}
+
+	public void setOldAdjustApplyID(String oldAdjustApplyID) {
+		this.oldAdjustApplyID = oldAdjustApplyID;
+	}
+
+	public String getOldnum() {
+		return oldnum;
+	}
+
+	public void setOldnum(String oldnum) {
+		this.oldnum = oldnum;
+	}
+
+	public Student getStu() {
+		return stu;
+	}
+
+	public void setStu(Student stu) {
+		this.stu = stu;
+	}
+
+	public String getFileContentType() {
+		return fileContentType;
+	}
+
+	public void setFileContentType(String fileContentType) {
+		this.fileContentType = fileContentType;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public Certify1 getCertify() {
+		return certify;
+	}
+
+	public void setCertify(Certify1 certify) {
+		this.certify = certify;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	public String getFileFileName() {
+		return fileFileName;
+	}
+
+	public void setFileFileName(String fileFileName) {
+		this.fileFileName = fileFileName;
+	}
+
+	public Leave getLeave() {
+		return leave;
+	}
+
+	public void setLeave(Leave leave) {
+		this.leave = leave;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public void setTime(String time) {
+		this.time = time;
+	}
+
+	public Teacher getTeacher() {
+		return teacher;
+	}
+
+	public void setTeacher(Teacher teacher) {
+		this.teacher = teacher;
+	}
+
+	public String getIds() {
+		return ids;
+	}
+
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+
+	public Attendence getAttendence() {
+		return attendence;
+	}
+
+	public void setAttendence(Attendence attendence) {
+		this.attendence = attendence;
+	}
+
+	public Classes getCls() {
+		return cls;
+	}
+
+	public void setCls(Classes cls) {
+		this.cls = cls;
+	}
+
+	public Integer getDepid() {
+		return depid;
+	}
+
+	public void setDepid(Integer depid) {
+		this.depid = depid;
+	}
+
+	public Evalution getEvalution() {
+		return evalution;
+	}
+
+	public void setEvalution(Evalution evalution) {
+		this.evalution = evalution;
+	}
+
+	public Course getCourse() {
+		return course;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+
+	public File getImage() {
+		return image;
+	}
+
+	public void setImage(File image) {
+		this.image = image;
+	}
+
+	public String getImageFileName() {
+		return imageFileName;
+	}
+
+	public void setImageFileName(String imageFileName) {
+		this.imageFileName = imageFileName;
+	}
+
+	private void datatojson(Map<String, Object> map) {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("application/json;charset=utf-8");
+		Gson gson = new Gson();
+		String json = gson.toJson(map);
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+	}
+
+	/* 请假 */
+	public String leaveapply() {
+		return "leaveapply";
+	}
+
+	public String leavemanage() {
+		return "leavemanagelist";
+	}
+
+	public String shortleave() {
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		if (user.getRoles().getRolerank()==3) {
+		  Student student = studentService.loadstubystuid(user.getUsernum());
+		  ActionContext.getContext().put("student", student);
+		  return "shortleave";
+		}else {
+			ActionContext.getContext().put("message", "您不是学生，不能请假！");
+			return "showmessage";
+		}
+	}
+
+	public String longleave() {
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		if (user.getRoles().getRolerank()==3) {
+			Student student = studentService.loadstubystuid(user.getUsernum());
+			ActionContext.getContext().put("student", student);
+			return "longleave";
+		}else {
+			ActionContext.getContext().put("message", "您不是学生，不能请假！");
+			return "showmessage";
+		}
+		
+	}
+
+	public String loadstuleave() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.stuleavemap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String stuloadleave() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.loadstuleavemap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String leaveadd() {
+		manageService.leaveadd(leave);
+		return null;
+	}
+
+	public String stuleaveupdate() {
+		manageService.stuleaveupdate(leave);
+		return null;
+	}
+
+	public String leavedelete() {
+		manageService.leavedelete(leave);
+		return null;
+	}
+	public String leaveprint() {
+		Leave leaves = manageService.loadleavebyid(leave.getId());
+		ActionContext.getContext().put("leaves", leaves);
+		Student student = studentService.loadstubystuid(leaves.getStuid());
+		ActionContext.getContext().put("student", student);
+		return "leaveprint";
+	}
+	public String teachingevalution() {
+		return "teachingevalution";
+	}
+
+	
+
+	/* 评价 */
+	public String evalutionteacher() {
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		if (user.getRoles().getRolerank()==3) {
+			List<Course> courses = classService.loadcourse();
+			ActionContext.getContext().put("courselist", courses);
+			Map<Integer , List<Course>> map = classService.coursemap();
+			ActionContext.getContext().put("map", map);
+			return "evalutionteacher"; 
+		}else{
+			ActionContext.getContext().put("message", "您不能评价老师！");
+			return "showmessage";
+		}
+	}
+
+	public String evalutionlist() {
+		Course courses = classService.loadcoursebyid(course.getId());
+		ActionContext.getContext().put("courses", courses);
+		return "evalutionlist";
+	}
+
+	public String evalutionteacheradd() {
+		manageService.evalutionteacheradd(evalution);
+		return null;
+	}
+
+	public String loadevalution() {
+		String evalutionlist = manageService.loadevalution(evalution
+				.getCourseid());
+		ActionContext.getContext().put("evalutionlist", evalutionlist);
+		ActionContext.getContext().put("courseid", evalution.getCourseid());
+		return "loadevalution";
+	}
+
+	public String evalutionanalysis(){
+		List<Evalution> evalutionlist = manageService.loadevalutionlist(course.getNum());
+	    if(evalutionlist.size()==0){
+	    	ActionContext.getContext().put("message", "没有学生提交评价！");
+	    	return "showmessage";
+	    }else {
+	    	Integer incicators1= 0,incicators2 = 0,incicators3=0,incicators4 =0,incicators5 =0,incicators6 =0,incicators7 =0,summary=0;
+			for(Evalution e:evalutionlist){
+				if (e.getIncicators1().equals("1")) {
+					incicators1 = incicators1+95;
+				}else if (e.getIncicators1().equals("2")) {
+					incicators1 = incicators1+85; 
+				}else if (e.getIncicators1().equals("3")) {
+					incicators1 = incicators1+70; 
+				}else {
+					incicators1 = incicators1+50;
+				}
+				if (e.getIncicators2().equals("1")) {
+					incicators2 = incicators2+95;
+				}else if (e.getIncicators2().equals("2")) {
+					incicators2 = incicators2+85; 
+				}else if (e.getIncicators2().equals("3")) {
+					incicators2 = incicators2+70; 
+				}else {
+					incicators2= incicators2+50;
+				}
+				if (e.getIncicators3().equals("1")) {
+					incicators3 = incicators3+95;
+				}else if (e.getIncicators3().equals("2")) {
+					incicators3 = incicators3+85; 
+				}else if (e.getIncicators3().equals("3")) {
+					incicators3 = incicators3+70; 
+				}else {
+					incicators3= incicators3+50;
+				}
+				if (e.getIncicators4().equals("1")) {
+					incicators4 = incicators4+95;
+				}else if (e.getIncicators4().equals("2")) {
+					incicators4 = incicators4+85; 
+				}else if (e.getIncicators4().equals("3")) {
+					incicators4 = incicators4+70; 
+				}else {
+					incicators4= incicators4+50;
+				}
+				if (e.getIncicators5().equals("1")) {
+					incicators5 = incicators5+95;
+				}else if (e.getIncicators5().equals("2")) {
+					incicators5 = incicators5+85; 
+				}else if (e.getIncicators5().equals("3")) {
+					incicators5 = incicators5+70; 
+				}else {
+					incicators5= incicators5+50;
+				}
+				if (e.getIncicators6().equals("1")) {
+					incicators6 = incicators6+95;
+				}else if (e.getIncicators6().equals("2")) {
+					incicators6 = incicators6+85; 
+				}else if (e.getIncicators6().equals("3")) {
+					incicators6 = incicators6+70; 
+				}else {
+					incicators6= incicators6+50;
+				}
+				if (e.getIncicators7().equals("1")) {
+					incicators7 = incicators7+95;
+				}else if (e.getIncicators7().equals("2")) {
+					incicators7 = incicators7+85; 
+				}else if (e.getIncicators7().equals("3")) {
+					incicators7 = incicators7+70; 
+				}else {
+					incicators7= incicators7+50;
+				}
+				if (e.getSummary().equals("1")) {
+					summary = summary+95;
+				}else if (e.getSummary().equals("2")) {
+					summary = summary+85; 
+				}else if (e.getSummary().equals("3")) {
+					summary = summary+70; 
+				}else {
+					summary= summary+50;
+				}
+			}
+			incicators1 = incicators1/evalutionlist.size();
+			incicators2 = incicators2/evalutionlist.size();
+			incicators3 = incicators3/evalutionlist.size();
+			incicators4 = incicators4/evalutionlist.size();
+			incicators5 = incicators5/evalutionlist.size();
+			incicators6 = incicators6/evalutionlist.size();
+			incicators7 = incicators7/evalutionlist.size();
+			summary = summary/evalutionlist.size();
+			ActionContext.getContext().put("incicators1", incicators1);
+			ActionContext.getContext().put("incicators2", incicators2);
+			ActionContext.getContext().put("incicators3", incicators3);
+			ActionContext.getContext().put("incicators4", incicators4);
+			ActionContext.getContext().put("incicators5", incicators5);
+			ActionContext.getContext().put("incicators6", incicators6);
+			ActionContext.getContext().put("incicators7", incicators7);
+			ActionContext.getContext().put("summary", summary);
+		    return "evalutionanalysis";
+		}
+		
+	}
+   /*教师*/
+	public String teacherbaseinfo(){
+    	User user = (User)ActionContext.getContext().getSession().get("user"); 
+    	if (user.getRoles().getRolerank()==0) {
+			ActionContext.getContext().put("message", "您不能查看个人信息");
+			return "showmessage";
+		}else {
+			Teacher teachers=manageService.loadteacherbynum(user.getUsernum()); 
+	    	Dept dept = teachers.getDept(); //userService.loaddeptbyid(teachers.getDeptid());
+	    	ActionContext.getContext().put("teachers", teachers);
+	    	ActionContext.getContext().put("dept", dept);
+	    	return "teacherbaseinfo";
+		}
+    	
+    }
+
+	public String teacherbegainchangeimg() {
+		ActionContext.getContext().put("teacherid",teacher.getIdentificationnum());
+		return "teacherchangeimg";
+	}
+
+	public String teacherchangeimg() {
+		String realpath = ServletActionContext.getServletContext().getRealPath("/image/teacherimages");
+		File savedir = new File(realpath);
+		if (!savedir.exists())
+			savedir.mkdirs();
+		if (image != null) {
+			String name = imageFileName.substring(imageFileName.indexOf('.'));
+			if (name.toLowerCase().equals(".jpg")
+					|| name.toLowerCase().equals(".gif")
+					|| name.toLowerCase().equals(".bmp")
+					|| name.toLowerCase().equals(".png")
+					|| name.toLowerCase().equals(".jpeg")) {
+				User user = (User) ActionContext.getContext().getSession()
+						.get("user");
+				/*
+				 * if (stu.getStuimg() != null) { File file = new File(realpath+
+				 * stu.getStuimg().substring(stu.getStuimg().indexOf("\\"))); if
+				 * (file.exists()) { file.delete(); } }
+				 */
+				Teacher teacher = manageService.loadteacherbynum(user
+						.getUsernum());
+				String imgname = teacher.getIdentificationnum().concat(name);
+				File savefile = new File(savedir, imgname);
+				try {
+					FileUtils.copyFile(image, savefile);
+				} catch (IOException e) {
+
+					e.printStackTrace();
+				}
+				manageService.teacherchangeimg("image/teacherimages" + "/"
+						+ imgname);
+				ActionContext.getContext().put("message", "修改成功");
+			} else {
+				ActionContext.getContext().put("message", "修改失败！请选择正确的图片格式");
+			}
+		}
+		return "showmessage";
+	}
+
+	public String teacherbaseupdate() {
+		Teacher teachers = manageService.loadteacherbynum(teacher
+				.getIdentificationnum());
+		ActionContext.getContext().put("teachers", teachers);
+		List<Dept> deptlist = userService.deptlist1();
+		ActionContext.getContext().put("deptlist", deptlist);
+		return "teacherbaseedit";
+	}
+	public String teachermanage() {
+		return "teachermanage";
+	}
+	public String teacherlist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.teachermap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String teacheredit() {
+		Teacher teachers = manageService.loadteacherbynum(teacher.getIdentificationnum());
+		ActionContext.getContext().put("teachers", teachers);
+		List<Dept> deptlist = userService.deptlist1();
+		ActionContext.getContext().put("deptlist", deptlist);
+		return "teacheredit";
+	}
+
+	public String teacherupdate() {
+		manageService.teacherupdate(teacher);
+		return null;
+	}
+
+	public String teacherdelete() {
+		manageService.teacherdelete(ids);
+		return null;
+	}
+
+	public String teacherbatchadd() {
+		return "teacherbatchadd";
+	}
+
+	public String teacherbegainadd() {
+		return "teacheradd";
+	}
+
+	public String teacherendadd() {
+		manageService.teacheradd(teacher, depid);
+		return null;
+	}
+
+	public String teachercheck() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = manageService
+				.teachercheck(teacher.getIdentificationnum());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public String teacherbeginadd() {
+		List<Dept> deptlist = userService.deptlist1();
+		ActionContext.getContext().put("deptlist", deptlist);
+		return "teacheradd";
+	}
+	public String teacheraddbytxt() {
+		String realpath = ServletActionContext.getServletContext().getRealPath("/upload");
+		Date dt = new Date();
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+			ActionContext.getContext().put("msg", "添加成功");
+			manageService.teacheraddbytxt(realpath + "\\" + filename);
+		} else {
+			ActionContext.getContext().put("msg", "文件内容为空，添加失败！<br>退出请重新添加！");
+		}
+		return "uploadmsg";
+	}
+	 /*考勤*/
+	public String courseattendence() {
+			String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + ","
+					+ "{\"Coursecredit\":" + "\"" + 2 + "\"}" + ","
+					+ "{\"Coursecredit\":" + "\"" + 3 + "\"}" + ","
+					+ "{\"Coursecredit\":" + "\"" + 4 + "\"}" + ","
+					+ "{\"Coursecredit\":" + "\"" + 5 + "\"}" + ","
+					+ "{\"Coursecredit\":" + "\"" + 6 + "\"}" + ","
+					+ "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+			String char1 = "必修", char2 = "现选", char3 = "选修";
+			String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + ","
+					+ "{\"Coursecharacter\":" + "\"" + char2 + "\"}" + ","
+					+ "{\"Coursecharacter\":" + "\"" + char3 + "\"}";
+			String s1 = "集中式ʽ", s2 = "非集中式";
+			String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + ","
+					+ "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+			ActionContext.getContext().put("coursecredit", coursecredit);
+			ActionContext.getContext().put("character", character);
+			ActionContext.getContext().put("checkway", checkway);
+			return "courseattendence";
+		}
+	public String courseclasslist() {
+		String classlist = classService.courseclasslist(course.getNum());
+		ActionContext.getContext().put("classlist", classlist);
+		ActionContext.getContext().put("course", course);
+		return "courseclasslist";
+	}
+
+	public String courseclassstulist() {
+		String classlist = classService.classlist();
+		String studentlist = studentService.studentlist(cls.getId());
+		ActionContext.getContext().put("classlist", classlist);
+		ActionContext.getContext().put("course", course);
+		ActionContext.getContext().put("classid", cls.getId());
+		ActionContext.getContext().put("studentlist", studentlist);
+		return "courseclassstulist";
+
+	}
+
+	public String stuattendenceadd() {
+		manageService.stuattendenceadd(attendence, ids);
+		return null;
+	}
+
+	public String tabcourseattendenceload() {
+		ActionContext.getContext().put("courseid", course.getId());
+		return "tabcourseattendenceload";
+	}
+
+	public String courseattendenceload() {
+		manageService.loadattendence(course.getId());
+		String attendencelist = manageService
+				.loadattendencelist(course.getId());
+		ActionContext.getContext().put("attendencelist", attendencelist);
+		return "courseattendenceload";
+	}
+
+	public String courseattendencesearch() {
+		String attendencelist = manageService
+				.courseattendencesearch(attendence);
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("text/html;charset=utf-8");
+		try {
+			PrintWriter out = response.getWriter();
+			out.write(attendencelist);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public String courseattendencestatistical() {
+		List<Attendence> attendences = manageService
+				.loadattendencebycourseid(course.getId());
+		int normal = 0, late = 0, leaveearly = 0, truancy = 0;
+		for (int i = 0; i < attendences.size(); i++) {
+			if (attendences.get(i).getType().equals("0")) {
+				normal++;
+			} else if (attendences.get(i).getType().equals("1")) {
+				late++;
+			} else if (attendences.get(i).getType().equals("2")) {
+				leaveearly++;
+			} else if (attendences.get(i).getType().equals("3")) {
+				truancy++;
+			}
+		}
+		ActionContext.getContext().put("normal", normal);
+		ActionContext.getContext().put("late", late);
+		ActionContext.getContext().put("leaveearly", leaveearly);
+		ActionContext.getContext().put("truancy", truancy);
+		return "courseattendencestatistical";
+	}
+
+	public String personattendence() {
+		List<Course> courses = manageService.loadstucourse();
+		ActionContext.getContext().put("courselist", courses);
+		return "personattendence";
+	}
+
+	public String personattendencelist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.personattendencelistmap(page,
+				pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String stuattendenceresearch() {
+		manageService.searchstuattendence(attendence);
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.stuattendencelistmap(page,
+				pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String stuattendenceresearch1() {
+		List<Attendence> attendences = manageService
+				.searchstuattendence(attendence);
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("text/html;charset=utf-8");
+		StringBuffer strb = new StringBuffer();
+		strb.append("<table id='data-table' class='data-table' >");
+		strb.append("<thead>");
+		strb.append("<tr>");
+		strb.append("<td>" + "日期" + "</td>");
+		strb.append("<td>" + "姓名" + "</td>");
+		strb.append("<td>" + "班级" + "</td>");
+		strb.append("<td>" + "考勤状态" + "</td>");
+		strb.append("<td widt='50'>" + "备注" + "</td>");
+		strb.append("</tr>");
+		strb.append("</thead>");
+		strb.append("<tbody id='table2'>");
+		for (int i = 0; i < attendences.size(); i++) {
+			Student student = studentService.loadstubyid(Integer
+					.parseInt(attendences.get(i).getStuid()));
+			if (attendences.get(i).getType().equals(String.valueOf(0))) {
+				strb.append("<tr>");
+				strb.append("<td>" + attendences.get(i).getDate() + "</td>");
+				strb.append("<td>" + student.getStuname() + "</td>");
+				strb.append("<td>" + student.getClasses().getClassname()
+						+ "</td>");
+				strb.append("<td>" + "正常" + "</td>");
+				strb.append("<td>" + "</td>");
+				strb.append("</tr>");
+			} else if (attendences.get(i).getType().equals(String.valueOf(1))) {
+				strb.append("<tr style='color:orange;'>");
+				strb.append("<td>" + attendences.get(i).getDate() + "</td>");
+				strb.append("<td>" + student.getStuname() + "</td>");
+				strb.append("<td>" + student.getClasses().getClassname()
+						+ "</td>");
+				strb.append("<td>" + "迟到" + "</td>");
+				strb.append("<td>" + "</td>");
+				strb.append("</tr>");
+			} else if (attendences.get(i).getType().equals(String.valueOf(2))) {
+				strb.append("<tr style='color:blue;'>");
+				strb.append("<td>" + attendences.get(i).getDate() + "</td>");
+				strb.append("<td>" + student.getStuname() + "</td>");
+				strb.append("<td>" + student.getClasses().getClassname()
+						+ "</td>");
+				strb.append("<td>" + "早退" + "</td>");
+				strb.append("<td>" + "</td>");
+				strb.append("</tr>");
+			} else if (attendences.get(i).getType().equals(String.valueOf(3))) {
+				strb.append("<tr style='color:red;'>");
+				strb.append("<td>" + attendences.get(i).getDate() + "</td>");
+				strb.append("<td>" + student.getStuname() + "</td>");
+				strb.append("<td>" + student.getClasses().getClassname()
+						+ "</td>");
+				strb.append("<td>" + "旷课" + "</td>");
+				strb.append("<td>" + "</td>");
+				strb.append("</tr>");
+			}
+
+		}
+		strb.append("</tbody>");
+		strb.append("</table>");
+		try {
+			PrintWriter out = response.getWriter();
+			out.write(strb.toString());
+			out.flush(); // ˢ�´�ӡ��
+			out.close(); // �ر�
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
+
+	public String attendencestulist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.attendencestulistmap(page,
+				pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	
+	public String scoremanagement() {
+		return "scorecourselist";
+	}
+
+	public String graduatemanagement() {
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "graduatemanagement";
+	}
+
+	public String scholarmanagement() {
+		return "scholarmanagement";
+	}
+
+	public String announcement() {
+		return "announcement";
+	}
+
+	public String announcementbegainadd() {
+		return "announcementbegainadd";
+	}
+
+	public String announcementendadd() {
+		manageService.announcementadd(announcement);
+		return null;
+	}
+
+	public String announcementedit() {
+		Announcement announcements = manageService
+				.loadannouncement(announcement.getId());
+		ActionContext.getContext().put("announcements", announcements);
+		return "announcementedit";
+	}
+
+	public String announcementupdate() {
+		manageService.announcementupdate(announcement);
+		return null;
+	}
+
+	public String announcementdelete() {
+		manageService.announcementdelete(ids);
+		return null;
+	}
+
+	public String announcementlist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.announcementmap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String paymanagement() {
+		return "paymanagement";
+	}
+
+	public String justicelist() {
+		// List<Certify1> justicelList = manageService.loadjusticellist();
+		// ActionContext.getContext().put("justicellist", justicelList);
+		String justicellist = manageService.loadjusticel();
+		ActionContext.getContext().put("justicellist", justicellist);
+		return "justicelist";
+	}
+
+	public String justicelmanage() {
+		String justicellist = manageService.loadjusticel();
+		ActionContext.getContext().put("justicellist", justicellist);
+		return "justicelmanages";
+	}
+
+	public String justicelbegainadd() {
+		return "justicelbegainadd";
+	}
+
+	public String justicelendadd() {
+		String realpath = ServletActionContext.getServletContext().getRealPath("/filepath");
+		// String saveUrl = ServletActionContext.getRequest().getContextPath() +
+		// "/filepath/";
+		Date dt = new Date();
+		SimpleDateFormat mt1 = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss");
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		certify.setCreatedtime(mt1.format(dt));
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+			String fileplace = "filepath/" + filename;
+			certify.setFileplace(fileplace);
+			manageService.justiceladd(certify);
+			ActionContext.getContext().put("msg", "添加成功！");
+		} else {
+			ActionContext.getContext().put("msg", "文件内容为空，添加失败！<br>退出请重新添加！");
+		}
+		return "uploadmsg";
+	}
+
+	public String justiceledit() {
+		Certify1 certify1 = manageService.loadjusticelbyid(certify.getId());
+		ActionContext.getContext().put("certify1", certify1);
+		return "justicelupdate";
+	}
+
+	public String justicelupdate() {
+		String realpath = ServletActionContext.getServletContext().getRealPath(
+				"/filepath");
+		Date dt = new Date();
+		SimpleDateFormat mt1 = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss");
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		certify.setCreatedtime(mt1.format(dt));
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+			String fileplace = "filepath/" + filename;
+			certify.setFileplace(fileplace);
+			manageService.justicelupdate(certify);
+			ActionContext.getContext().put("msg", "添加成功！");
+		} else {
+			ActionContext.getContext().put("msg", "文件内容为空，添加失败！<br>退出请重新添加！");
+		}
+		return "uploadmsg";
+	}
+
+	public String justiceldelete() {
+		manageService.justiceldelete(ids);
+		return null;
+	}
+
+	public Announcement getAnnouncement() {
+		return announcement;
+	}
+
+	public void setAnnouncement(Announcement announcement) {
+		this.announcement = announcement;
+	}
+
+	public String choosecourse() {
+		return "choosecourse";
+	}
+
+	public String scoreentry() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String flag = request.getParameter("flag");
+		String classlist = classService.courseclasslist(course.getNum());
+		ActionContext.getContext().put("semester",semChosenCourse.getSemester());
+		ActionContext.getContext().put("coursenum", course.getNum());
+		ActionContext.getContext().put("classlist", classlist);
+		ActionContext.getContext().put("flag", flag);
+		return "scoreentry";
+	}
+
+	public String loadcoursescore() {
+		String classlist = classService.courseclasslist(course.getNum());
+		ActionContext.getContext().put("classlist", classlist);
+		ActionContext.getContext().put("semester",semChosenCourse.getSemester());
+		ActionContext.getContext().put("coursenum", course.getNum());
+		return "loadcoursescore";
+	}
+
+	public String courseclassscoreadd() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String flag = request.getParameter("flag");
+		ActionContext.getContext().put("semester",semChosenCourse.getSemester());
+		ActionContext.getContext().put("coursenum", course.getNum());
+		ActionContext.getContext().put("classid", cls.getId());
+		ActionContext.getContext().put("flag", flag);
+		List<ChosenCourse> chosenCourses = manageService.courseclassscoreload(semChosenCourse.getSemester(),course.getNum(), cls.getId());
+		return "courseclassscore";
+	}
+
+	public String stuscorelist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.stuscorelist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String allstuscorelist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.allstuscorelist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String courseclassscorebegainadd() {
+		ActionContext.getContext().put("semester",semChosenCourse.getSemester());
+		ActionContext.getContext().put("coursenum", course.getNum());
+		ActionContext.getContext().put("classid", cls.getId());
+		Student student = studentService.loadstubystuid(stu.getStuid());
+		ActionContext.getContext().put("student", student);
+		return "courseclassscorebegainadd";
+	}
+
+	public String courseclassmakeupscorebegainadd() {
+		ActionContext.getContext().put("semester",semChosenCourse.getSemester());
+		ActionContext.getContext().put("coursenum", course.getNum());
+		ActionContext.getContext().put("classid", cls.getId());
+		Student student = studentService.loadstubystuid(stu.getStuid());
+		ActionContext.getContext().put("student", student);
+		return "courseclassmakeupscorebegainadd";
+	}
+
+	public String courseclassscoreendadd() {
+		manageService.courseclassscoreadd(chosenCourse);
+		return null;
+	}
+
+	public String courseclassmakeupscoreendadd() {
+		manageService.courseclassmakeupscoreadd(chosenCourse);
+		return null;
+	}
+
+	public String courseclassscoreload() {
+		ActionContext.getContext().put("semester",semChosenCourse.getSemester());
+		ActionContext.getContext().put("coursenum", course.getNum());
+		ActionContext.getContext().put("clsid", cls.getId());
+		manageService.courseclassscoreload(semChosenCourse.getSemester(),course.getNum(), cls.getId());
+		return "courseclassscoreload";
+	}
+
+	public String stuscoreload() {
+		List<Classes> classlist = classService.loadclass();
+		ActionContext.getContext().put("classlist", classlist);
+		return "stuscoreload";
+	}
+	
+	private void toJson2(List<InfoBean> dat) {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("application/json;charset=utf-8");
+		Gson gson = new Gson();		
+		String json = "{}";
+		try {
+			json = gson.toJson(dat);
+		} catch (IllegalStateException e){
+			e.printStackTrace();
+		}
+		//System.out.println(json);
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String courseNameList() {
+		if (semester == null)
+			semester = manageService.getCurrSemester();
+
+		List<ChosenCourseModel> lessons = manageService.loadAllChosenCourse(semester);
+
+
+		
+		Set<String> flag = new HashSet<String>();
+		
+		List<InfoBean> toPage = new ArrayList<InfoBean>();
+		for (ChosenCourseModel i : lessons){
+			if (i.getCourse() != null) {
+				String tnum = String.valueOf(i.getCourse().getNum());
+				if (flag.contains(tnum))
+					continue;
+				InfoBean t = new InfoBean();
+				t.setCourseName(i.getCourse().getCoursename());
+				t.setNum(i.getCourse().getNum());
+				toPage.add(t);
+				flag.add(tnum);
+			}
+		}
+		toJson2 (toPage);
+		//TODO
+		return null;
+	}
+
+	public String courseclassscoredownload() throws Exception {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String semester = request.getParameter("semester");
+		String coursenum = request.getParameter("coursenum");
+		String classid = request.getParameter("classid");
+		List<ChosenCourse> chosencourse = manageService.courseclassscoreload(semester, Integer.valueOf(coursenum), Integer.valueOf(classid));
+		response.reset();
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("application/vnd.ms-excel");
+		String fileName = "学生成绩.xls";
+		response.setHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("GB2312"), "8859_1"));
+		OutputStream out = response.getOutputStream();
+		try {
+			WritableWorkbook workbook = Workbook.createWorkbook(out);
+			WritableSheet ws = workbook.createSheet("学生成绩", 0);
+			WritableFont wf = new WritableFont(WritableFont.TIMES, 10, WritableFont.NO_BOLD, false, UnderlineStyle.NO_UNDERLINE, jxl.format.Colour.BLACK);// 设置字体格式
+			WritableCellFormat wef = new WritableCellFormat(wf);// 创建格式化对象实例
+			wef.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);// 垂直居中
+			wef.setAlignment(Alignment.CENTRE);// 水平居中
+			// 工作表标题行（new Label（列，行，内容，格式））
+			ws.addCell(new Label(0, 0, "学期", wef));
+			ws.addCell(new Label(1, 0, "课程名", wef));
+			ws.addCell(new Label(2, 0, "学号", wef));
+			ws.addCell(new Label(3, 0, "姓名", wef));
+			ws.addCell(new Label(4, 0, "平时成绩", wef));
+			ws.addCell(new Label(5, 0, "考勤成绩", wef));
+			ws.addCell(new Label(6, 0, "期中成绩", wef));
+			ws.addCell(new Label(7, 0, "期末成绩", wef));
+			ws.addCell(new Label(8, 0, "总成绩", wef));
+			ws.addCell(new Label(9, 0, "补考成绩", wef));
+			List<Object[]> dataList = new ArrayList<Object[]>();
+			
+			for (ChosenCourse temp : chosencourse) {
+				Student student = studentService.loadstubystuid(String.valueOf(temp.getStuId()));
+				Course course = classService.loadcoursebynum(temp.getCourseId());
+				Object[] stu = {temp.getSemester(),course.getCoursename(),student.getStuid(),student.getStuname(),temp.getHomework(),temp.getAttendence(),temp.getMidexam(),temp.getFinalexam(),temp.getMakeup() };
+				dataList.add(stu);
+			}
+			// //向工作表添加数据
+			for (int i = 0; i < dataList.size(); i++) {
+				for (int j = 0; j < dataList.get(i).length; j++) {
+					Object o = dataList.get(i)[j];
+					if (o != null) {
+						Label label = new jxl.write.Label(j, i + 1, o.toString(), wef);
+						ws.addCell(label);
+					}
+				}
+			}
+			workbook.write();
+			workbook.close();
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public String courseclassscoreprint(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String semester = request.getParameter("semester");
+		String coursenum = request.getParameter("coursenum");
+		String classid = request.getParameter("classid");
+		List<ChosenCourse> chosencourse = manageService.courseclassscoreload(semester, Integer.valueOf(coursenum), Integer.valueOf(classid));
+		List<ChosenCourseModel> models = new ArrayList<ChosenCourseModel>();
+		for(ChosenCourse c:chosencourse){
+			Student student = studentService.loadstubystuid(String.valueOf(c.getStuId()));
+			Course course = classService.loadcoursebynum(c.getCourseId());
+			ChosenCourseModel m = new ChosenCourseModel();
+			m.setSemester(c.getSemester());
+			m.setCourse(new CourseModel(course));
+			m.setStuid(String.valueOf(c.getStuId()));
+			m.setStuname(student.getStuname());
+			m.setHomework(c.getHomework());
+			m.setAttendence(c.getAttendence());
+			m.setMidexam(String.valueOf(c.getMidexam()));
+			m.setFinalexam(String.valueOf(c.getFinalexam()));
+			m.setMakeup(String.valueOf(c.getMakeup()));
+			models.add(m);
+		}
+		ActionContext.getContext().put("scoremodel", models);
+		return "courseclassscoreprint";
+	}
+	public String makeupexamination() {
+		return "makeupexamination";
+	}
+
+	/*
+	 * public String stuclassscorelist(){ HttpServletRequest request =
+	 * ServletActionContext.getRequest(); int page =
+	 * Integer.parseInt(request.getParameter("page")); int pageSize =
+	 * Integer.parseInt(request.getParameter("pagesize")); Map<String, Object>
+	 * map = manageService.stuclassscorelist(page, pageSize); datatojson(map);
+	 * return null; }
+	 */
+	public String singlestuscorelist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.singlestuscorelist(page,pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String searchsinglestuscorelist() {
+		manageService.loadsinglestuscore(semChosenCourse.getSemester());
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.searchsinglestuscorelist(page,pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String searchstuscorelist() {
+		manageService.loadstuscore(semChosenCourse.getSemester(), cls.getId(),stu.getStuid(),semChosenCourse.getCoursenum());
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.searchstuscorelist(page,pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String scoreload() {
+		return "scoreload";
+	}
+
+	private String success (){
+		String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 2 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 3 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 4 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 5 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 6 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+		String char1 = "必修", char2 = "现选", char3 = "任选";
+		String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + ","+ "{\"Coursecharacter\":" + "\"" + char2 + "\"}" + ","+ "{\"Coursecharacter\":" + "\"" + char3 + "\"}";
+		String s1 = "集中式", s2 = "非集中式";
+		String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + ","+ "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+		ActionContext.getContext().put("coursecredit", coursecredit);
+		ActionContext.getContext().put("character", character);
+		ActionContext.getContext().put("checkway", checkway);
+		return "arrangecourse";
+	}
+	
+	public String arrangecourse() {
+		ca = null;
+		return success();
+		/*//TODO
+		String semester = manageService.getCurrSemester();
+		Map<String, List<String>> errorMsg = manageService.arrangePreChk(semester);
+		boolean isEmpty = true;
+		for (String key : errorMsg.keySet()) {
+			if (errorMsg.get(key).size() > 0){
+				isEmpty = false;
+				break;
+			}
+		}
+		// pass
+		if (isEmpty)
+			return success();
+		
+		ActionContext.getContext().put("errorMsg", errorMsg);
+		return "missingItem";*/
+	}
+	
+	// 用于为选修课腾出时间
+	private List<Integer> electiveSlot = null;
+	public String chkRooms() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String emptyslot = request.getParameter("setemptyslot");
+		if (emptyslot != "") {
+			electiveSlot = new ArrayList<Integer>();
+			for (String s : emptyslot.split(",")){
+				electiveSlot.add(Integer.parseInt(s));
+			}
+		}
+		//System.out.println(emptyslot);
+		ActionContext.getContext().put("semester",semChosenCourse.getSemester());
+		List<Classroom> classrooms = classService.loadclassroombyisavaible();
+		for(Classroom c:classrooms){
+			manageService.semesterroombegainadd(c, semChosenCourse.getSemester());
+		}
+		return "chkRooms";
+	}
+
+	public String arrange() {
+		return "arranged";
+	}
+
+	public String getSyllabus() {
+		String semester = semChosenCourse.getSemester();
+		Map<String, List<String>> errorMsg = manageService.arrangePreChk(semester);
+		boolean isEmpty = true;
+		for (String key : errorMsg.keySet()) {
+			if (errorMsg.get(key).size() > 0){
+				isEmpty = false;
+				break;
+			}
+		}
+		// pass
+		if (!isEmpty){
+			ActionContext.getContext().put("errorMsg", errorMsg);
+			return "missingItem";
+		}
+		List<ChosenCourseModel> courses = manageService.getAllChosenCourse(semester);
+		List<ClassroomModel> rooms = manageService.getAllAvlRooms(semester);
+		List<String> roomOrder = new ArrayList<String>();
+		for (ClassroomModel r : rooms)
+			roomOrder.add(r.getNum());
+
+		
+		/* List<Integer> no = new ArrayList<Integer>();
+		 for (int i = 0; i < 10;++i) 
+			 no.add(i);*/
+		 
+		
+		// 按课时增长
+		manageService.sire(semester);
+		
+		
+		if (ca == null){
+			//ca = new CourseArrangementImpl(courses, rooms, no);
+			ca = new CourseArrangementImpl(courses, rooms, electiveSlot);
+		}
+		List<Syllabus> arranged = new ArrayList<Syllabus>();
+		List<Syllabus> unable = new ArrayList<Syllabus>();
+		for (ChosenCourseModel p : ca.getUnable())
+			unable.add(new Syllabus(p));
+
+		for (int day = 0; day < 5; ++day)
+			for (int slot = 0; slot < 5; ++slot)
+				for (ChosenCourseModel p : ca.getCertainSlot(day, slot,roomOrder))
+					arranged.add(new Syllabus(p));
+		ActionContext.getContext().put("unable", unable);
+		List<String> names = new ArrayList<String>();
+		for (ClassroomModel r : rooms)
+			names.add(r.getAddress());
+		ActionContext.getContext().put("rooms", names);
+		ActionContext.getContext().put("roomCount", roomOrder.size());
+		ActionContext.getContext().put("arrangedCourses", arranged);
+		return "arranged";
+	}
+
+	public String saveSyllabus() {
+		String semester = manageService.getCurrSemester();
+		manageService.saveArrangedCourse(ca.getCourses(), semester);
+		try {
+			//System.out.println(ServletActionContext.getServletContext().getRealPath("/"));
+			FileOutputStream fos = new FileOutputStream(ServletActionContext.getServletContext().getRealPath("/")+ "\\download\\"+ semester + ".xls");
+			ca.toExcel(fos);
+			fos.close();
+		} catch (FileNotFoundException e) {	
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return perSyllabus();
+	}
+
+	public String downloadSyllabus() {
+		HttpServletResponse response = ServletActionContext.getResponse();		
+		response.reset();
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("application/vnd.ms-excel");
+		String fileName = "课程总表.xls";
+		try {
+			response.setHeader("Content-Disposition", "attachment;filename="+ new String(fileName.getBytes("GB2312"), "8859_1"));
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+		OutputStream out;
+		try {
+			out = response.getOutputStream();			
+			ca.toExcel(out, null);			
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public String perSyllabus() {
+		String semester = manageService.getCurrSemester();
+		List<ClassroomModel> rooms = manageService.getAllAvlRooms(semester);
+		List<String> roomOrder = new ArrayList<String>();
+		for (ClassroomModel r : rooms)
+			roomOrder.add(r.getNum());
+		List<Syllabus> arranged = new ArrayList<Syllabus>();
+		for (int day = 0; day < 5; ++day)
+			for (int slot = 0; slot < 5; ++slot)
+				for (ChosenCourseModel p : ca.getCertainSlot(day, slot,roomOrder))
+					arranged.add(new Syllabus(p));
+		List<String> names = new ArrayList<String>();
+		for (ClassroomModel r : rooms)
+			names.add(r.getAddress());
+		ActionContext.getContext().put("rooms", names);
+		ActionContext.getContext().put("roomCount", roomOrder.size());
+		ActionContext.getContext().put("arrangedCourses", arranged);
+		return "curriculum";
+	}
+
+	public String SemesterCourse() {
+		String semester = manageService.getCurrSemester();
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Rows",manageService.getUnarrangeCourses(page, pageSize, semester));
+		map.put("Total", manageService.getTotalUnarrangedCourseNum(semester));
+		datatojson(map);
+		return null;
+	}
+
+	public String adjustingCurriculums() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String chosenCourseNum = request.getParameter("num");
+		List<Syllabus> options = new ArrayList<Syllabus>();
+		for (ChosenCourseModel c : ca.otherOption(chosenCourseNum)) {
+			options.add(new Syllabus(c));
+		}
+		ActionContext.getContext().put("old", chosenCourseNum);
+		ActionContext.getContext().put("options", options);
+		return "syllabusOption";
+	}
+
+	public String applyNewSyllabus() {
+		ca.applyNewArrangementByNum(oldnum, newnum);
+		// ca.toExcel(null, null);
+		return null;
+	}
+
+	public String graduateaudit() {
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "graduateaudit";
+	}
+
+	public String graduatestuauditagree() {
+		studentService.graduatestuauditagree(stu.getId());
+		return null;
+	}
+
+	public String graduatestuaudirefuse() {
+		studentService.graduatestuauditrefuse(stu.getId());
+		return null;
+	}
+
+	public String semestercourse() {
+		return "semestercourse";
+	}
+
+	public String courselist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.courselist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String semestercourselist() { 
+		//HttpServletRequest request = ServletActionContext.getRequest();
+		//int page = Integer.parseInt(request.getParameter("page"));
+		//int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		// TODO change
+		int page = 1;
+		int pageSize = 10;
+		//Map<String, Object> map = manageService.semestercourselist(page,pageSize);
+		Map<String, Object> map = null;
+		if (semester != null)
+			map = manageService.semestercourselist2(page,pageSize, semester);
+		else
+			map = manageService.semestercourselist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String semesterselectcourselist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.semesterselectcourselist(page,pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String selectCourse() {
+		String semester = manageService.getCurrSemester();
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		manageService.selectCourse(true, selectiveCourseNum, user.getUsernum(),
+				semester);
+		return null;
+	}
+
+	public String diselectCoruse() {
+		String semester = manageService.getCurrSemester();
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		manageService.selectCourse(false, selectiveCourseNum,
+				user.getUsernum(), semester);
+		return null;
+	}
+
+	public String courseListForCourseSelection() {
+		String semester = manageService.getCurrSemester();
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		if (user.getRoles().getRolerank() != 3)
+			return null;
+		List<ChosenCourseModel> options = manageService.allSelectiveCourses(user.getUsernum(), semester);
+		List<ChosenCourseModel> elect = manageService.electiveCourseForSelectCourse(user.getUsernum(), semester);
+		for (ChosenCourseModel i : elect) {
+			i.setElective(true);
+		}
+
+		options.addAll(elect);
+
+		List<ChosenCourseModel> part = null;
+		if (options.size() < pageSize)
+			part = options;
+		else
+			part = options.subList((page - 1) * pageSize, page * pageSize);
+
+		List<InfoBean> inHtml = new ArrayList<InfoBean>();
+
+		Set<String> name = new HashSet<String>();
+		for (ChosenCourseModel i : part) {
+			if (name.contains(i.getCourse().getCoursename()))
+				continue;
+			name.add(i.getCourse().getCoursename());
+			InfoBean p = new InfoBean();
+			SemesterChosenCourse semesterChosenCourse = manageService.loadsemesterchosencoursebycourseid(i.getCourse().getNum());
+			List<ChosenCourse> chosenCourses = manageService.loadchosencoursebycourseid(i.getCourse().getNum());
+			if (semesterChosenCourse.getIsElective() == 1) {
+				p.setStuNum(semesterChosenCourse.getStuNum());
+				p.setHavestuNum(chosenCourses.size());
+			}
+			// p.setStuNum(semesterChosenCourse.getStuNum());
+			p.setBeginWeek(i.getBeginWeek());
+			p.setNum(i.getCourse().getNum());
+			p.setEndWeek(i.getEndWeek());
+			p.setCourseName(i.getCourse().getCoursename());
+			p.setTeacher(i.getTeacher().getTeachername());
+			p.setTeacherid(i.getTeacher().getIdentificationnum());
+			if (i.isSelected())
+				p.setClasses("<font color='red' >已选</font>");
+			else
+				p.setClasses("未选");
+			if (i.isElective())
+				p.setCourseType("选修");
+			else
+				p.setCourseType("必修");
+			inHtml.add(p);
+		}
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Total", inHtml.size());
+		map.put("Rows", inHtml);
+		datatojson(map);
+		return null;
+	}
+
+	public String semestercourseadd() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String semester = request.getParameter("semester");
+		manageService.semestercourseadd(ids,semester);
+		return null;
+	}
+
+	public String semestercoursedelete() {
+		manageService.semestercoursedelete(ids);
+		return null;
+	}
+
+	public String semestercoursesetteacher() {
+		String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 2 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 3 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 4 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 5 + "\"}" + ","+ "{\"Coursecredit\":" + "\"" + 6 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+		String char1 = "必修", char2 = "现选", char3 = "任选";
+		String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + ","+ "{\"Coursecharacter\":" + "\"" + char2 + "\"}" + ","+ "{\"Coursecharacter\":" + "\"" + char3 + "\"}";
+		String s1 = "集中式", s2 = "非集中式";
+		String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + ","+ "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+		ActionContext.getContext().put("coursecredit", coursecredit);
+		ActionContext.getContext().put("character", character);
+		ActionContext.getContext().put("checkway", checkway);
+		return "semestercoursesetteacher";
+	}
+
+	public String courseteacherselect() {
+		ActionContext.getContext().put("semestercourseid",semChosenCourse.getId());
+		return "courseteacherselect";
+	}
+
+	public String semesterteacherendadd() {
+		manageService.semesterteacherendadd(teacher.getIdentificationnum(),semChosenCourse.getId());
+		return null;
+	}
+
+	public String semesterclassselect() {
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		ActionContext.getContext().put("semestercourseid",semChosenCourse.getId());
+		return "semesterclassselect";
+	}
+
+	public String semestercourseclassset() {
+		manageService.semesterclassset(semChosenCourse.getId(), ids);
+		return null;
+	}
+
+	public String semestercourseteacheradd()throws UnsupportedEncodingException {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		List<SemesterChosenCourse> listUpdated = new ArrayList<SemesterChosenCourse>();
+		request.setCharacterEncoding("UTF-8");
+		String updated = request.getParameter("ff");
+		JSONArray array = JSONArray.fromObject(updated);
+		for (int i = 0; i < array.size(); i++) {
+			listUpdated.add((SemesterChosenCourse) JSONObject.toBean(array.getJSONObject(i), SemesterChosenCourse.class));
+		}
+		manageService.semestercourseteacheradd(listUpdated);
+		return null;
+	}
+
+	public String semesterselectcourseupdate()throws UnsupportedEncodingException {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		List<SemesterChosenCourse> listUpdated = new ArrayList<SemesterChosenCourse>();
+		request.setCharacterEncoding("UTF-8");
+		String updated = request.getParameter("ff");
+		JSONArray arrays = JSONArray.fromObject(updated);
+		for (int i = 0; i < arrays.size(); i++) {
+			listUpdated.add((SemesterChosenCourse) JSONObject.toBean(arrays.getJSONObject(i), SemesterChosenCourse.class));
+		}
+		manageService.semesterselectcourseupdate(listUpdated);
+		return null;
+	}
+
+	public String semesterclassroom() {
+		return "semesterclassroom";
+	}
+
+	public String roomlist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.roomlist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String semesterroomlist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.semesterroomlist2(page, pageSize, semester);
+		datatojson(map);
+		return null;
+	}
+
+	public String semesterroomadd() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String semester = request.getParameter("semester");
+		manageService.semesterroomadd(ids,semester);
+		return null;
+	}
+
+	public String semesterroomdelete() {
+		manageService.semesterroomdelete(ids);
+		return null;
+	}
+
+	public String semesterselectcourseset() {
+		String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 2 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 3 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 4 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 5 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 6 + "\"}" + ","
+				+ "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+		String char1 = "必修", char2 = "现选", char3 = "任选";
+		String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + ","+ "{\"Coursecharacter\":" + "\"" + char2 + "\"}" + ","+ "{\"Coursecharacter\":" + "\"" + char3 + "\"}";
+		String s1 = "集中式", s2 = "非集中式";
+		String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + ","+ "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+		ActionContext.getContext().put("coursecredit", coursecredit);
+		ActionContext.getContext().put("character", character);
+		ActionContext.getContext().put("checkway", checkway);
+		return "selectcourseset";
+	}
+
+	/* ���ι��� */
+	public String changecoursemanage() {
+		return "changecoursemanage";
+	}
+
+	public String changecourselist() {
+		
+		String semester = manageService.getCurrSemester();
+		//List<Adjustcourse> all = manageService.adjustRecordList(semester);
+		List<AdjustcourseModel> all = manageService.loadAdjustRocords(semester);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Rows", all);
+		map.put("Total", all.size());
+		datatojson(map);
+		return null;
+	}
+
+	public String prvChangeCourseList(){
+		String semester = manageService.getCurrSemester();
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		List<AdjustcourseModel> all = manageService.loadAdjustReocrdsByTeacher(user.getUsernum(),semester);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Rows", all);
+		map.put("Total", all.size());
+		datatojson(map);
+		return null;
+	}
+	
+	public String changecourse() {
+		return "changecourses";
+	}
+
+	public String getDat() {
+		Cascade test = new Cascade();
+		/*
+		 * int i = 0; List<Cascade> alphabet = new ArrayList<Cascade>(); for
+		 * (char a = 'A'; a <= 'Z'; a++) { Cascade t = new Cascade(); t.setN(a +
+		 * ""); t.setV(String.valueOf(i++)); alphabet.add(t); }
+		 * test.setN("Upper Letter"); test.setV("1");
+		 */
+		test.setV("this is v");
+		List<Cascade> test2 = new ArrayList<Cascade>();
+		Cascade p = new Cascade();
+		p.setV("this is v too");
+		test2.add(test);
+		test2.add(p);
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("application/json;charset=utf-8");
+		Gson gson = new Gson();
+		String json = gson.toJson(test2);
+		PrintWriter out;
+		// System.out.println(json);
+		try {
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private void toJson(List<Syllabus> dat) {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("application/json;charset=utf-8");
+		Gson gson = new Gson();
+		String json = gson.toJson(dat);
+		PrintWriter out;
+		// System.out.println(json);
+		try {
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getCourseSlot() {
+		if (courseRet == null)
+			return null;
+		// System.out.println(oldnum);
+		List<Syllabus> slot = new ArrayList<Syllabus>();
+		for (ChosenCourseModel i : courseRet) {
+			if (i.getCourse().getNum().equals(Integer.parseInt(oldnum)))
+				slot.add(new Syllabus(i));
+		}
+		toJson(slot);
+		return null;
+	}
+
+	public String getNewCourseSlot() {
+		if (pallCourses == null)
+			return null;
+		// System.out.println(oldnum);
+		List<Syllabus> slot = new ArrayList<Syllabus>();
+		Set<Integer> sameSlt = new HashSet<Integer>();
+		for (ChosenCourseModel i : pallCourses) {
+			if (i.getCourse().getNum().equals(Integer.parseInt(oldnum))) {
+				if (sameSlt.contains(i.getSlot()))
+					continue;
+				slot.add(new Syllabus(i));
+				sameSlt.add(i.getSlot());
+			}
+		}
+		toJson(slot);
+		return null;
+	}
+
+	public int getDayofweek(String date) {
+		Calendar cal = Calendar.getInstance();
+		if (date.equals("")) {
+			cal.setTime(new Date(System.currentTimeMillis()));
+		} else {
+			cal.setTime(new Date(getDateByStr2(date).getTime()));
+		}
+		return cal.get(Calendar.DAY_OF_WEEK);
+	}
+
+	public Date getDateByStr2(String dd) {
+		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+		Date date;
+		try {
+			date = sd.parse(dd);
+		} catch (ParseException e) {
+			date = null;
+			e.printStackTrace();
+		}
+		return date;
+	}
+
+	public String chkOldDate() {
+		//System.out.println(getDayofweek(origndate));
+		int day = getDayofweek(origndate) - 2;
+		if (courseRet == null)
+			return null;
+		// System.out.println(oldnum);
+		List<Syllabus> slot = new ArrayList<Syllabus>();
+		boolean illege = false;
+		
+		for (ChosenCourseModel i : courseRet) {
+			if (i.getCourse().getNum().equals(Integer.parseInt(oldnum)))
+				if (day == i.getWeekday()){
+					illege= true;
+					slot.add(new Syllabus(i));
+				}
+		}
+		/*if (!illege)
+			slot.add(new Syllabus());*/
+		toJson(slot);
+		return null;
+	}
+	
+	public String chkNewDate() {
+		if (pallCourses == null)
+			return null;
+		// System.out.println(oldnum);
+		List<Syllabus> slot = new ArrayList<Syllabus>();
+		int day = getDayofweek(plandate) - 2;
+		
+		Set<Integer> sameSlt = new HashSet<Integer>();
+		for (ChosenCourseModel i : pallCourses) {
+			if (i.getCourse().getNum().equals(Integer.parseInt(newnum))) {
+				if (day == i.getWeekday()){
+					if (sameSlt.contains(i.getSlot()))
+						continue;
+					slot.add(new Syllabus(i));
+					sameSlt.add(i.getSlot());
+				}
+			}
+		}
+		toJson(slot);
+		return null;
+	}
+	
+	public String getOldroom (){
+		int day = getDayofweek(origndate) - 2;
+		List<Syllabus> slots = new ArrayList<Syllabus>();
+		for (ChosenCourseModel i : courseRet) {
+			if (i.getCourse().getNum().equals(Integer.parseInt(oldnum))
+					&& i.getSlot() == (Integer.parseInt(oldSlot) - 1)
+					&& i.getWeekday() == day){
+				Syllabus s = new Syllabus();
+				s.setRoomNum(i.getRoom().getNum());
+				s.setNote(i.getRoom().getAddress());
+				slots.add(s);
+			}
+				
+		}
+		toJson(slots);
+		return null;
+	}
+	
+	public String getNewroom () {
+		int day = getDayofweek(plandate) - 2;
+		List<Syllabus> slots = new ArrayList<Syllabus>();
+		for (ChosenCourseModel i : pallCourses) {
+			if (i.getCourse().getNum().equals(Integer.parseInt(newnum))
+					&& i.getSlot() == (Integer.parseInt(newSlot) - 1)
+					&& i.getWeekday() == day){
+				Syllabus s = new Syllabus();
+				s.setRoomNum(i.getRoom().getNum());
+				s.setNote(i.getRoom().getAddress());
+				slots.add(s);
+			}
+				
+		}
+		toJson(slots);
+		return null;
+	}
+	
+	private List<ChosenCourseModel> courseRet = null;
+	//private List<Syllabus> courses = null;
+	private List<ChosenCourseModel> pallCourses = null;
+
+	public String changecourseapply() {
+
+		String semester = manageService.getCurrSemester();
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		courseRet = manageService.loadSemesterChosenCoruseByTeacher(user.getUsernum(), semester);
+		List<Syllabus> courses = new ArrayList<Syllabus>();
+
+		Syllabus pleaseChoice = new Syllabus();
+		pleaseChoice.setCourseName("请选择");
+		pleaseChoice.setId(-1);
+		courses.add(pleaseChoice);
+
+		Set<String> hasName = new HashSet<String>();
+		for (ChosenCourseModel c : courseRet) {
+			if (hasName.contains(c.getCourse().getCoursename())) {
+				continue;
+			} else {
+				Syllabus s = new Syllabus(c);
+				s.setId(c.getCourse().getNum());
+				courses.add(s);
+				hasName.add(c.getCourse().getCoursename());
+			}
+		}
+
+		List<Syllabus> allCourseName = new ArrayList<Syllabus>();
+		allCourseName.add(pleaseChoice);
+		List<ChosenCourseModel> allCourses = manageService.loadAllChosenCourse(semester);
+		pallCourses = allCourses;
+		hasName.clear();
+		for (ChosenCourseModel c : allCourses) {
+			if (hasName.contains(c.getCourse().getCoursename())) {
+				continue;
+			} else {
+				Syllabus s = new Syllabus(c);
+				s.setId(c.getCourse().getNum());
+				allCourseName.add(s);
+				hasName.add(c.getCourse().getCoursename());
+			}
+		}
+
+		ActionContext.getContext().put("allCourses", allCourseName);
+		ActionContext.getContext().put("oldCourses", courses);
+		return "changecourseapply";
+		/*
+		 * String semester = manageService.getCurrSemester(); // 先得到当前老师在本学期上的课程
+		 * User user =
+		 * (User)ActionContext.getContext().getSession().get("user");
+		 * List<ChosenCourseModel> ret =
+		 * manageService.loadSemesterChosenCoruseByTeacher
+		 * (user.getUsernum(),semester); courses = new ArrayList<Syllabus>();
+		 * Set<String> hasName = new HashSet<String>(); int id = 0; for
+		 * (ChosenCourseModel c : ret) { if
+		 * (hasName.contains(c.getCoursename())) { continue; } else { Syllabus s
+		 * = new Syllabus(c); s.setId(id); id ++; courses.add(s);
+		 * hasName.add(c.getCoursename()); } }
+		 */
+
+		// 得到当前学期所有课程
+		/*
+		 * ret = manageService.loadAllChosenCourse(semester); all = new
+		 * ArrayList<Syllabus>(); hasName.clear(); for (ChosenCourseModel c :
+		 * ret) { if (hasName.contains(c.getCoursename())) { continue; } else {
+		 * all.add(new Syllabus(c)); hasName.add(c.getCoursename()); } }
+		 */
+
+		/*
+		 * String semester = manageService.getCurrSemester(); User user =
+		 * (User)ActionContext.getContext().getSession().get("user");
+		 * List<ChosenCourseModel> all =
+		 * manageService.loadAllChosenCourse(semester); List<ChosenCourseModel>
+		 * candCourse = new ArrayList<ChosenCourseModel>(); for
+		 * (ChosenCourseModel i : all) { if
+		 * (user.getUsernum().equals(i.getTeacher().getIdentificationnum()))
+		 * candCourse.add(i); }
+		 * 
+		 * Map<ChosenCourseModel, List<ChosenCourseModel>> map = new
+		 * HashMap<ChosenCourseModel, List<ChosenCourseModel>>(); for
+		 * (ChosenCourseModel i : candCourse) { List<ChosenCourseModel> t =
+		 * manageService.getOtherOption(i, semester); map.put(i, t); }
+		 * 
+		 * //ActionContext.getContext().put("map", map);
+		 * ActionContext.getContext().put("candCourses", candCourse);
+		 * 
+		 * return "changecourseapply";
+		 */
+
+	}
+
+	public String adjustList() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		String chosenCourseNum = request.getParameter("num");
+		String semester = manageService.getCurrSemester();
+		List<ChosenCourseModel> optionCourses = manageService.getOtherOptionByCourseNum(chosenCourseNum, semester);
+
+		List<Syllabus> options = new ArrayList<Syllabus>();
+		for (ChosenCourseModel c : optionCourses) {
+			options.add(new Syllabus(c));
+		}
+		ActionContext.getContext().put("old", chosenCourseNum);
+		ActionContext.getContext().put("options", options);
+		return "adjustCurrOptions";
+	}
+
+	public String applyCurrAdjustment() {
+		String semester = manageService.getCurrSemester();
+		// adjustReason = "no reason";
+		try {
+			adjustReason = java.net.URLDecoder.decode(adjustReason, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
+		Syllabus p = new Syllabus();
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		p.setNum(oldnum); // 课程num
+		p.setSlot(Integer.parseInt(oldSlot));
+		p.setNote(origndate);
+		p.setTeacherName(user.getUsernum()); // 教师num
+		if (oldRoomNum.equals("aa")) {
+			int day = getDayofweek(origndate) - 2;
+			for (ChosenCourseModel i : courseRet) {
+				if (i.getCourse().getNum().equals(Integer.parseInt(oldnum))
+						&& i.getSlot() == (Integer.parseInt(oldSlot) - 1)
+						&& i.getWeekday() == day){
+					oldRoomNum = i.getRoom().getNum();
+				}
+					
+			}
+		}
+		p.setRoomNum(oldRoomNum);
+		
+		Syllabus q = new Syllabus();
+		q.setNum(newnum);
+		q.setRoomNum(newRoomNum);
+		q.setSlot(Integer.parseInt(newSlot));
+		q.setNote(plandate);
+		q.setRoomNum(newRoomNum);
+
+		manageService.saveAdjustRecord(p, q, adjustReason, semester);
+		return "changecourses";
+	}
+
+	public String checkAdjustApply() {
+		if (isApprove.equals("true"))
+			manageService.checkAdjustApply(true,Integer.parseInt(adjustcourseID));
+		else
+			manageService.checkAdjustApply(false,Integer.parseInt(adjustcourseID));
+		return null;
+	}
+
+	public String transcriptprint() {
+		List<Classes> classlist = classService.loadclass();
+		ActionContext.getContext().put("classlist", classlist);
+		return "transcriptprint";
+	}
+
+	public String attendencecourselist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.attendencecourselist(page,pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String searchsemestercourselist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.searchsemestercourselist(page,pageSize, semChosenCourse.getSemester());
+		datatojson(map);
+		return null;
+	}
+
+	public String stucheck() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = manageService.stucheck(stu.getStuid());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public String getOldSlot() {
+		return oldSlot;
+	}
+
+	public void setOldSlot(String oldSlot) {
+		this.oldSlot = oldSlot;
+	}
+
+	public String getNewSlot() {
+		return newSlot;
+	}
+
+	public void setNewSlot(String newSlot) {
+		this.newSlot = newSlot;
+	}
+
+	public String transcriptsearch() {
+		List<ChosenCourse> attendencelist = manageService.transcriptsearch(semChosenCourse.getSemester(), stu.getStuid());
+		Student student = studentService.loadstubystuid(stu.getStuid());
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("text/html;charset=utf-8");
+		String json = "";
+		if (attendencelist.size()==1) {
+			SemesterChosenCourse semesterChosenCourse = manageService.loadsemesterchosencoursebycourseid(attendencelist.get(0).getCourseId());
+			Course course = classService.loadcoursebynum(attendencelist.get(0).getCourseId());							  
+			json = "[{\"semester\":" + attendencelist.get(0).getSemester() + "," + "\"coursename\":" + "\"" + course.getCoursename() + "\","+ "\"credits\":" + "\"" + semesterChosenCourse.getCredits() + "\","+ "\"lessoncount\":" + "\"" + semesterChosenCourse.getLessonCount() + "\","+ "\"attendence\":" + "\"" + attendencelist.get(0).getAttendence()+ "\","+ "\"homework\":" + "\"" + attendencelist.get(0).getHomework() + "\","+ "\"midexam\":" + "\"" + attendencelist.get(0).getMidexam() + "\"," + "\"finalexam\":" + "\"" + attendencelist.get(0).getFinalexam()  + "\"}]";				  
+		}else {
+			for(int i=0;i<attendencelist.size();i++){
+				SemesterChosenCourse semesterChosenCourse = manageService.loadsemesterchosencoursebycourseid(attendencelist.get(i).getCourseId());
+				Course course = classService.loadcoursebynum(attendencelist.get(i).getCourseId());							  
+				if(i<attendencelist.size()-1){
+				  if(i==0){
+					  json = json+"[";
+				  }else{
+					  json = json+ "{\"semester\":" + attendencelist.get(i).getSemester() + "," + "\"coursename\":" + "\"" + course.getCoursename() + "\","+ "\"credits\":" + "\"" + semesterChosenCourse.getCredits() + "\","+ "\"lessoncount\":" + "\"" + semesterChosenCourse.getLessonCount() + "\","+ "\"attendence\":" + "\"" + attendencelist.get(i).getAttendence()+ "\","+ "\"homework\":" + "\"" + attendencelist.get(i).getHomework() + "\","+ "\"midexam\":" + "\"" + attendencelist.get(i).getMidexam() + "\"," + "\"finalexam\":" + "\"" + attendencelist.get(i).getFinalexam()  + "\"},";				  
+				  }
+			   }else {
+				   json = json+"{\"semester\":" + attendencelist.get(i).getSemester() + "," + "\"coursename\":" + "\"" + course.getCoursename() + "\","+ "\"credits\":" + "\"" + semesterChosenCourse.getCredits() + "\","+ "\"lessoncount\":" + "\"" + semesterChosenCourse.getLessonCount() + "\","+ "\"attendence\":" + "\"" + attendencelist.get(i).getAttendence()+ "\","+ "\"homework\":" + "\"" + attendencelist.get(i).getHomework() + "\","+ "\"midexam\":" + "\"" + attendencelist.get(i).getMidexam() + "\"," + "\"finalexam\":" + "\"" + attendencelist.get(i).getFinalexam()  + "\"}]";				  
+			   }
+		   }
+		}		
+		String stu =  "[{\"id\":" + student.getId() + "," + "\"stuid\":" + "\"" + student.getStuid() + "\","+ "\"startdate\":" + "\"" + student.getStartdate() + "\","+ "\"stuname\":" + "\"" + student.getStuname() + "\","+ "\"engname\":" + "\"" + student.getFirstname()+" "+student.getLastname() + "\","+ "\"enddate\":" + "\"" + student.getEnddate() + "\","+ "\"nation\":" + "\"" + student.getNation() + "\"," + "\"classname\":" + "\"" + student.getClasses().getClassname()  + "\"}]";
+		String data = json + "#" +stu;
+		try {
+			PrintWriter out = response.getWriter();
+			out.write(data);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+		return null;
+	}
+    public String setemptyslot(){//设置选修上课时间
+    	HttpServletRequest request = ServletActionContext.getRequest();
+    	String semester = request.getParameter("semester");
+    	ActionContext.getContext().put("semester", semester);
+    	return "setemptyslot";
+    }
+    public String selectresult(){//任课教师查看选修结果
+    	//String classlist = studentService.classlist();
+		//ActionContext.getContext().put("classlist", classlist);
+    	return "selectresultcourselist";
+    }
+    public String loadselectcoursestu(){
+    	String classlist = studentService.classlist();
+    	ActionContext.getContext().put("classlist", classlist);
+    	List<ChosenCourse> chosenCourses= manageService.loadselectcoursestu(course.getNum(),semChosenCourse.getSemester());
+    	ActionContext.getContext().put("coursenum", course.getNum());
+    	ActionContext.getContext().put("semester", semChosenCourse.getSemester());
+    	return "selectresultlist";
+    }
+    public String selectresultlist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.selectresultlist(page,pageSize);
+		datatojson(map);
+		return null;
+	}
+    
+    public String emptyroomApply (){
+    	String semester = manageService.getCurrSemester();
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		courseRet = manageService.loadSemesterChosenCoruseByTeacher(user.getUsernum(), semester);
+		List<Syllabus> courses = new ArrayList<Syllabus>();
+
+		Syllabus pleaseChoice = new Syllabus();
+		pleaseChoice.setCourseName("请选择");
+		pleaseChoice.setId(-1);
+		courses.add(pleaseChoice);
+
+		Set<String> hasName = new HashSet<String>();
+		for (ChosenCourseModel c : courseRet) {
+			if (hasName.contains(c.getCourse().getCoursename())) {
+				continue;
+			} else {
+				Syllabus s = new Syllabus(c);
+				s.setId(c.getCourse().getNum());
+				courses.add(s);
+				hasName.add(c.getCourse().getCoursename());
+			}
+		}
+		
+		List<Classroom> rooms = manageService.classroomList();
+		
+		ActionContext.getContext().put("rooms", rooms);
+		ActionContext.getContext().put("oldCourses", courses);
+
+    	return "emptyroomApply";
+    }
+    
+    public String chkNewEmptyRoomSlot () {
+    	
+    	int day = getDayofweek(plandate) - 2;
+    	String semester = manageService.getCurrSemester();
+    	
+   	
+    	// 找出该教室当天所有课程
+    	List<SemesterChosenCourse> thatDay = manageService.courseListByWeekday(String.valueOf(day), semester);
+    	
+    	Set<String> slot = new HashSet<String>();
+    	
+    	
+    	for (SemesterChosenCourse c: thatDay) {
+    
+    		if (c.getSlot() == null || c.getRoomname() == null)
+    			continue;
+    		if (c.getRoomname().equals(newnum))
+    			slot.add(c.getSlot());
+    	}
+    	
+    	// 使用该教室的已批准申请
+    	
+    	List<Adjustcourse> ad = manageService.approvedAdjustApplyListByWeekday(String.valueOf(day), semester);
+    	
+    	for (Adjustcourse i : ad) {
+    		if (i.getNewslot() == null || i.getNewRoomNum() == null)
+    			continue;
+    		if (i.getNewRoomNum().equals(newnum))
+    			slot.add(i.getNewslot());
+    	}
+    	
+    	// 去除上述课程所使用的时间
+    	List<Syllabus> avlSlot = new ArrayList<Syllabus>();
+    	for (int i = 0; i < 5; ++i) {
+    		if (slot.contains(String.valueOf(i)))
+    			continue;
+    		Syllabus t = new Syllabus();
+    		t.setSlot(i);
+    		avlSlot.add(t);
+    	}
+    	
+    	toJson(avlSlot);
+		return null;
+    }
+
+	public String getNewRoomNum() {
+		return newRoomNum;
+	}
+
+	public void setNewRoomNum(String newRoomNum) {
+		this.newRoomNum = newRoomNum;
+	}
+
+	public String getOldRoomNum() {
+		return oldRoomNum;
+	}
+
+	public void setOldRoomNum(String oldRoomNum) {
+		this.oldRoomNum = oldRoomNum;
+	}
+
+	public String getSemester() {
+		return semester;
+	}
+
+	public void setSemester(String semester) {
+		this.semester = semester;
+	}
+    
+    
+}

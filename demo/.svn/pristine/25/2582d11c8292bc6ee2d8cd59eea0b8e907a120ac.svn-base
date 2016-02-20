@@ -1,0 +1,18 @@
+package com.tjpu.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.tjpu.bean.ChosenCourse;
+import com.tjpu.bean.TeacherModel;
+
+/**
+ * @author SiyuLi
+ *
+ */
+public interface CourseArrangement {
+	public List<ChosenCourse> getCourses ();
+	public List<ChosenCourse> otherOption(ChosenCourse course);
+	public void applyNewArrangement (ChosenCourse old, ChosenCourse newer);
+	public List<ChosenCourse> getSpecificTeacherTable (TeacherModel teacher);
+}

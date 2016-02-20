@@ -1,0 +1,506 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>天津工业大学排课管理系统</title>
+<link href="<%=basePath%>js/ligerUI/skins/Gray/css/form.css" rel="stylesheet"type="text/css" />
+<link href="<%=basePath%>js/ligerUI/skins/Gray/css/common.css" rel="stylesheet"type="text/css" />
+<script src="<%=basePath%>js/jquery/jquery-1.6.min.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/core/base.js" type="text/javascript"></script>
+<link href="<%=basePath%>css/date.css" rel="stylesheet" type="text/css"/>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerForm.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerDateEditor.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerComboBox.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerSpinner.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerTextBox.js" type="text/javascript"></script>
+<%-- <script src="<%=basePath%>js/ligerUI/plugins/ligerRadio.js" type="text/javascript"></script> --%>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerTip.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/jquery.validate.min.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/jquery.metadata.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/messages_cn.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery.date_input.pack.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(function(){
+	  $('.date_picker').date_input();
+   })
+	var eee;
+        $(function () {
+            $.metadata.setType("attr", "validate");
+            var v = $("form").validate({
+                //调试状态，不会提交数据的
+                debug: true,
+                errorPlacement: function (lable, element) {
+
+                    if (element.hasClass("l-textarea")) {
+                        element.addClass("l-textarea-invalid");
+                    }
+                    else if (element.hasClass("l-text-field")) {
+                        element.parent().addClass("l-text-invalid");
+                    }
+
+                    var nextCell = element.parents("td:first").next("td");
+                    if (nextCell.find("div.l-exclamation").length == 0) {
+                        $('<div class="l-exclamation" title="' + lable.html() + '"></div>').appendTo(nextCell).ligerTip();
+                    }
+                },
+                invalidHandler: function (form, validator) {
+                    var errors = validator.numberOfInvalids();
+                    if (errors) {
+                        var message = errors == 1
+                          ? '该字段不能为空！'
+                          : '这 ' + errors + ' 个字段不能为空！';
+                        $("#errorLabelContainer").html(message).show();
+                    }
+                },
+                success: function (lable) {
+                    var element = $("#" + lable.attr("for"));
+                    var nextCell = element.parents("td:first").next("td");
+                    if (element.hasClass("l-textarea")) {
+                        element.removeClass("l-textarea-invalid");
+                    }
+                    else if (element.hasClass("l-text-field")) {
+                        element.parent().removeClass("l-text-invalid");
+                    }
+                    nextCell.find("div.l-exclamation").remove();
+                },
+			submitHandler : function() {
+				$("form .l-text,.l-textarea").ligerHideTip();				
+				checkname();
+				checknum();
+				checkemail();
+				checkmobile();
+				checkmajor();
+				checknation();
+				//checkbrith()
+				checkclass();
+				if(flg1&&flg2&&flg3&&flg4&&flg5&&flg7&&flg8){
+				  var sexid=1;
+				if(document.getElementById("r2").checked){
+	                 sexid="女";
+                }else{
+                  sexid="男";
+                }
+                var secondlanguagetype = $("#secondlanguagetype").val();
+                var secondlanguagelevel = $("#secondlanguagelevel").val();
+                if(secondlanguagetype.length!=0&&secondlanguagelevel.length!=0){
+                   //  if(flg&&flg1&&flg2){
+                  $.post("${pageContext.request.contextPath}/system/Class_assistantteacheradd.action?assistantteacher.classname="+ encodeURI(encodeURI($("#classname").val()))
+		        +"&assistantteacher.major="+encodeURI(encodeURI($("#major").val()))
+		        +"&assistantteacher.name="+encodeURI(encodeURI($("#name").val()))
+		        +"&assistantteacher.department="+encodeURI(encodeURI($("#department").val()))
+		        +"&assistantteacher.nation="+encodeURI(encodeURI($("#nation").val()))
+		        +"&assistantteacher.brithdate="+encodeURI(encodeURI($("#brithdate").val()))
+		        +"&assistantteacher.gender="+sexid
+		        +"&assistantteacher.politicalstatus="+encodeURI(encodeURI($("#politicalstatus option:selected").val()))
+		        +"&assistantteacher.edulevel="+encodeURI(encodeURI($("#edulevel option:selected").val()))
+		        +"&assistantteacher.assistantnum="+encodeURI(encodeURI($("#assistnum").val()))
+		        +"&assistantteacher.secondlanguagetype="+encodeURI(encodeURI($("#secondlanguagetype option:selected").val()))
+		        +"&assistantteacher.secondlanguagelevel="+encodeURI(encodeURI($("#secondlanguagelevel option:selected").val()))
+		        +"&assistantteacher.telephone="+encodeURI(encodeURI($("#telephone").val()))
+		        +"&assistantteacher.email="+encodeURI(encodeURI($("#email").val()))
+		        +"&assistantteacher.forte="+encodeURI(encodeURI($("#forte").val())) ,null,function(){
+		        alert('申请成功!');
+		        parent.m.hide();
+	            parent.g.loadData();
+		       });
+               // }			
+                }else{
+                  alert("请选择外语类型或等级!");
+                }           
+				}
+				   				
+			 }
+		});
+		$("form").ligerForm();
+		$(".l-button-test").click(function() {
+			alert(v.element($("#txtName")));
+		});
+	});	
+	function changeselect(){
+	  var type=$("#secondlanguagetype").val();
+	  var slt=document.getElementById("secondlanguagelevel"); 
+	  //slt.options.remove();
+	  $('#secondlanguagelevel').empty().append( $("<option value='' >---请选择语言级别---</option>") );
+	 if(type=="英语"){
+	     var objOption=document.createElement("OPTION"); 
+         var objOption1=document.createElement("OPTION"); 
+         objOption.value='四级';  
+         objOption.text='四级';
+         objOption1.value='六级';  
+         objOption1.text='六级';  
+         slt.add(objOption);
+         slt.add(objOption1);  
+	 }else if(type=="日语"){
+	     var objOption=document.createElement("OPTION"); 
+         var objOption1=document.createElement("OPTION");
+         var objOption2=document.createElement("OPTION"); 
+         objOption.value='一级';  
+         objOption.text='一级';
+         objOption1.value='二级';  
+         objOption1.text='二级';
+         objOption2.value='三级';  
+         objOption2.text='三级';  
+         slt.add(objOption);
+         slt.add(objOption1);  
+         slt.add(objOption2);  
+	 }
+	}
+
+	var flg1 = true;
+	function checkmobile(){
+		var isMobile = /^(?:13\d|15\d|18\d)\d{5}(\d{3}|\*{3})$/; //手机号码验证规则
+		var mobile = $("#telephone").val();
+		if (mobile.length == 0) {
+			$("#result1").html("手机号码不能为空!");
+			$("#result1").show();
+			//$("#telephone").focus();       //输入框获得光标
+			flg1 = false; //就弹出提示信息        
+		} else {
+			$("#result1").hide();
+			if (!isMobile.test(mobile)) { //如果用户输入的值不同时满足手机号的正则
+				$("#result1").html("请输入正确的11位手机号!");
+				$("#result1").show();
+				//$("#telephone").focus();       //输入框获得光标
+				flg1 = false; //就弹出提示信息        
+			} else {
+				$("#result1").hide();
+				flg1 = true;
+			}
+		}
+	}
+	var flg2 = false;
+	function checkemail(){
+		var email = $("#email").val();
+		if (email.length == 0) {
+			$("#result2").html("邮箱地址不能为空!");
+			$("#result2").show();
+			//$("#email").focus(); //输入框获得光标
+			flg2 = false; //就弹出提示信息
+		} else {
+			$("#result2").hide();
+			if (!$("#email").val().match(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/)) {
+				$("#result2").html("请输入正确的邮箱地址!");
+				$("#result2").show();
+				//$("#email").focus(); //输入框获得光标
+				flg2 = false; //就弹出提示信息   
+			} else {
+				$("#result2").hide();
+				flg2 = true;
+			}
+		}
+	}
+	var flg = true;
+	function check(){
+		var type = $("#secondlanguagetype option:selected").val();
+		var level = $("#secondlanguagelevel option:selected").val()
+		if (type.length == 0 || level.length == 0) {
+			$("#result").html("请选择语言或级别!");
+			$("#result").show();
+			flg = false;
+		} else
+			$("#result").hide();
+	}
+	var flg3 = false;
+	function checkname(){
+		var name = $("#name").val();
+		var reg = /[\u4e00-\u9fa5]/g;
+		if (name.length == 0) {
+			$("#result3").html("名字不能为空!");
+			$("#result3").show();
+			flg3 = false;
+		} else {
+			$("#result3").hide();
+			if (!reg.test(name)) {
+				$("#result3").html("请填写中文名!");
+				$("#result3").show();
+				flg3 = false;
+			} else {
+				$("#result3").hide();
+				flg3 = true;
+			}
+		}
+	}
+	var flg4 = false;
+	function checknation(){
+		var name = $("#nation").val();
+		var reg = /[\u4e00-\u9fa5]/g;
+		if (name.length == 0) {
+			$("#result4").html("民族不能为空!");
+			$("#result4").show();
+			flg4 = false;
+		} else {
+			$("#result4").hide();
+			if (!reg.test(name)) {
+				$("#result4").html("请填写中文!");
+				$("#result4").show();
+				flg4 = false;
+			} else {
+				$("#result4").hide();
+				flg4 = true;
+			}
+		}
+	}
+	var flg5 = false;
+	function checkmajor(){
+		var name = $("#major").val();
+		if (name.length == 0) {
+			$("#result5").html("专业不能为空！");
+			$("#result5").show();
+			flg5 = false;
+		} else {
+			var reg = /^[\u4e00-\u9fa5]+$/gi;
+			if (!reg.test(name)) {
+				$("#result5").html("专业只能为中文！");
+				$("#result5").show();
+				flg5 = false;
+			} else {
+				$("#result5").hide();
+				flg5 = true;
+			}
+		}
+	}
+	var flg6 = false;
+	function checkbrith(){
+		var date = new Date();
+		var year = date.getFullYear();
+		var month = date.getMonth();
+		var daty = date.getDate();
+		var start = year+"-"+month+"-"+day;
+		
+		var brithdate = $("#brithdate").val();
+		var d1 = new Date(start.replace(/\-/g, "\/"));
+		var d2 = new Date(brithdate.replace(/\-/g, "\/"));
+		if (brithdate.length == 0) {
+			$("#result6").html("出生日期不能为空！");
+			$("#result6").show();
+			flg6 = false;
+		} else {
+			if (start != "" && brithdate != "" && d2 >= d1) {
+				$("#result6").html("出生日期填写有误！");
+				$("#result6").show();
+				flg6 = false;
+			} else {
+				$("#result6").hide();
+				flg6 = true;
+			}
+		}
+	}
+	var flg7 = false;
+	function checknum(){
+		var stunum = $("#assistnum").val();
+		if (stunum.length == 0) {
+			$("#result7").html("学号不能为空！");
+			$("#result7").show();
+			flg7 = false;
+			return false;
+		} else {
+			$("#result7").hide();
+			if (isNaN(stunum)) {
+				$("#result7").html("学号只能为数字！");
+				$("#result7").show();
+				flg7 = false;
+				return false;
+			} else {
+				$("#result7").hide();
+				flg7 = true;
+			}
+		}
+	}
+	var flg8 = false;
+	function checkclass(){
+		var classname = $("#classname").val();
+		if (classname.length == 0) {
+			$("#result8").html("班级不能为空！");
+			$("#result8").show();
+			flg8 = false;
+			return false;
+		} else {
+			$("#result8").hide();
+			var reg = /^[0-9a-zA-Z\u4e00-\u9fa5]{2,}$/;
+			//if (!isNaN(stunum)) {
+			if (!reg.test(classname)){
+				$("#result8").html("班级格式不正确！");
+				$("#result8").show();
+				flg8 = false;
+				return false;
+			} else {
+				$("#result8").hide();
+				flg8 = true;
+			}
+		}
+	}
+</script>
+<style type="text/css">
+body {
+	font-size: 12px;
+}
+
+.l-table-edit-td {
+	padding: 4px;
+}
+
+.s {
+	width: 61px;
+	height: 18px;
+	display: inline-block;
+	background-color: #eeeeee;
+	text-align: center;
+	font-size: 13px;
+}
+
+.l-button-submit,.l-button-test {
+	width: 80px;
+	float: left;
+	margin-left: 10px;
+	padding-bottom: 2px;
+}
+
+.l-verify-tip {
+	left: 230px;
+	top: 120px;
+}
+</style>
+
+</head>
+
+<body style="padding: 10px">
+
+	<form name="form1" method="post" action="" id="form1">
+		<div align="center"><font size="3" face="微软雅黑"><strong>助理班主任申请表</strong></font><br></div>
+		<table cellpadding="0" cellspacing="0" class="l-table-edit">
+			<tr>
+				<td align="right" class="l-table-edit-td">姓名:<font color="#ff0000">*</font></td>
+				<td align="left" class="l-table-edit-td"><input name="name"type="text" onchange="checkname()" id="name" ltype="text" placeholder="请输入姓名" onchange="checkname()"  /></td>
+				<td align="right" width="30px;" ><br /></td>
+				<td align="right" class="l-table-edit-td">民族:<font color="#ff0000">*</font></td>
+				<td align="left" class="l-table-edit-td"><input name="nation"type="text" onchange="checknation()" id="nation" ltype="text" value="汉" placeholder="请输入民族" /></td>				
+				<td align="left"><div id="result3" style="color: red;"></div></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">学号:<font color="#ff0000">*</font></td>
+				<td align="left" class="l-table-edit-td"><input name="assistnum"type="text" onchange="checknum()" style="width: 175px;" id="assistnum" placeholder="请输入学号" ltype="text" /></td>
+				<td align="right" ><div id="result7" style="color: red;"></div></td>
+				<td align="right" class="l-table-edit-td">班级:<font color="#ff0000">*</font></td>
+				<td align="left" class="l-table-edit-td"><input name="classname"type="text"  id="classname" onchange="checkclass()" style="width: 175px;"  ltype="text" placeholder="请输入班级名称"  /></td>				
+				<td align="left"><div id="result8" style="color: red;"></div></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">联系方式:<font color="#ff0000">*</font></td>
+				<td align="left" class="l-table-edit-td"><input name="telephone"type="text" id="telephone" ltype="text" placeholder="手机号码"  onchange="checkmobile()"  /></td>
+				<td align="right" ><div id="result1" style="color: red;"></div></td>
+				<td align="right" class="l-table-edit-td">邮箱:<font color="#ff0000">*</font></td>
+				<td align="left" class="l-table-edit-td"><input name="email"type="text"  id="email" ltype="text" placeholder="邮箱" onchange="checkemail()"  /></td>				
+				<td align="left"><div id="result2" style="color: red;"></div></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">出生年月:</td>
+				<td align="left" class="l-table-edit-td"><input name="brithdate"type="text" onchange="checkbrith()" id="brithdate" ltype="text" placeholder="格式：1900-00-00" class="date_picker link"  /></td>
+				<td align="right" ><div id="result6" style="color: red;"></div></td>
+				<td align="right" class="l-table-edit-td">性别:</td>
+				<td align="left" class="l-table-edit-td"><input id="r1" type="radio" name="rbtnl" value="1" checked="checked" />
+				<label for="rbtnl_0">男</label> 
+				<input id="r2" type="radio" name="rbtnl" value="2" />
+				<label for="rbtnl_1">女</label></td>				
+				<td align="left"></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">政治面貌:</td>
+				<td align="left" class="l-table-edit-td">
+				  <select id="politicalstatus" style="width: 180px;" name="politicalstatus"  ltype="select">
+                       <option value="党员" >党员</option>
+                       <option value="团员" >团员</option>
+                    </select>
+                <td align="right" ></td>	
+				<td align="right" class="l-table-edit-td">层次（本/硕）:</td>
+				<td align="left" class="l-table-edit-td">
+                    <select id="edulevel" style="width: 180px;" name="edulevel"  ltype="select">
+                       <option value="本科" >本科</option>
+                       <option value="硕士" >硕士</option>
+                    </select>
+                </td>				
+				<td align="left"></td>
+			</tr>
+				
+			<tr>
+				<td align="right" class="l-table-edit-td">学院:</td>
+				<td align="left" class="l-table-edit-td">
+				 <select type="select" id="department"  style="width: 180px;"  >
+				   <option value="国际教育学院 " >国际教育学院 </option>
+				   <option value="纺织学院" >纺织学院</option>
+				   <option value="材料科学与工程学院" >材料科学与工程学院</option>
+				   <option value="环境与化学工程学院" >环境与化学工程学院</option>
+				   <option value="机械工程学院" >机械工程学院</option>
+				   <option value="计算机科学与软件学院" >计算机科学与软件学院</option>
+                   <option value="电气工程与自动化学院 " >电气工程与自动化学院 </option>
+				   <option value="电子与信息工程学院 " >电子与信息工程学院 </option>
+				   <option value="理学院" >理学院</option>
+				   <option value="艺术与服装学院" >艺术与服装学院</option>
+				   <option value="管理学院 " >管理学院 </option>
+				   <option value="经济学院" >经济学院</option>
+				   <option value="人文与法学院" >人文与法学院</option>
+				   <option value="外国语学院 " >外国语学院 </option>
+				   <option value="马克思主义学院" >马克思主义学院</option>
+				   <option value="应用技术学院" >应用技术学院</option>
+				   <option value="继续教育学院" >继续教育学院</option>
+				   
+				 </select>
+				</td>		
+				<td align="right" ></td>				
+				<td align="right" class="l-table-edit-td">专业:<font color="#ff0000">*</font></td>
+				<td align="left" class="l-table-edit-td"><input name="major"type="text" onchange="checkmajor()" style="width: 175px;" id="major" ltype="text"/></td>
+				<td align="left"><div id="result5" style="color: red;"></div></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">外语语种:</td>
+				<td align="left" class="l-table-edit-td">
+				<!-- <input name="secondlanguagetype"type="text" id="secondlanguagetype" ltype="text"validate="{required:true,minlength:1,maxlength:20}" type="hidden" /> -->
+				 <select id="secondlanguagetype" onchange="changeselect()" style="width: 180px;" onblur="check()" >
+				    <option value="" >----请选择语言----</option>
+                    <option value="英语" >英语</option>
+                    <option value="日语" >日语</option>                    
+				 </select>
+				</td>
+				<td align="right" ></td>
+				<td align="right" class="l-table-edit-td">外语水平:</td>
+				<td align="left" class="l-table-edit-td">
+				<!-- <input name="secondlanguagelevel"type="hidden"  id="secondlanguagelevel" ltype="text" placeholder="外语水平" validate="{required:true,minlength:1,maxlength:20}" /> -->
+				<select  id="secondlanguagelevel" style="width: 180px;" onblur="check()" >
+				   <option value="" >---请选择语言级别---</option>
+				</select>				
+				</td>				
+				<td align="left"></td>
+			</tr>
+			
+			<tr>
+				<th align="right" class="l-table-edit-td">特长:</td>
+				<th align="left" class="l-table-edit-td" colspan="4"><textarea id="forte" style="width: 450px;height: 150px;"></textarea></th>				
+				<td align="left"></td>
+			</tr>			 			
+			<tr>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="left"><div id="result2" style="color: red;"></div></td>
+				<td align="left" class="l-table-edit-td"></td>
+				
+			</tr>
+			<tr>
+				<th align="center" class="l-table-edit-td"colspan="3"><div id="result" style="color: red;"></div></th>								
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="center" class="l-table-edit-td" style="text-align: center;" ><br /><input type="submit" value="申  请" id="Button1" class="l-button l-button-submit" /> </td>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="left">
+			</tr>
+		</table>
+		<br />
+	</form>
+</body>
+</html>

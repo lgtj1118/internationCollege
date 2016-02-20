@@ -1,0 +1,277 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>天津工业大学国际教育学院助理班主任报名表</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<script type="text/javascript" src="js/jquery/jquery-1.4.4.min.js" ></script>
+	<script type="text/javascript" src="js/jquery.jqprint-0.3.js" ></script>
+<script type="text/javascript">
+   function tabclose(){
+     top.f_closeTab();
+   }
+   function tabprint(){
+     $("#contain").jqprint();
+     
+   }
+</script>
+  </head>
+  
+  <body>
+  <div id="head" ><input align="center" type="button" value="关&nbsp;&nbsp;闭" onclick="tabclose()" ><input type="button" value="打&nbsp;&nbsp;印" onclick="tabprint()" ></div>   
+   <div id="contain" >
+     <div align="center"><p style="margin-right: 24pt; text-align: center; line-height: 22pt;" class="MsoNormal"><span style="font-family: 黑体; font-weight: bold; font-size: 18pt;">天津工业大学国际教育学院助理班主任报名表</span><span style="font-family: 黑体; font-weight: bold; font-size: 18pt;"><O:P></O:P></span></p></div>
+		<table class="MsoNormalTable" style="border-collapse:collapse;width:469.2000pt;" align="center">
+	<tbody>
+		<tr>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="85">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">姓名</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="113">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;${assistteacher.name }</span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="56">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">性别</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="47">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;${assistteacher.gender }</span>
+				</p>
+			</td>
+			<td colspan="2" style="border:0.5000pt solid windowtext;" valign="center" width="113">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">出生年月</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td colspan="2" style="border:0.5000pt solid windowtext;" valign="center" width="103">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;${assistteacher.brithdate }</span>
+				</p>
+			</td>
+			<td rowspan="5" style="border:0.5000pt solid windowtext;" valign="center" width="105">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">（免冠照片）</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="85">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">政治面貌</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="113">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.politicalstatus}</span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="56">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">民族</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="47">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.nation}</span>
+				</p>
+			</td>
+			<td colspan="2" style="border:none;" valign="center" width="113">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">层次（本/硕）</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td colspan="2" style="border:0.5000pt solid windowtext;" valign="center" width="103">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.edulevel}</span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="85">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">学院</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="113">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:10.5000pt;">${assistteacher.department}</span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="56">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">专业</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td colspan="5" style="border:0.5000pt solid windowtext;" valign="center" width="264">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.major}</span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="85">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">学号</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="113">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.assistantnum}</span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="56">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">班级</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td colspan="5" style="border:0.5000pt solid windowtext;" valign="center" width="264">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.classname}</span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="85">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">外语语种</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="113">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.secondlanguagetype}</span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="56">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">特长</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td colspan="5" style="border:0.5000pt solid windowtext;" valign="center" width="264">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.forte}</span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="85">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">外语水平</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="113">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.secondlanguagelevel}</span>
+				</p>
+			</td>
+			<td colspan="3" style="border:0.5000pt solid windowtext;" valign="center" width="122">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">联系方式（手机）</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td colspan="2" style="border:0.5000pt solid windowtext;" valign="center" width="116">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.telephone}</span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="82">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">邮箱地址</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+			<td style="border:0.5000pt solid windowtext;" valign="center" width="105">
+				<p class="MsoNormal">&nbsp; 
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">${assistteacher.email}</span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border:0.5000pt solid windowtext;" valign="top" width="625">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">学院推荐（或推荐人）意见：</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal" style="text-indent:246.0000pt;" align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+					<span style="font-family:楷体;font-size:12.0000pt;">学院领导（或推荐人）签字：</span><span style="font-family:楷体;font-size:12.0000pt;"></span>
+				</p><div align="right"> 
+				</div><p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p><div> 
+				</div><p class="MsoNormal" style="text-indent:390.0000pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+					<span style="font-family:楷体;font-size:12.0000pt;">年&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;日</span><span style="font-family:楷体;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="9" style="border:0.5000pt solid windowtext;" valign="top" width="625">
+				<p class="MsoNormal">
+					<span style="font-family:楷体;color:#000000;font-size:12.0000pt;">国际教育学院意见：</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal" style="text-indent:312.0000pt;" align="left">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+					<span style="font-family:楷体;font-size:12.0000pt;">学院领导签字：</span><span style="font-family:楷体;font-size:12.0000pt;"></span>
+				</p>
+				<p class="MsoNormal">
+					<span style="font-family:楷体;font-size:12.0000pt;">&nbsp;</span>
+				</p>
+				<p class="MsoNormal" style="text-align:right;">
+					<span style="font-family:楷体;font-size:12.0000pt;">年&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;日</span><span style="font-family:楷体;color:#000000;font-size:12.0000pt;"></span>
+				</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+   </div>
+  </body>
+</html>

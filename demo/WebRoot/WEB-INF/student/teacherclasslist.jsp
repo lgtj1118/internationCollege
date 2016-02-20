@@ -1,0 +1,221 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@taglib prefix="s" uri="/struts-tags"  %>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+	<base href="<%=basePath%>">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>班级列表</title>
+	<link href="<%=basePath%>js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet"type="text/css" />	
+	<link href="<%=basePath %>js/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css"/>	
+    <script type="text/javascript" src="js/jquery-validation/jquery.validate.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/json2.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/jquery.metadata.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/messages_cn.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/ligerUI/plugins/ligerTab.js"></script>
+    <script type="text/javascript" src="js/jquery/jquery-1.3.2.min.js"></script>
+	<script src="js/ligerUI/core/base.js" type="text/javascript"></script>
+	<script src="js/ligerUI/ligerui.all.js" type="text/javascript"></script>	
+	<script type="text/javascript">
+	var ClassData = {Rows: [
+		<%String  s= (String) request.getAttribute("classlist");%>
+		<%=s%>
+		 ]};		
+	$(f_initGrid);
+	var manager, g;
+	function f_initGrid() {
+		g = manager = $("#maingrid").ligerGrid(
+				{
+				columns : [{
+				display : 'ID',
+				name : 'Classid',
+				width : 60,
+				hide:true,
+				type : 'int'
+			}, {
+				display : '班级名称',
+				name : 'Classname',
+				minWidth : 150,
+				editor: { type: 'text'}
+			}, {
+				display : '班级专业',
+				name : 'Classmajor',
+				minWidth : 150,
+				editor: { type: 'text'}
+			} /* , {
+				display : '班主任',
+				name : 'ClassTeacher',
+				minWidth : 150,
+				editor: { type: 'text'}
+			}, {
+				display : '助理班主任',
+				name : 'Assistantteacher',
+				minWidth : 150,
+				editor: { type: 'text'}
+			} */,  {
+				display : '班长',
+				name : 'Classminitor',
+				minWidth : 150,
+				editor: { type: 'text'}
+			},{
+					display : '班内学生',
+					isSort : false,
+					width : 120,
+					render : function() {
+						var h = "";
+						h += "<a style='color:#000;' href='javascript:classstu("+ ")'>管理</a> ";
+						return h;
+					}
+			} ],
+					onSelectRow : function(rowdata, rowindex) {
+						$("#txtrowindex").val(rowindex);
+					},
+					enabledEdit : true,
+					clickToEdit : false,
+					isScroll : false,
+			         rownumbers:true,
+			         pageSize:30,
+					data : ClassData,
+					/* url: '${pageContext.request.contextPath}/system/Class_classList.action', */
+
+					width : '100%'
+				});
+	}
+	
+	var m;
+	function setAssis (classid){
+		var url = "${pageContext.request.contextPath}/system/Class_jmpAssisList.action?ids=" + classid;
+		 m=$.ligerDialog.open({
+			url : url,
+			height : 400,
+			width : 1000,
+			isDrag:true,
+			showMax:true,
+			showToggle:true,
+			slide: false,			
+			modal:false,
+			left:200,
+			title:'设置助理班主任',
+			allowClose:true,
+		    isResize : false
+		});
+	}
+	var m;
+	function setHeadTeacher (classid) {
+		var url = "${pageContext.request.contextPath}/system/Class_jmpHeadTeacher.action?ids=" + classid;
+		 m=$.ligerDialog.open({
+			url : url,
+			height : 400,
+			width : 640,
+			isDrag:true,
+			showMax:true,
+			showToggle:true,
+			slide: false,			
+			modal:false,
+			left:200,
+			title:'设置班主任',
+			allowClose:true,
+		    isResize : false
+		});
+	}
+    function classstu(){
+     var row = manager.getSelectedRow();
+	 	if (!row) {
+			alert('请选择班级！');
+			return;
+		}
+    var str = "${pageContext.request.contextPath}/system/Class_classstulist.action?cls.id="+row.Classid;
+    var str1 = row.Classname;
+		m=$.ligerDialog.open({
+			url : str,
+			height : 650,
+			width : 1000,
+			title:str1,
+			isDrag:true,
+			showMax:true,
+			showToggle:true,
+			slide: false,			
+			modal:false,
+			isResize : true
+		});
+		
+}
+    var m;
+	function beginEdit() {
+       var row = manager.getSelectedRow();
+       if (!row) { alert('请选择一个班级！'); return; }
+       var str ="${pageContext.request.contextPath}/system/Class_classedit.action?cls.id="+ row.Classid;
+	   m=$.ligerDialog.open({
+			url : str,
+			height : 400,
+			width : 400,
+			title:'更新班级',
+			isResize : true
+		});  
+	}
+	var m;
+    function addclass(){
+	var str = "${pageContext.request.contextPath}/system/Class_classbeginadd.action";
+		m=$.ligerDialog.open({
+			url : str,
+			height : 400,
+			width : 400,
+			isResize : true
+		});
+		
+	}
+	function addbatchclass(){
+	var str = "${pageContext.request.contextPath}/system/Class_classbatchadd.action";
+		m=$.ligerDialog.open({		   
+			url : str,
+			height : 400,
+			width : 800,
+			isResize : true
+		});
+		
+	}
+	function deleteclass() {
+	var row = manager.getSelectedRow();
+		if (!row) {
+			alert('请选择一个班级！');
+			return;
+		}
+	$.ligerDialog.confirm('对应的学生也将被删除！确认删除吗？', function (yes){
+       if(yes){	
+	     $.post("${pageContext.request.contextPath}/system/Class_classdelete.action?cls.id="
+				+ row.Classid,null,function(){
+					 manager.deleteSelectedRow();
+				});
+		}
+		});
+	}	
+</script>
+<style type="text/css">
+.links{
+ cursor: pointer;
+}
+.links:hover{
+  color: red;
+}
+</style>
+	</head>
+	<body style="padding: 2px">
+	   <s:if test="#session.user.roles.rolerank==0">
+	        <a class="l-button" style="width:60px;float:left; margin:3px;" onclick="addclass()">添&nbsp;加</a>
+			<a class="l-button" style="width:80px;float:left; margin:3px;" onclick="addbatchclass()">批量添加</a>
+			<a class="l-button" style="width:60px;float:left; margin:3px;" onclick="deleteclass()">删&nbsp;除</a>
+			<a class="l-button" style="width:60px;float:left; margin:3px;" onclick="beginEdit()">修&nbsp;改</a>
+			<!-- <a class="l-button" style="width:80px;float:left; margin:3px;" onclick="cancelEdit()">取消修改</a>
+		    <a class="l-button" style="width:70px;float:left; margin:3px;" onclick="endEdit()">保存</a> -->
+	   </s:if> 
+	   <s:else></s:else>   
+			
+		<div class="l-clear"></div>
+		<div id="maingrid" ></div>
+	</body>
+</html>

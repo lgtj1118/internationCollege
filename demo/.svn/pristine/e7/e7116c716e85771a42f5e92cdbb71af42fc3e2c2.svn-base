@@ -1,0 +1,161 @@
+package com.tjpu.service;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import com.tjpu.bean.Assistantteacher;
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.ClassRecord;
+import com.tjpu.bean.ClassTeacher;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.Classroom;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.Performance;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.Syllabus;
+import com.tjpu.bean.Teacher;
+
+public interface ClassService {
+	
+	public Map<String, Object> courseFuzzySearch (String text,int page, int pageSize, int type);
+	
+	public void toExcel (OutputStream os, List<Syllabus> courses);
+	
+	public List<Classes> assisClassList (String id);
+	
+	public List<Classes> chargeClassList (String ident);
+	
+	public int classTeacherNum ();
+	
+	public void setNewClassTeacher (String classid, String ident);
+	
+	public List<Teacher> loadClassTeacher(int i, int page);
+	
+	public void setNewAssisTeacher (String classid, String assid);
+	
+	public boolean classcheck(String classname);
+	
+	public List<ChosenCourseModel> getPerSyllabus (String teacherId, String coureNum, String classId,  String semester);
+	
+	public List<ChosenCourseModel> getArrangedCourse(CourseArrangement ca);
+	
+	public List<ChosenCourseModel> getUnarrangedCourse (CourseArrangement ca);
+	
+	public String classlist();
+
+	public void classadd(Classes cls);
+
+	public void classupdate(Classes cls);
+
+	public void classdelete(Integer id);
+
+	public Map<String, Object> courselist(int page, int pageSize);
+
+	public void courseadd(Course course);
+
+	public void courseupdate(Course course);
+
+	public void coursedelete(Integer id);
+
+	public boolean coursecheck(String coursename);
+
+	public boolean coursecheck1(Integer num);
+
+	public Map<String, Object> roomlist(int page, int pageSize);
+
+	public void roomadd(Classroom room);
+
+	public void roomupdate(Classroom room);
+
+	public void roomdelete(Integer id);
+
+	public boolean roomcheck(String num);
+
+	public Map<String, Object> classstumap(int page, int pageSize);
+
+	public List<Student> loadstulistbyclassid(int classid);
+
+	public List<Classroom> roomsearch(Classroom room);
+
+	public String classteacherlist();
+
+	public String assistteacherlist();
+
+	public List<Course> loadcourse();
+
+	public Map<Integer, List<Course>> coursemap();
+
+	public Course loadcoursebyid(Integer id);
+
+	public void assistantteacherapply(Assistantteacher assistantteacher);
+
+	public Map<String, Object> assistmap(int page, int pageSize);
+
+	public void assistagree(Integer id);
+
+	public void classaddbytxt(String path);
+
+	public void classminitorset(Integer classid, Integer stuid);
+
+	public Map<String, Object> workrecordmap(int page, int pageSize);
+
+	public void workrecordedit(ClassRecord classrecord);
+
+	public void workrecorddelete(String ids);
+
+	public void workrecordadd(ClassRecord classrecord);
+
+	public ClassRecord workrecorddetail(Integer id);
+
+	public Classes classteacherclass(String id);
+
+	public Student loadminitor(Integer classminitorid);
+
+	public ClassRecord loadworkrecord(Integer id);
+
+	public Map<String, Object> performancemap(int page, int pageSize);
+
+	public void performanceadd(Performance performance);
+
+	public void performanceupdate(Performance performance);
+
+	public void performancedelete(String ids);
+
+	public void assistagainst(Integer id);
+
+	public Assistantteacher loadassistbyid(Integer id);
+
+	public Map<String, Object> searchroomlist(int page, int pageSize);
+
+	public List<Student> loadstubyclassid(Integer id);
+
+	public void coursesearch(Course course);
+
+	public Map<String, Object> coursesearchlist(int page, int pageSize);
+
+	public Classroom loadclassroombyid(Integer id);
+
+	public Classes loadclassbyid(Integer id);
+
+	public String courseclasslist(Integer num);
+
+	public List<Classes> loadclass();
+
+	public boolean stucheck(String stuid, Integer classid, String stuname);
+
+	public Course loadcoursebynum(Integer courseId);
+
+	public Map<String, Object> classteachermap(int page, int pageSize);
+
+	public void roomaddbytxt(String string);
+
+	public List<Classes> classminitorlist(String queryID);
+
+	public List<Classroom> loadclassroombyisavaible();
+
+	
+
+
+
+}

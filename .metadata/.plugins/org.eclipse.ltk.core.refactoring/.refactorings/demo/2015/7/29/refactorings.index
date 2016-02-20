@@ -1,0 +1,45 @@
+1436690937875	Delete element
+1436690939476	Delete element
+1436690941058	Delete element
+1436692610934	Rename type 'Syllabus'
+1436754695047	Encapsulate field 'semester'
+1436757334590	Encapsulate field 'newAdjustApplyID'
+1436757339262	Encapsulate field 'oldAdjustApplyID'
+1436794101437	Encapsulate field 'isSelected'
+1436794558412	Encapsulate field 'selectiveCourseNum'
+1436795034387	Delete element
+1436795038979	Delete elements
+1436795049640	Delete element
+1436795390972	Delete elements
+1436837579111	Encapsulate field 'slot'
+1436844139792	Encapsulate field 'isElective'
+1436851915299	Encapsulate field 'isElective'
+1436872630832	Copy file
+1436875033437	Encapsulate field 'note'
+1436878379199	Copy file
+1436879927687	Encapsulate field 'adjustReason'
+1436929211245	Encapsulate field 'newCourseName'
+1436929214160	Encapsulate field 'oldCourseName'
+1436931433994	Encapsulate field 'applyTeacher'
+1436950426772	Delete element
+1436950431188	Delete elements
+1436950472445	Delete elements
+1436951133589	Encapsulate field 'id'
+1436973348035	Delete element
+1437023450184	Encapsulate field 'oldSlot'
+1437023453708	Encapsulate field 'newSlot'
+1437024465668	Delete elements
+1437028984168	Delete elements
+1437050607529	Encapsulate field 'assisTeacherId'
+1437053236123	Copy file
+1437055573192	Copy file
+1437062796225	Delete elements
+1437102604690	Delete elements
+1437116964785	Encapsulate field 'semesterId'
+1437135450241	Encapsulate field 'isElective'
+1437180150465	Copy file
+1437203810763	Copy file
+1437210517371	Encapsulate field 'newRoomNum'
+1437218005896	Encapsulate field 'oldRoomNum'
+1437220746049	Encapsulate field 'oldroomName'
+1437220748877	Encapsulate field 'newroomName'

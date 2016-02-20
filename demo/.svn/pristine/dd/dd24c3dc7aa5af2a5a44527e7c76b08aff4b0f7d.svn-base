@@ -1,0 +1,46 @@
+package com.tjpu.bean;
+
+public class FileRecord {
+	private String serial;
+	private String fileName;
+	private String fileType;
+	private String operaterNum;
+	private String operaterName;
+	private Integer year;
+	public String getSerial() {
+		return serial;
+	}
+	public void setSerial(String serial) {
+		this.serial = serial;
+	}
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	public String getFileType() {
+		return fileType;
+	}
+	public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
+	public String getOperaterNum() {
+		return operaterNum;
+	}
+	public void setOperaterNum(String operaterNum) {
+		this.operaterNum = operaterNum;
+	}
+	public String getOperaterName() {
+		return operaterName;
+	}
+	public void setOperaterName(String operaterName) {
+		this.operaterName = operaterName;
+	}
+	public Integer getYear() {
+		return year;
+	}
+	public void setYear(Integer year) {
+		this.year = year;
+	}
+}

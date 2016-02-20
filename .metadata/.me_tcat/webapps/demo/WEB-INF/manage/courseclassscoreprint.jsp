@@ -1,0 +1,90 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@taglib prefix="s" uri="/struts-tags" %>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>成绩打印</title> 
+    <script type="text/javascript" src="js/json2.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/jquery.metadata.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/jquery-validation/messages_cn.js" charset="utf-8"></script>
+    <script src="js/jquery/jquery-1.3.2.min.js"type="text/javascript"></script>
+	<script src="js/ligerUI/core/base.js" type="text/javascript"></script>
+	<script src="js/ligerUI/ligerui.all.js" type="text/javascript"></script>
+	<script type="text/javascript" src="js/jquery/jquery-1.4.4.min.js" ></script>
+	<script type="text/javascript" src="js/jquery.jqprint-0.3.js" ></script>
+	<script type="text/javascript" src="js/semester.js" ></script>
+    <script type="text/javascript">
+       function f_tabprint(){
+         $("#contain").jqprint();
+       }
+       function f_close(){
+         window.close();
+       }
+    </script>
+<style type="text/css">
+
+#contain{
+ width: 80%;
+ border: :1px solid #c6c6c6 ;
+ height:80%;
+ margin:auto;
+}
+#button{
+  margin:auto;
+  width: 150px;
+}
+#content{
+  width: 80%;
+  border: :1px solid #c6c6c6 ;
+  height:80%;
+  margin:auto;
+}
+.table{
+  width: 80%;
+  margin: auto;
+  border:1px solid #c6c6c6;border-collapse: collapse;
+  text-align: center;
+  font-size: 12px;
+}
+.table td{
+  border:1px solid #c6c6c6;
+}
+
+</style>
+  </head>
+  
+  <body> 
+  <div id="button"  >
+      <button type="button" onclick="f_close()" >关闭</button>&nbsp;&nbsp;
+     <button type="button" onclick="f_tabprint()" >打印</button>
+  </div>
+   <div id="contain" >
+      <div id="head" ><h1 align="center" ><font face="宋体">天津工业大学外国留学生成绩单</font></h1><h3 align="center" style="margin-top:-20px;" ><font face="宋体">Academic Transcript for Foreign Student of<br> 
+   Tianjin Polytechnic University</font></h3>
+      </div>
+      <div id="content" >
+        <table class="table"  border="1" cellspacing="0" cellpadding="0" >
+           <tr>
+               <td>学期(Term)</td><td>课程名(Course Name)</td><td>学号(No.)</td><td>姓名(Name)</td><td>平时成绩(HomeWork)</td><td>考勤成绩(Attendence)</td><td>期中成绩(Middle-Examnation)</td><td>期末成绩(Final Examnation)</td><td>总成绩(Total Score)</td>
+           </tr>
+           <s:iterator value="#scoremodel" id="m" >
+             <tr>
+               <td>${m.semester }</td><td>${m.course.coursename }</td>
+               <td>${m.stuid }</td><td>${m.stuname }</td>
+               <td>${m.homework }</td><td>${m.attendence}</td>
+               <td>${m.midexam }</td><td>${m.finalexam }</td>
+               <td>${m.summary }</td>
+             </tr>
+           </s:iterator>
+        </table>
+      </div>
+   </div>
+  </body>
+</html>

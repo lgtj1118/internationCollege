@@ -1,0 +1,171 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>班级列表</title>
+	<link href="<%=basePath%>js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet"type="text/css" />	
+	<link href="<%=basePath %>js/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css"/>	
+    <script type="text/javascript" src="<%=basePath %>js/jquery-validation/jquery.validate.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="<%=basePath %>js/json2.js" charset="utf-8"></script>
+    <script type="text/javascript" src="<%=basePath %>js/jquery-validation/jquery.metadata.js" charset="utf-8"></script>
+    <script type="text/javascript" src="<%=basePath %>js/jquery-validation/messages_cn.js" charset="utf-8"></script>
+    <script type="text/javascript" src="<%=basePath %>js/ligerUI/plugins/ligerTab.js"></script>
+    <script type="text/javascript" src="<%=basePath %>js/jquery/jquery-1.3.2.min.js"></script>
+	<script src="<%=basePath %>js/ligerUI/core/base.js" type="text/javascript"></script>
+	<script src="<%=basePath %>js/ligerUI/ligerui.all.js" type="text/javascript"></script>	
+	<script type="text/javascript">
+	var EvalutionData = {Rows: [
+		<%String  s= (String) request.getAttribute("evalutionlist");%>
+		<%=s%>
+		 ]};
+    var TestData =[{test:1,text:'优秀'},{test:2,text:'良好'},{test:3,text:'及格'},{test:4,text:'不及格'}]	;	
+	$(f_initGrid);
+	var manager, g;
+	function f_initGrid() {
+		g = manager = $("#maingrid").ligerGrid(
+				{
+				columns : [{
+				display : 'id',
+				name : 'id',
+				minWidth : 80,
+				hide:true,
+				type : 'int'
+			}, {
+				display : '学号',
+				name : 'stuid',
+				minWidth : 60,
+				editor: { type: 'text'}
+			}, {
+				display : '教学态度',
+				name : 'incicators1',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'incicators1' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.incicators1) == 1) return '优秀';
+                        else if(parseInt(item.incicators1) == 2) return '良好';
+                        else if(parseInt(item.incicators1) == 3) return '及格';
+                        else if(parseInt(item.incicators1) == 4) return '不及格';
+                    }
+			}, {
+				display : '因材施教',
+				name : 'incicators2',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'incicators2' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.incicators2) == 1) return '优秀';
+                        else if(parseInt(item.incicators2) == 2) return '良好';
+                        else if(parseInt(item.incicators2) == 3) return '及格';
+                        else if(parseInt(item.incicators2) == 4) return '不及格';
+                    }
+			}, {
+				display : '教学内容',
+				name : 'incicators3',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'incicators3' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.incicators3) == 1) return '优秀';
+                        else if(parseInt(item.incicators3) == 2) return '良好';
+                        else if(parseInt(item.incicators3) == 3) return '及格';
+                        else if(parseInt(item.incicators3) == 4) return '不及格';
+                    }
+			}, {
+				display : '语言板书',
+				name : 'incicators4',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'incicators4' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.incicators4) == 1) return '优秀';
+                        else if(parseInt(item.incicators4) == 2) return '良好';
+                        else if(parseInt(item.incicators4) == 3) return '及格';
+                        else if(parseInt(item.incicators4) == 4) return '不及格';
+                    }
+			}, {
+				display : '教学方法',
+				name : 'incicators5',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'incicators5' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.incicators5) == 1) return '优秀';
+                        else if(parseInt(item.incicators5) == 2) return '良好';
+                        else if(parseInt(item.incicators5) == 3) return '及格';
+                        else if(parseInt(item.incicators5) == 4) return '不及格';
+                    }
+			}, {
+				display : '教学效果',
+				name : 'incicators6',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'incicators6' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.incicators6) == 1) return '优秀';
+                        else if(parseInt(item.incicators6) == 2) return '良好';
+                        else if(parseInt(item.incicators6) == 3) return '及格';
+                        else if(parseInt(item.incicators6) == 4) return '不及格';
+                    }
+			}, {
+				display : '综合评价',
+				name : 'incicators7',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'incicators7' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.incicators7) == 1) return '优秀';
+                        else if(parseInt(item.incicators7) == 2) return '良好';
+                        else if(parseInt(item.incicators7) == 3) return '及格';
+                        else if(parseInt(item.incicators7) == 4) return '不及格';
+                    }
+			}, {
+				display : '合计',
+				name : 'summary',
+				minWidth : 80,
+				editor: { type: 'select', data: TestData, valueColumnName: 'summary' },
+                    render: function (item)
+                    {
+                        if (parseInt(item.summary) == 1) return '优秀';
+                        else if(parseInt(item.summary) == 2) return '良好';
+                        else if(parseInt(item.summary) == 3) return '及格';
+                        else if(parseInt(item.summary) == 4) return '不及格';
+                    }
+			}, {
+				display : '突出优点或问题',
+				name : 'extrude',
+				minWidth : 200,
+				editor: { type: 'text'}
+			}, {
+				display : '建议与希望',
+				name : 'advice',
+				minWidth : 200,
+				editor: { type: 'text'}
+			} ],
+					onSelectRow : function(rowdata, rowindex) {
+						$("#txtrowindex").val(rowindex);
+					},
+					enabledEdit : true,
+					clickToEdit : false,
+					isScroll : false,
+			        rownumbers:true,
+			        pageSize:30,
+					data : EvalutionData,
+					width : '100%'
+				});
+	}
+    
+</script>
+	</head>
+	<body style="padding: 2px">
+		<a class="l-button" style="width:60px;float:left; margin:3px;" onclick="fenxi()">分&nbsp;析</a>
+		<div class="l-clear"></div>
+		<div id="maingrid" ></div>
+	</body>
+</html>

@@ -1,0 +1,223 @@
+package com.tjpu.bean;
+
+import java.util.List;
+
+/**
+ * @author SiyuLi
+ *
+ */
+public class ChosenCourseModel {
+	
+	private String num;
+	private CourseModel course;
+	private List<ClassesModel> classes;
+	private TeacherModel teacher;
+	private ClassroomModel room;
+	private int weekday;
+	private int beginWeek = 1;
+	private int endWeek = 16;
+	private int slot;
+	private String attendence ;
+	private String homework ;
+	private String midexam ;
+	private String finalexam ;
+	private String stuname;
+    private String coursename;
+	private String stuid;
+	private boolean isElective = false;
+	private boolean isSelected = false;
+	private String semester ;
+	/**
+	 * 只与教室类型有关，与课程容量无关
+	 */
+	private String roomType; 
+	/*studentNum 上课人数*/
+	private int studentNum = 0;
+	public ChosenCourseModel () {}
+	
+	public String toString(){
+		String weekdays[] = new String[]{"Monday", "Tuesday", "Wednesday", "Thusday", "Firday", "Saturday", "Sunday"};
+		return String.format("%s\t%s\t%s\t第%d大节\t %s",course.getNum(),course.getCoursename(), weekdays[weekday], slot, room.getNum());
+	}
+	
+
+	
+	/**
+	 * @param weekday
+	 * @param slot
+	 * @param room
+	 * 用于传递其他可能时间位置的排课算法
+	 */
+	public ChosenCourseModel (int weekday, int slot, ClassroomModel room){
+		setRoom(room);
+		setSlot(slot);
+		setWeekday(weekday);
+	}
+	
+	/**
+	 * @param course
+	 * @param classes
+	 * @param teacher
+	 * 用于排课的构造方法
+	 */
+	public ChosenCourseModel (CourseModel course, List<ClassesModel> classes, TeacherModel teacher, String roomtype) {
+		this.course = course;
+		this.classes = classes;
+		this.teacher = teacher;
+		this.roomType = roomtype;
+		studentNum = 0;
+		for (ClassesModel c : classes){
+			studentNum += c.getStudents().size();
+		}
+	}
+	public int getStudentNum() {
+		return studentNum;
+	}
+	public void setStudentNum(int studentNum) {
+		this.studentNum = studentNum;
+	}
+	public CourseModel getCourse() {
+		return course;
+	}
+	public void setCourse(CourseModel course) {
+		this.course = course;
+	}
+	public List<ClassesModel> getClasses() {
+		return classes;
+	}
+	public void setClasses(List<ClassesModel> classes) {
+		this.classes = classes;
+	}
+	public TeacherModel getTeacher() {
+		return teacher;
+	}
+	public void setTeacher(TeacherModel teacher) {
+		this.teacher = teacher;
+	}
+	public String getRoomType() {
+		return roomType;
+	}
+	public void setRoomType(String roomType) {
+		this.roomType = roomType;
+	}
+	public ClassroomModel getRoom() {
+		return room;
+	}
+	public void setRoom(ClassroomModel room) {
+		this.room = room;
+	}
+	public int getWeekday() {
+		return weekday;
+	}
+	public void setWeekday(int weekday) {
+		this.weekday = weekday;
+	}
+	public int getSlot() {
+		return slot;
+	}
+	public void setSlot(int slot) {
+		this.slot = slot;
+	}
+
+	public String getNum() {
+		return num;
+	}
+
+	public void setNum(String num) {
+		this.num = num;
+	}
+	public int getBeginWeek() {
+		return beginWeek;
+	}
+
+	public void setBeginWeek(int beginWeek) {
+		this.beginWeek = beginWeek;
+	}
+
+	public int getEndWeek() {
+		return endWeek;
+	}
+
+	public void setEndWeek(int endWeek) {
+		this.endWeek = endWeek;
+	}
+
+	public String getSemester() {
+		return semester;
+	}
+
+	public void setSemester(String semester) {
+		this.semester = semester;
+	}
+
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
+	}
+
+	public boolean isElective() {
+		return isElective;
+	}
+
+	public void setElective(boolean isElective) {
+		this.isElective = isElective;
+	}
+	public String getAttendence() {
+		return attendence;
+	}
+
+	public void setAttendence(String attendence) {
+		this.attendence = attendence;
+	}
+
+	public String getHomework() {
+		return homework;
+	}
+
+	public void setHomework(String homework) {
+		this.homework = homework;
+	}
+
+	public String getMidexam() {
+		return midexam;
+	}
+
+	public void setMidexam(String midexam) {
+		this.midexam = midexam;
+	}
+
+	public String getFinalexam() {
+		return finalexam;
+	}
+
+	public void setFinalexam(String finalexam) {
+		this.finalexam = finalexam;
+	}
+	public String getStuname() {
+		return stuname;
+	}
+
+	public void setStuname(String stuname) {
+		this.stuname = stuname;
+	}
+
+	public String getCoursename() {
+		return coursename;
+	}
+
+	public void setCoursename(String coursename) {
+		this.coursename = coursename;
+	}
+
+	public String getStuid() {
+		return stuid;
+	}
+
+	public void setStuid(String stuid) {
+		this.stuid = stuid;
+	}
+
+}

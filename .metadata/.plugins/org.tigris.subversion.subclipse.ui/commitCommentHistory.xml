@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CommitComments>	<CommitComment>班主任显示所管理班级的课表</CommitComment>
+	<CommitComment>添加课程验证</CommitComment>
+	<CommitComment>课表模块</CommitComment>
+	<CommitComment>教师课表完成
+</CommitComment>
+	<CommitComment>下载课表
+</CommitComment>
+	<CommitComment>清理了无用的todo</CommitComment>
+	<CommitComment>教师课表输出到excel</CommitComment>
+	<CommitComment>toExcel功能</CommitComment>
+	<CommitComment>java to excal API</CommitComment>
+	<CommitComment>课程表.JSP</CommitComment>
+</CommitComments>

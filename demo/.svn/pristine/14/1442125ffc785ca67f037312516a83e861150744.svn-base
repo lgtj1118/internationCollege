@@ -1,0 +1,14 @@
+package com.tjpu.test.unitTest;
+
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+public class Test {
+	public static void main(String[] args) {
+		String ret = "";
+		String semester = "201501";
+		ret = semester.substring(0, 4);
+		ret += "02";
+		System.out.println(ret);
+	}
+}

@@ -1,0 +1,858 @@
+package com.tjpu.action;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.struts2.ServletActionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.google.gson.Gson;
+import com.opensymphony.xwork2.ActionContext;
+import com.tjpu.bean.Announcement;
+import com.tjpu.bean.Attendence;
+import com.tjpu.bean.Certify1;
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.ClassesModel;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.CourseModel;
+import com.tjpu.bean.Dept;
+import com.tjpu.bean.Evalution;
+import com.tjpu.bean.Leave;
+import com.tjpu.bean.InfoBean;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.Syllabus;
+import com.tjpu.bean.Teacher;
+import com.tjpu.bean.User;
+import com.tjpu.service.ClassService;
+import com.tjpu.service.CourseArrangement;
+import com.tjpu.service.CourseArrangementImpl;
+import com.tjpu.service.ManageService;
+import com.tjpu.service.StudentService;
+import com.tjpu.service.UserService;
+import com.tjpu.test.unitTest.CourseArrangeTest;
+/**
+ * @author ZhangChong
+ *
+ */
+@Controller
+public class ManageAction {
+	@Autowired
+	StudentService studentService;
+	@Autowired
+	ClassService classService;
+	@Autowired
+	ManageService manageService;
+	@Autowired 
+	UserService userService;
+	private Course course;	
+	private Evalution evalution;
+	private Attendence attendence;
+	private Announcement announcement;
+	private Student stu;
+	private CourseArrangement ca = null; 
+	private Teacher teacher;
+	private Leave leave;
+	private String ids;
+	private Integer depid;
+	private String date;
+	private String time;
+	private Classes cls;
+	private File file;
+	private File image;
+	private String imageFileName;
+	private String fileFileName;
+	 private String fileContentType; 
+	private String title;	
+	private Certify1 certify;
+	public Student getStu() {
+		return stu;
+	}
+	public void setStu(Student stu) {
+		this.stu = stu;
+	}
+	public String getFileContentType() {
+		return fileContentType;
+	}
+	public void setFileContentType(String fileContentType) {
+		this.fileContentType = fileContentType;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public Certify1 getCertify() {
+		return certify;
+	}
+	public void setCertify(Certify1 certify) {
+		this.certify = certify;
+	}
+	public File getFile() {
+		return file;
+	}
+	public void setFile(File file) {
+		this.file = file;
+	}
+	public String getFileFileName() {
+		return fileFileName;
+	}
+	public void setFileFileName(String fileFileName) {
+		this.fileFileName = fileFileName;
+	}
+	public Leave getLeave() {
+		return leave;
+	}
+	public void setLeave(Leave leave) {
+		this.leave = leave;
+	}
+	public String getDate() {
+		return date;
+	}
+	public void setDate(String date) {
+		this.date = date;
+	}
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
+	}
+	public Teacher getTeacher() {
+		return teacher;
+	}
+	public void setTeacher(Teacher teacher) {
+		this.teacher = teacher;
+	}
+	public String getIds() {
+		return ids;
+	}
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+	public Attendence getAttendence() {
+		return attendence;
+	}
+	public void setAttendence(Attendence attendence) {
+		this.attendence = attendence;
+	}
+	public Classes getCls() {
+		return cls;
+	}
+	public void setCls(Classes cls) {
+		this.cls = cls;
+	}
+	public Integer getDepid() {
+		return depid;
+	}
+	public void setDepid(Integer depid) {
+		this.depid = depid;
+	}
+	public Evalution getEvalution() {
+		return evalution;
+	}
+	public void setEvalution(Evalution evalution) {
+		this.evalution = evalution;
+	}
+	public Course getCourse() {
+		return course;
+	}
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+	public File getImage() {
+		return image;
+	}
+	public void setImage(File image) {
+		this.image = image;
+	}
+	public String getImageFileName() {
+		return imageFileName;
+	}
+	public void setImageFileName(String imageFileName) {
+		this.imageFileName = imageFileName;
+	}
+	private void datatojson(Map<String, Object> map) {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("application/json;charset=utf-8");
+		Gson gson = new Gson();
+		String json = gson.toJson(map);
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+	}
+	/*请假管理*/
+	public String leaveapply() {
+		return "leaveapply";
+	}
+
+	public String leavemanage(){
+		return "leavemanagelist";
+	}
+	
+	public String shortleave(){
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		Student student = studentService.loadstubyid(user.getId());
+		ActionContext.getContext().put("student", student);
+		return "shortleave";
+	}
+	
+	public String longleave(){
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		Student student = studentService.loadstubyid(user.getId());
+		ActionContext.getContext().put("student", student);
+		return "longleave";
+	}
+	public String loadstuleave(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.stuleavemap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String leaveadd(){
+		manageService.leaveadd(leave);
+		return null;
+	}
+	public String stuleaveupdate(){
+		manageService.stuleaveupdate(leave);
+		return null;
+	}
+	public String leavedelete(){
+		manageService.leavedelete(leave);
+		return null;
+	}
+	public String teachingevalution() {
+		return "teachingevalution";
+	}
+	public String leaveprint(){
+		Leave leaves = manageService.loadleavebyid(leave.getId());
+		ActionContext.getContext().put("leaves", leaves);
+		Student student = studentService.loadstubyid(leaves.getStuid());
+		ActionContext.getContext().put("student", student);		
+		return "leaveprint";
+	}
+      /*教师评价*/
+	public String evalutionteacher() {
+		List<Course> courses = classService.loadcourse();
+		ActionContext.getContext().put("courselist", courses);
+		Map<Integer , List<Course>> map = classService.coursemap();
+		ActionContext.getContext().put("map", map);
+		return "evalutionteacher"; 
+	}
+
+	public String evalutionlist(){
+		Course courses = classService.loadcoursebyid(course.getId());
+		ActionContext.getContext().put("courses", courses);
+		return "evalutionlist";
+	}
+	
+	public String evalutionteacheradd(){
+		manageService.evalutionteacheradd(evalution);
+		return null;
+	}
+	public String loadevalution(){
+		String evalutionlist = manageService.loadevalution(evalution.getCourseid());
+		ActionContext.getContext().put("evalutionlist", evalutionlist);
+		return "loadevalution";
+	}
+	public String courseattendence() {
+		String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 2 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 3 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 4 + "\"}" + "," + "{\"Coursecredit\":" + "\""
+				+ 5 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 6 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+		String char1 = "必修", char2 = "现选", char3 = "任选";
+		String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + "," + "{\"Coursecharacter\":" + "\"" + char2 + "\"}" + "," + "{\"Coursecharacter\":" + "\"" + char3 + "\"}";
+		String s1 = "集中式", s2 = "非集中式";
+		String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + "," + "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+		ActionContext.getContext().put("coursecredit", coursecredit);
+		ActionContext.getContext().put("character", character);
+		ActionContext.getContext().put("checkway", checkway);
+		return "courseattendence";
+	}
+    public String teacherbaseinfo(){
+    	User user = (User)ActionContext.getContext().getSession().get("user"); 
+    	Teacher teachers=manageService.loadteacherbyid(user.getId()); 
+    	Dept dept = userService.loaddeptbyid(teachers.getDeptid());
+    	ActionContext.getContext().put("teachers", teachers);
+    	ActionContext.getContext().put("dept", dept);
+    	return "teacherbaseinfo";
+    }
+    public String teacherbegainchangeimg(){
+    	ActionContext.getContext().put("teacherid", teacher.getId());
+    	return "teacherchangeimg";
+    }
+    public String teacherchangeimg(){
+    	String realpath = ServletActionContext.getServletContext().getRealPath("/image/teacherimages");
+		File savedir = new File(realpath);
+		if (!savedir.exists())
+			savedir.mkdirs();
+		if (image != null) {
+			String name = imageFileName.substring(imageFileName.indexOf('.'));
+			if (name.toLowerCase().equals(".jpg") || name.toLowerCase().equals(".gif") || name.toLowerCase().equals(".bmp") || name.toLowerCase().equals(".png") || name.toLowerCase().equals(".jpeg")) {
+				User user = (User) ActionContext.getContext().getSession().get("user");
+				/*
+				 * if (stu.getStuimg() != null) { File file = new File(realpath+
+				 * stu.getStuimg().substring(stu.getStuimg().indexOf("\\"))); if
+				 * (file.exists()) { file.delete(); } }
+				 */
+				Teacher teacher = manageService.loadteacherbyid(user.getId()); 
+				String imgname = teacher.getIdentificationnum().concat(name);
+				File savefile = new File(savedir, imgname);
+				try {
+					FileUtils.copyFile(image, savefile);
+				} catch (IOException e) {
+					
+					e.printStackTrace();
+				}
+				manageService.teacherchangeimg("image/teacherimages" + "/" + imgname);
+				ActionContext.getContext().put("message", "修改成功");
+			} else {
+				ActionContext.getContext().put("message", "修改失败！请选择正确的图片格式");
+			}
+		}
+		return "showmessage";
+	}
+    public String teacherbaseupdate(){
+    	Teacher teachers = manageService.loadteacherbyid(teacher.getId());
+    	ActionContext.getContext().put("teachers", teachers);
+    	List<Dept> deptlist = userService.deptlist1();
+		ActionContext.getContext().put("deptlist", deptlist);
+    	return "teacherbaseedit";
+    }
+    public String teacheraddbytxt(){
+    	String realpath = ServletActionContext.getServletContext().getRealPath("/upload");
+		Date dt = new Date();
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+			ActionContext.getContext().put("msg", "添加成功");
+			manageService.teacheraddbytxt(realpath + "\\" + filename);
+		} else {
+			ActionContext.getContext().put("msg", "文件内容为空，添加失败！<br>退出请重新添加！");
+		}
+		return "uploadmsg";
+    }
+	public String courseclasslist(){
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		ActionContext.getContext().put("course", course);
+		return "courseclasslist";
+	}
+	public String courseclassstulist(){
+		String classlist = classService.classlist();
+		String studentlist = studentService.studentlist(cls.getId()); 		
+		ActionContext.getContext().put("classlist", classlist);
+		ActionContext.getContext().put("course", course);
+		ActionContext.getContext().put("classid", cls.getId());
+		ActionContext.getContext().put("studentlist", studentlist);
+		return "courseclassstulist";
+		
+	}
+	public String stuattendenceadd(){
+		manageService.stuattendenceadd(attendence,ids);
+		return null;
+	}
+	
+	public String tabcourseattendenceload(){
+		ActionContext.getContext().put("courseid", course.getId());
+		return "tabcourseattendenceload";
+	}
+	public String courseattendenceload(){
+		manageService.loadattendence(course.getId());
+		String attendencelist = manageService.loadattendencelist(course.getId());
+		ActionContext.getContext().put("attendencelist", attendencelist);
+		return "courseattendenceload";
+	}
+	public String courseattendencesearch(){
+		String attendencelist = manageService.courseattendencesearch(attendence);		
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("text/html;charset=utf-8");		  
+		   try {
+			PrintWriter out = response.getWriter();
+			out.write(attendencelist);
+			 out.flush();    //刷新打印流
+		     out.close();    //关闭
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}  
+		   return null;
+	}
+	public String courseattendencestatistical(){		
+		List<Attendence> attendences = manageService.loadattendencebycourseid(course.getId());
+		int normal = 0,late=0,leaveearly=0,truancy=0;
+		for (int i = 0; i < attendences.size(); i++) {
+			if (attendences.get(i).getType().equals("0")) {
+				normal++;
+			}else if(attendences.get(i).getType().equals("1")) {
+				late++;
+			}else if(attendences.get(i).getType().equals("2")) {
+				leaveearly++;
+			}else if(attendences.get(i).getType().equals("3")) {
+				truancy++;
+			}
+		}
+		ActionContext.getContext().put("normal", normal);
+		ActionContext.getContext().put("late", late);
+		ActionContext.getContext().put("leaveearly", leaveearly);
+		ActionContext.getContext().put("truancy", truancy);
+		return "courseattendencestatistical";
+	}
+	public String personattendence(){
+		List<Course> courses = manageService.loadstucourse();
+		ActionContext.getContext().put("courselist", courses);
+		return "personattendence";
+	}
+	public String personattendencelist(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.personattendencelistmap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String stuattendenceresearch(){
+		manageService.searchstuattendence(attendence);
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.stuattendencelistmap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String stuattendenceresearch1(){
+		List<Attendence> attendences = manageService.searchstuattendence(attendence);
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("text/html;charset=utf-8");
+		StringBuffer strb=new StringBuffer(); 
+		strb.append("<table id='data-table' class='data-table' >");
+		strb.append("<thead>");
+		strb.append("<tr>");
+		strb.append("<td>"+"日期"+"</td>"); 
+		strb.append("<td>"+"姓名"+"</td>"); 
+		strb.append("<td>"+"班级"+"</td>"); 
+		strb.append("<td>"+"考勤状态"+"</td>");
+		strb.append("<td widt='50'>"+"备注"+"</td>");
+		strb.append("</tr>");
+		strb.append("</thead>");
+		strb.append("<tbody id='table2'>");
+		for(int i=0;i<attendences.size();i++){  
+			Student student = studentService.loadstubyid(Integer.parseInt(attendences.get(i).getStuid()));			   					    
+		    if (attendences.get(i).getType().equals(String.valueOf(0))) {
+		    	strb.append("<tr>");
+			    strb.append("<td>"+attendences.get(i).getDate()+"</td>");
+			    strb.append("<td>"+student.getStuname()+"</td>");
+			    strb.append("<td>"+student.getClasses().getClassname()+"</td>");
+		    	strb.append("<td>"+"正常"+"</td>");
+		    	strb.append("<td>"+"</td>");
+		    	strb.append("</tr>"); 
+			}else if (attendences.get(i).getType().equals(String.valueOf(1))) {
+				strb.append("<tr style='color:orange;'>");
+			    strb.append("<td>"+attendences.get(i).getDate()+"</td>");
+			    strb.append("<td>"+student.getStuname()+"</td>");
+			    strb.append("<td>"+student.getClasses().getClassname()+"</td>");
+				strb.append("<td>"+"迟到"+"</td>");
+				strb.append("<td>"+"</td>");
+				strb.append("</tr>");
+			}else if (attendences.get(i).getType().equals(String.valueOf(2))) {
+				strb.append("<tr style='color:blue;'>");
+			    strb.append("<td>"+attendences.get(i).getDate()+"</td>");
+			    strb.append("<td>"+student.getStuname()+"</td>");
+			    strb.append("<td>"+student.getClasses().getClassname()+"</td>");
+				strb.append("<td>"+"早退"+"</td>");
+				strb.append("<td>"+"</td>");
+				strb.append("</tr>");
+			}else if (attendences.get(i).getType().equals(String.valueOf(3))) {
+				strb.append("<tr style='color:red;'>");
+			    strb.append("<td>"+attendences.get(i).getDate()+"</td>");
+			    strb.append("<td>"+student.getStuname()+"</td>");
+			    strb.append("<td>"+student.getClasses().getClassname()+"</td>");
+				strb.append("<td>"+"旷课"+"</td>");
+				strb.append("<td>"+"</td>");
+				strb.append("</tr>");
+			}
+		    		    
+		}  	
+		strb.append("</tbody>");
+		strb.append("</table>"); 	
+		   try {
+			PrintWriter out = response.getWriter();
+			out.write(strb.toString());
+			 out.flush();    //刷新打印流
+		     out.close();    //关闭
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}  
+		   return null;
+	}
+	public String teachermanage(){
+		return "teachermanage";
+	}
+	public String teacherbeginadd(){
+		List<Dept> deptlist = userService.deptlist1();
+		ActionContext.getContext().put("deptlist", deptlist);
+		return "teacheradd";
+	}
+	public String attendencestulist(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.attendencestulistmap(page, pageSize);
+		datatojson(map);
+		return null;
+	}	
+	public String teacherlist(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.teachermap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String teacheredit(){
+		Teacher teachers = manageService.loadteacherbyid(teacher.getId());
+		ActionContext.getContext().put("teachers", teachers);
+		List<Dept> deptlist = userService.deptlist1();
+		ActionContext.getContext().put("deptlist", deptlist);
+		return "teacheredit";
+	}
+	public String teacherupdate(){
+		manageService.teacherupdate(teacher);
+		return null;
+	}
+	public String teacherdelete(){
+		manageService.teacherdelete(ids);
+		return null;
+	}
+	public String teacherbatchadd(){
+		return "teacherbatchadd";
+	}
+	public String teacherbegainadd(){		
+		return "teacheradd";
+	}
+	public String teacherendadd(){
+		manageService.teacheradd(teacher,depid);
+		return null;
+	}
+	public String teachercheck(){
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = manageService.teachercheck(teacher.getIdentificationnum());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	public String scoremanagement(){		
+		return "scorecourselist";
+	}
+	public String graduatemanagement(){
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "graduatemanagement";
+	}
+	public String scholarmanagement(){
+		return "scholarmanagement";
+	}
+	public String announcement(){
+		return "announcement";
+	}
+	public String announcementbegainadd(){
+		return "announcementbegainadd";
+	}
+	public String announcementendadd(){
+		manageService.announcementadd(announcement);
+		return null;
+	}
+	public String announcementedit(){
+		Announcement announcements = manageService.loadannouncement(announcement.getId());
+		ActionContext.getContext().put("announcements", announcements);
+		return "announcementedit";
+	}
+	public String announcementupdate(){
+		manageService.announcementupdate(announcement);
+		return null;
+	}
+	public String announcementdelete(){
+		manageService.announcementdelete(ids);
+		return null;
+	}
+	public String announcementlist(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = manageService.announcementmap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String paymanagement(){
+		return "paymanagement";
+	}
+	public String justicelist(){
+		//List<Certify1> justicelList = manageService.loadjusticellist();
+		//ActionContext.getContext().put("justicellist", justicelList);
+		String justicellist = manageService.loadjusticel();
+		ActionContext.getContext().put("justicellist", justicellist);
+		return "justicelist";
+	}
+	public String justicelmanage(){
+		String justicellist = manageService.loadjusticel();
+		ActionContext.getContext().put("justicellist", justicellist);
+		return "justicelmanages";
+	}
+	public String justicelbegainadd(){
+		return "justicelbegainadd";
+	}
+	public String justicelendadd(){
+		String realpath = ServletActionContext.getServletContext().getRealPath("/filepath");
+		String saveUrl = ServletActionContext.getRequest().getContextPath() + "/filepath/";
+        Date dt = new Date();
+		SimpleDateFormat mt1 = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss");
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		certify.setCreatedtime(mt1.format(dt));
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+			String fileplace ="filepath/"+filename;
+			certify.setFileplace(fileplace);
+			manageService.justiceladd(certify);
+			ActionContext.getContext().put("msg", "添加成功！");
+		} else {
+			ActionContext.getContext().put("msg", "文件内容为空，添加失败！<br>退出请重新添加！");
+		}
+		return "uploadmsg";
+	}
+	public String justiceledit(){
+		Certify1 certify1 = manageService.loadjusticelbyid(certify.getId());
+		ActionContext.getContext().put("certify", certify1);
+		return "justicelupdate";
+	}
+	public String justicelupdate(){
+		String realpath = ServletActionContext.getServletContext().getRealPath("/filepath");
+		Date dt = new Date();
+		SimpleDateFormat mt1 = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss");
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		certify.setCreatedtime(mt1.format(dt));
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+			String fileplace ="filepath/"+filename;
+			certify.setFileplace(fileplace);
+			manageService.justicelupdate(certify);
+			ActionContext.getContext().put("msg", "添加成功！");
+		} else {
+			ActionContext.getContext().put("msg", "文件内容为空，添加失败！<br>退出请重新添加！");
+		}
+		return "uploadmsg";
+	}
+	public String justiceldelete(){
+		manageService.justiceldelete(ids);
+		return null;
+	}
+	public Announcement getAnnouncement() {
+		return announcement;
+	}
+	public void setAnnouncement(Announcement announcement) {
+		this.announcement = announcement;
+	}
+	public String choosecourse(){
+		return "choosecourse";
+	}
+	public String scoreentry(){
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "scoreentry";
+	}
+	public String loadcoursescore(){
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "loadcoursescore";
+	}
+	public String courseclassscoreadd(){
+		return "courseclassscore";
+	}
+	public String courseclassscorebegainadd(){
+		return "courseclassscorebegainadd";
+	}
+	public String courseclassscoreendadd(){
+		System.out.println("成绩添加界面");
+		return null;
+	}
+	public String courseclassscoreload(){
+		return "courseclassscoreload";
+	}
+	public String stuscoreload(){
+		return "stuscoreload";
+	}
+	public String makeupexamination(){
+		return "makeupexamination";
+	}
+	
+	
+	public String arrangecourse() {
+		String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 2 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 3 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 4 + "\"}" + "," + "{\"Coursecredit\":" + "\""
+				+ 5 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 6 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+		String char1 = "必修", char2 = "现选", char3 = "任选";
+		String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + "," + "{\"Coursecharacter\":" + "\"" + char2 + "\"}" + "," + "{\"Coursecharacter\":" + "\"" + char3 + "\"}";
+		String s1 = "集中式", s2 = "非集中式";
+		String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + "," + "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+		ActionContext.getContext().put("coursecredit", coursecredit);
+		ActionContext.getContext().put("character", character);
+		ActionContext.getContext().put("checkway", checkway);
+		return "arrangecourse";
+	}
+	
+	public String chkRooms () {
+		return "chkRooms";
+	}
+	
+	public String arrange () {
+		return "arranged";
+	}
+	
+	public String getSyllabus (){
+		/*List<ChosenCourseModel> courses = manageService.getAllChosenCourse();
+		List<ClassroomModel> rooms = manageService.getAllAvlRooms();
+		List<String> roomOrder = new ArrayList<String>();
+		for (ClassroomModel r : rooms)
+			roomOrder.add(r.getNum());
+		ca = new CourseArrangementImpl(courses, rooms);
+		List<List<Syllabus>> arranged = new ArrayList<List<Syllabus>>();
+		//Map<String, Object> dat = new HashMap<String, Object>();
+		for (int day = 0; day < 5; ++day){
+			List<Syllabus> t = new ArrayList<Syllabus>();
+			for (int slot = 0; slot < 5; ++slot) {
+				for (ChosenCourseModel p : ca.getCertainSlot(day, slot, roomOrder)){
+					t.add(new Syllabus(p));
+				}
+			}
+			arranged.add(t);
+		}
+		
+		ActionContext.getContext().put("arrangedCourses", arranged);*/
+		//ServletActionContext.getRequest().getSession().setAttribute("arrangedCourses", arranged);
+		return "arranged";
+	}
+	
+	
+	public String SemesterCourse() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("Rows", manageService.getUnarrangeCourses(page, pageSize));
+		map.put("Total", manageService.getTotalUnarrangedCourseNum());
+		datatojson(map);
+		return null;
+	}
+
+	public String graduateaudit(){
+		String classlist = classService.classlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "graduateaudit";
+	}
+	public String graduatestuauditagree(){
+		studentService.graduatestuauditagree(stu.getId());
+		return null;
+	}
+	public String graduatestuaudirefuse(){
+		studentService.graduatestuauditrefuse(stu.getId());
+		return null;
+	}
+	public String semestercourse(){
+		return "semestercourse";
+	}
+	/*调课管理*/
+	public String changecoursemanage(){
+		return "changecoursemanage";
+	}
+	public String changecourse(){
+		return "changecourse";
+	}
+	public String changecourseapply(){
+		return "changecourseapply";
+	}
+	public String transcriptprint(){
+		return "transcriptprint";
+	}
+}

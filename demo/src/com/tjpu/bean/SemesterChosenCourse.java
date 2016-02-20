@@ -1,0 +1,211 @@
+package com.tjpu.bean;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import static javax.persistence.GenerationType.IDENTITY;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+/**
+ * SemesterChosenCourse entity. @author MyEclipse Persistence Tools
+ */
+@Entity
+@Table(name = "semester_chosen_course")
+public class SemesterChosenCourse implements java.io.Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	// Fields
+
+	private Integer id;
+	private String semester;
+	private String coursenum;
+	private String begainweek;
+	private String endweek;
+	private String teacherid;
+	private String class_;
+	private String weekday;
+	private String slot;
+	private String roomname;
+	private String roomtype;
+	private Integer lessonCount;
+	private Integer weeklesson;
+	private Integer isElective;	//1 閫変慨 0 蹇呬慨
+	private Integer stuNum;
+	private Integer isOddWeek; //1 鍗曞懆 2 鍙屽懆 3 鍗曞弻鍛�bin(3) = 11 bin(1) = 1 bin(2) = 10
+    private String credits;
+	// Constructors
+
+	
+
+	/** default constructor */
+	public SemesterChosenCourse() {
+	}
+
+	/** full constructor */
+	public SemesterChosenCourse(String semester, String coursenum, String begainweek, String endweek, String teacherid, String class_, String weekday, String slot, String roomname, String roomtype) {
+		this.semester = semester;
+		this.coursenum = coursenum;
+		this.begainweek = begainweek;
+		this.endweek = endweek;
+		this.teacherid = teacherid;
+		this.class_ = class_;
+		this.weekday = weekday;
+		this.slot = slot;
+		this.roomname = roomname;
+		this.roomtype = roomtype;
+	}
+
+	// Property accessors
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name = "id", unique = true, nullable = false)
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@Column(name = "semester")
+	public String getSemester() {
+		return this.semester;
+	}
+
+	public void setSemester(String semester) {
+		this.semester = semester;
+	}
+
+	@Column(name = "coursenum")
+	public String getCoursenum() {
+		return this.coursenum;
+	}
+
+	public void setCoursenum(String coursenum) {
+		this.coursenum = coursenum;
+	}
+
+	@Column(name = "begainweek")
+	public String getBegainweek() {
+		return this.begainweek;
+	}
+
+	public void setBegainweek(String begainweek) {
+		this.begainweek = begainweek;
+	}
+
+	@Column(name = "endweek")
+	public String getEndweek() {
+		return this.endweek;
+	}
+
+	public void setEndweek(String endweek) {
+		this.endweek = endweek;
+	}
+
+	@Column(name = "teacherid")
+	public String getTeacherid() {
+		return this.teacherid;
+	}
+
+	public void setTeacherid(String teacherid) {
+		this.teacherid = teacherid;
+	}
+
+	@Column(name = "class")
+	public String getClass_() {
+		return this.class_;
+	}
+
+	public void setClass_(String class_) {
+		this.class_ = class_;
+	}
+
+	@Column(name = "weekday")
+	public String getWeekday() {
+		return this.weekday;
+	}
+
+	public void setWeekday(String weekday) {
+		this.weekday = weekday;
+	}
+
+	@Column(name = "slot")
+	public String getSlot() {
+		return this.slot;
+	}
+
+	public void setSlot(String slot) {
+		this.slot = slot;
+	}
+
+	@Column(name = "roomname")
+	public String getRoomname() {
+		return this.roomname;
+	}
+
+	public void setRoomname(String roomname) {
+		this.roomname = roomname;
+	}
+
+	@Column(name = "roomtype")
+	public String getRoomtype() {
+		return this.roomtype;
+	}
+
+	public void setRoomtype(String roomtype) {
+		this.roomtype = roomtype;
+	}
+	public Integer getLessonCount() {
+		return lessonCount;
+	}
+
+	public void setLessonCount(Integer lessonCount) {
+		this.lessonCount = lessonCount;
+	}
+
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
+
+	public Integer getStuNum() {
+		return stuNum;
+	}
+
+	public void setStuNum(Integer stuNum) {
+		this.stuNum = stuNum;
+	}
+
+	public Integer getIsOddWeek() {
+		return isOddWeek;
+	}
+
+	public void setIsOddWeek(Integer isOddWeek) {
+		this.isOddWeek = isOddWeek;
+	}
+	@Column(name = "credits")
+	public String getCredits() {
+		return credits;
+	}
+
+	public void setCredits(String credits) {
+		this.credits = credits;
+	}
+	@Column(name = "weeklesson")
+	public Integer getWeeklesson() {
+		return weeklesson;
+	}
+
+	public void setWeeklesson(Integer weeklesson) {
+		this.weeklesson = weeklesson;
+	}
+
+}

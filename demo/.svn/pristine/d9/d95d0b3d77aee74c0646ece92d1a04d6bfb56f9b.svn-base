@@ -1,0 +1,106 @@
+package com.tjpu.bean;
+
+import java.util.HashSet;
+import java.util.Set;
+
+
+/**
+ * @author SiyuLi
+ *
+ */
+public class ClassesModel {
+
+	private Integer id;
+	private String classname;
+	private String major;
+	private Integer courseId;
+	private Set<Student> Students = new HashSet<Student>(0);
+	private Integer classminitorid;
+
+	private Integer classteacherid;
+	
+	public ClassesModel() {}
+	
+	public ClassesModel (String className, Integer id){
+		this.classname = className;
+		this.id = id;
+	}
+	
+	/**
+	 * for test
+	 */
+	public ClassesModel (String classname, String major, Set<Student> students){
+		this.classname = classname;
+		this.major = major;
+		this.Students = students;
+	}
+	
+	/** full constructor */
+	public ClassesModel(String classname, String major, Integer courseId,
+			Set<Student> Students, Integer classminitorid,
+			Integer classteacherid) {
+		this.classname = classname;
+		this.major = major;
+		this.courseId = courseId;
+		this.Students = Students;
+		this.classminitorid = classminitorid;
+		this.classteacherid = classteacherid;
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getClassname() {
+		return this.classname;
+	}
+
+	public void setClassname(String classname) {
+		this.classname = classname;
+	}
+
+	public String getMajor() {
+		return this.major;
+	}
+
+	public void setMajor(String major) {
+		this.major = major;
+	}
+
+	public Integer getCourseId() {
+		return this.courseId;
+	}
+
+	public void setCourseId(Integer courseId) {
+		this.courseId = courseId;
+	}
+
+	public Set<Student> getStudents() {
+		return this.Students;
+	}
+
+	public void setStudents(Set<Student> Students) {
+		this.Students = Students;
+	}
+
+	public Integer getClassminitorid() {
+		return classminitorid;
+	}
+
+	public void setClassminitorid(Integer classminitorid) {
+		this.classminitorid = classminitorid;
+	}
+
+	public Integer getClassteacherid() {
+		return classteacherid;
+	}
+
+	public void setClassteacherid(Integer classteacherid) {
+		this.classteacherid = classteacherid;
+	}
+
+}

@@ -1,0 +1,38 @@
+package com.tjpu.test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import net.sf.json.JSON;
+import net.sf.json.util.JSONStringer;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.tjpu.bean.Cascade;
+
+
+public class OtherTest {
+	
+	public static void main(String[] args) {
+		Cascade test = new Cascade();
+		int i = 0;
+		List<Cascade> alphabet = new ArrayList<Cascade>();
+		for (char a = 'A'; a <= 'Z'; a++) {
+			Cascade t = new Cascade();
+			t.setN(a + "");
+			t.setV(String.valueOf(i++));
+			alphabet.add(t);
+		}
+		test.setN("Upper Letter");
+		test.setV("1");
+		test.setS(alphabet);
+		Gson gson = new Gson();
+		String json = gson.toJson(test);
+		System.out.println(json.toString());
+	}
+	
+
+}

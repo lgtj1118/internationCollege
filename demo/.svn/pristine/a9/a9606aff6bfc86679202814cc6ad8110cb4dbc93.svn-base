@@ -1,0 +1,763 @@
+package com.tjpu.action;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import jxl.Workbook;
+import jxl.format.Alignment;
+import jxl.format.UnderlineStyle;
+import jxl.write.*;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.struts2.ServletActionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import com.google.gson.Gson;
+import com.opensymphony.xwork2.ActionContext;
+import com.tjpu.bean.Assistantteacher;
+import com.tjpu.bean.ChosenCourseModel;
+import com.tjpu.bean.ClassRecord;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.Classroom;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.Performance;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.Syllabus;
+import com.tjpu.bean.User;
+import com.tjpu.service.ClassService;
+import com.tjpu.service.CourseArrangement;
+import com.tjpu.service.CourseArrangementImpl;
+import com.tjpu.service.ManageService;
+import com.tjpu.service.StudentService;
+/**
+ * @author ZhangChong
+ *
+ */
+
+@Controller
+public class ClassAction {
+	@Autowired
+	ClassService classService;
+	@Autowired
+	StudentService studentService;
+	@Autowired
+	ManageService manageService;
+	private Classes cls;
+	private Student stu;
+	
+	private Classroom room;
+	private Course course;
+	private ClassRecord classrecord;
+	private Performance performance;	
+	private Assistantteacher assistantteacher;
+    
+	private File file;
+    private String fileFileName;
+    private int classid;
+    private String queryType;
+    private String queryID;
+	private String semester;
+    private String ids;
+    public Student getStu() {
+		return stu;
+	}
+	public void setStu(Student stu) {
+		this.stu = stu;
+	}
+    public String getSemester() {
+		return semester;
+	}
+	public void setSemester(String semester) {
+		this.semester = semester;
+	}
+    public String getQueryType() {
+		return queryType;
+	}
+	public void setQueryType(String queryType) {
+		this.queryType = queryType;
+	}
+	public String getQueryID() {
+		return queryID;
+	}
+	public void setQueryID(String queryID) {
+		this.queryID = queryID;
+	}
+	public Performance getPerformance() {
+		return performance;
+	}
+	public void setPerformance(Performance performance) {
+		this.performance = performance;
+	}
+	public File getFile() {
+		return file;
+	}
+	public void setFile(File file) {
+		this.file = file;
+	}
+	public String getFileFileName() {
+		return fileFileName;
+	}
+	public void setFileFileName(String fileFileName) {
+		this.fileFileName = fileFileName;
+	}
+	public Course getCourse() {
+		return course;
+	}
+	public void setCourse(Course course) {
+		this.course = course;
+	}	
+	public String getIds() {
+		return ids;
+	}
+	public void setIds(String ids) {
+		this.ids = ids;
+	}	
+	public int getClassid() {
+		return classid;
+	}
+	public void setClassid(int classid) {
+		this.classid = classid;
+	}
+	public Classes getCls() {
+		return cls;
+	}
+	public void setCls(Classes cls) {
+		this.cls = cls;
+	}
+	public Classroom getRoom() {
+		return room;
+	}
+	public void setRoom(Classroom room) {
+		this.room = room;
+	}
+	public Assistantteacher getAssistantteacher() {
+		return assistantteacher;
+	}
+	public void setAssistantteacher(Assistantteacher assistantteacher) {
+		this.assistantteacher = assistantteacher;
+	}
+	
+	
+	private void datatojson(Map<String, Object> map) {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		response.setContentType("application/json;charset=utf-8");
+		Gson gson = new Gson();
+		String json = gson.toJson(map);
+		// System.out.print(json);
+		PrintWriter out;
+		try {
+			out = response.getWriter();
+			out.write(json);
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String classmanage() {
+		String classlist = classService.classlist();
+		//String classteacherlist = classService.classteacherlist();
+		//String assistteacherlist = classService.assistteacherlist();
+		ActionContext.getContext().put("classlist", classlist);
+		return "classlist";
+	}
+
+	public String classstulist() {
+		classService.loadstulistbyclassid(cls.getId());
+		//System.out.println(cls.getId());
+		ActionContext.getContext().put("classesid", cls.getId());
+		return "classstulist";
+	}
+	public String graduateclassstulist(){
+		classService.loadstulistbyclassid(cls.getId());
+		ActionContext.getContext().put("classesid", cls.getId());
+		return "graduateclassstulist";
+	}
+	public String graduatestulist(){
+		classService.loadstulistbyclassid(cls.getId());
+		return "graduatestulist";
+	}
+	public String classminitorset(){
+		Integer id = Integer.valueOf(ids);
+		classService.classminitorset(cls.getId(),id);
+		return null;
+	}
+	
+	public String loadclassstu(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.classstumap(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String classbatchadd(){
+		return "classbatchadd";
+	}
+	public String classaddbytxt(){
+		String realpath = ServletActionContext.getServletContext().getRealPath("/upload");
+		Date dt = new Date();
+		SimpleDateFormat mt2 = new SimpleDateFormat("yyMMddHHmmss");
+		String s = mt2.format(dt);
+		for (int i = 0; i < 3; i++) {
+			Random r = new Random();
+			int ran = r.nextInt(10);
+			s += ran;
+		}
+		if (file != null) {
+			File savedir = new File(realpath);
+			String name = fileFileName.substring(fileFileName.indexOf('.'));
+			String filename = s.concat(name);
+			System.out.println(filename);
+			if (!savedir.exists())
+				savedir.mkdirs();
+			try {
+				File savefile = new File(savedir, filename);
+				FileUtils.copyFile(file, savefile);
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+			ActionContext.getContext().put("msg", "添加成功");
+			classService.classaddbytxt(realpath + "\\" + filename);
+		} else {
+			ActionContext.getContext().put("msg", "添加失败,退出请重新添加！");
+		}
+		return "uploadmsg";
+	}
+	public String classbeginadd() {
+		return "classadd";
+	}
+
+	public String classcheck() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = classService.classcheck(cls.getClassname());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public String classendadd() {
+		classService.classadd(cls);
+		return null;
+	}
+    public String classedit(){
+    	Classes classes = classService.loadclassbyid(cls.getId());
+    	ActionContext.getContext().put("classes", classes);
+    	return "classedit";
+    }
+	public String classupdate() {
+		classService.classupdate(cls);
+		return null;
+	}
+
+	public String classdelete() {
+		classService.classdelete(cls.getId());
+		return null;
+	}
+	
+	public String assistantteachermanage(){
+		return "assistantteachermanage";
+	}
+	
+	
+	public String coursemanage() {
+		String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 2 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 3 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 4 + "\"}" + "," + "{\"Coursecredit\":" + "\""
+				+ 5 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 6 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+		String char1 = "必修",  char2 = "任选";
+		String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + "," + "{\"Coursecharacter\":" + "\"" + char2 + "\"}";
+		String s1 = "集中式", s2 = "非集中式";
+		String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + "," + "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+		ActionContext.getContext().put("coursecredit", coursecredit);
+		ActionContext.getContext().put("character", character);
+		ActionContext.getContext().put("checkway", checkway);
+		return "courselist";
+	}
+
+	public String courselist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.courselist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String coursesearch() {
+		classService.coursesearch(course);
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.coursesearchlist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String courselistmanage(){
+		String coursecredit = "{\"Coursecredit\":" + "\"" + 1 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 2 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 3 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 4 + "\"}" + "," + "{\"Coursecredit\":" + "\""
+				+ 5 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 6 + "\"}" + "," + "{\"Coursecredit\":" + "\"" + 7 + "\"}";
+		String char1 = "必修", char2 =  "任选";
+		String character = "{\"Coursecharacter\":" + "\"" + char1 + "\"}" + "," + "{\"Coursecharacter\":" + "\"" + char2 + "\"}" ;
+		String s1 = "集中式", s2 = "非集中式";
+		String checkway = "{\"Coursecheckway\":" + "\"" + s1 + "\"}" + "," + "{\"Coursecheckway\":" + "\"" + s2 + "\"}";
+		ActionContext.getContext().put("coursecredit", coursecredit);
+		ActionContext.getContext().put("character", character);
+		ActionContext.getContext().put("checkway", checkway);
+		return "coursestulist";
+	}
+	
+	public String coursestulist(){
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.courselist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+	public String coursebeginadd() {
+		return "courseadd";
+	}
+
+	public String coursecheck() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = classService.coursecheck(course.getCoursename());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public String coursecheck1() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = classService.coursecheck1(course.getNum());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public String courseendadd() {
+		classService.courseadd(course);
+		return null;
+	}
+    public String courseedit(){
+    	Course courses = classService.loadcoursebyid(course.getId());
+    	ActionContext.getContext().put("courses", courses);
+    	return "courseedit";
+    }
+	
+	public String courseupdate() {
+		classService.courseupdate(course);
+		return null;
+	}
+
+	public String coursedelete() {
+		classService.coursedelete(course.getId());
+		return null;
+	}
+	public String clsroommanage(){
+		 //StringBuilder columns = new StringBuilder("["); 
+		// columns.append("{display:'id',name:'id',align:'center',width:60}");
+		// columns.append("]"); 
+		 //ActionContext.getContext().put("column", columns.toString());
+		return "classroomlist";
+	}
+	public String roomlist() {
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.roomlist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+
+	public String roombeginadd() {
+		return "roomadd";
+	}
+
+	public String roomcheck() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = classService.roomcheck(room.getNum());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	public String  roomsearch(){
+		List<Classroom> classroom = classService.roomsearch(room);
+		HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.searchroomlist(page, pageSize);
+		datatojson(map);
+		return null;
+	}
+    public String assistteacherlist(){
+    	return "assistantteacherlist";
+    }
+    public String assistprint(){
+    	Assistantteacher assist = classService.loadassistbyid(assistantteacher.getId());
+    	ActionContext.getContext().put("assistteacher", assist);
+    	return "assistprint";
+    }
+    public String assistapply(){
+    	return "assistapply";
+    }
+    public String assistagree(){
+    	classService.assistagree(assistantteacher.getId());
+    	return null;
+    }
+    public String assistagainst(){
+    	classService.assistagainst(assistantteacher.getId());
+    	return null;
+    }
+    
+    public String assistlist(){
+    	HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.assistmap(page, pageSize);
+		datatojson(map);
+		return null;
+    }
+    
+    public String assistantteacheradd(){
+    	classService.assistantteacherapply(assistantteacher);
+    	return null;
+    }
+	public String clsroomload(){
+		
+		return "clsroomload";
+	}
+	
+	public String roomendadd() {
+		classService.roomadd(room);
+		return null;
+	}
+    public String roomedit(){
+    	Classroom classroom = classService.loadclassroombyid(room.getId());
+    	ActionContext.getContext().put("classroom", classroom);
+    	return "classroomedit";
+    }
+	public String roomupdate() {
+		classService.roomupdate(room);
+		return null;
+	}
+
+	public String roomdelete() {
+		classService.roomdelete(room.getId());
+		return null;
+	}
+	public String curriculum(){
+		List<ChosenCourseModel> courses = null;
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		if (user.getRoles().getRolerank()==2) {
+			queryID = String.valueOf(user.getUsernum());
+			semester = manageService.getCurrSemester();
+			queryType = "teacherID";
+			//queryID = user.getUsernum();
+			if (queryType.equals("teacherID"))
+				courses = classService.getPerSyllabus(queryID, null, null, semester);
+			else if (queryType.equals("classID"))
+				courses = classService.getPerSyllabus(null, null, queryID, semester);
+			else if (queryType.equals("courseID"))
+				courses = classService.getPerSyllabus(null, queryID, null, semester);
+			else 
+				courses = classService.getPerSyllabus(null, null, null, semester);
+			// 放到页面上
+			boolean isfind = false;
+			List<Syllabus> arranged = new ArrayList<Syllabus>();
+			for (int slot = 0; slot < 5; ++slot) {
+				for (int day = 0; day < 5; ++day) {
+					isfind = false;
+					for (ChosenCourseModel p : courses){
+						if (p.getSlot() == slot && p.getWeekday() == day) {
+							arranged.add(new Syllabus(p));
+							isfind = true;
+							break;
+						}
+					if (!isfind)
+						arranged.add(new Syllabus());
+					}
+				}
+			}
+			ActionContext.getContext().put("courses", arranged);
+			return "curriculum";
+		} else if(user.getRoles().getRolerank()==0) {
+			//显示管理员课表
+			return perSyllabus();
+		} else if(user.getRoles().getRolerank()==3) {
+			// 学生课表
+			return stuSyllabus();
+		}
+		return null;
+	}
+	
+	private String stuSyllabus(){
+		semester = manageService.getCurrSemester();
+		User user = (User) ActionContext.getContext().getSession().get("user");
+		List<ChosenCourseModel> courses = manageService.getStuSyllabus(user.getUsernum(), semester);
+		boolean isfind = false;
+		List<Syllabus> arranged = new ArrayList<Syllabus>();
+		for (int slot = 0; slot < 5; ++slot) {
+			for (int day = 0; day < 5; ++day) {
+				isfind = false;
+				for (ChosenCourseModel p : courses){
+					if (p.getSlot() == slot && p.getWeekday() == day) {
+						arranged.add(new Syllabus(p));
+						isfind = true;
+						break;
+					}
+				}
+				if (!isfind)
+					arranged.add(new Syllabus());
+			}
+		}
+		ActionContext.getContext().put("courses", arranged);
+		return "curriculum";
+	}
+	
+	private String perSyllabus (){
+		String semester = manageService.getCurrSemester();
+		List<ClassroomModel> rooms = manageService.getAllAvlRooms(semester);
+		List<String> roomOrder = new ArrayList<String>();
+		for (ClassroomModel r : rooms)
+			roomOrder.add(r.getNum());
+		List<Syllabus> arranged = new ArrayList<Syllabus>();
+		List<ChosenCourseModel> all = manageService.getAllChosenCourse(semester);
+		boolean isFind = false;
+		for (int day = 0; day < 5; ++day)
+			for (int slot = 0; slot < 5; ++slot)
+				for (String r : roomOrder) {
+					isFind = false;
+					for (ChosenCourseModel p : all)
+						if (p.getWeekday() == day && p.getSlot() == slot && p.getRoom().getNum().equals(r)){
+							arranged.add(new Syllabus(p));
+							isFind = true;
+							break;
+						}
+					if (!isFind)
+						arranged.add(new Syllabus(" "," "," "," "));
+				}
+		List<String> names = new ArrayList<String>();
+		for (ClassroomModel r :rooms)
+			names.add(r.getAddress());
+		ActionContext.getContext().put("rooms", names);
+		ActionContext.getContext().put("roomCount", roomOrder.size());
+		ActionContext.getContext().put("arrangedCourses", arranged);
+		return "adminCurriculum";
+	}
+	
+    public String classteacherworkrecord(){
+    	return "classteacherworkrecord";
+    }
+    
+    public String workrecordlist(){
+    	HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.workrecordmap(page, pageSize);
+		datatojson(map);
+		return null;
+    }
+    public String workrecordedit(){
+    	User user = (User) ActionContext.getContext().getSession().get("user");
+    	Classes teacherclass = classService.classteacherclass(user.getUsernum());
+    	Student student = classService.loadminitor(teacherclass.getClassminitorid());
+    	ActionContext.getContext().put("student", student);
+    	ActionContext.getContext().put("teacherclass", teacherclass);
+    	ClassRecord classrecords = classService.loadworkrecord(classrecord.getId());
+    	ActionContext.getContext().put("workrecord", classrecords);
+    	return "workrecordedit";
+    }
+    public String workrecordupdate(){
+    	classService.workrecordedit(classrecord);
+    	return null;
+    }
+    public String workrecorddelete(){
+    	classService.workrecorddelete(ids);
+    	return null;
+    }
+    public String workrecordbegainadd(){
+    	User user = (User) ActionContext.getContext().getSession().get("user");
+    	Classes teacherclass = classService.classteacherclass(user.getUsernum());
+    	if (teacherclass==null) {
+			ActionContext.getContext().put("message", "您不是班主任或您未和班级关联！");
+			return "showmessage";
+		}else {
+			Student student = classService.loadminitor(teacherclass.getClassminitorid());
+	    	ActionContext.getContext().put("student", student);
+	    	ActionContext.getContext().put("teacherclass", teacherclass);
+	    	return "workrecordadd";
+		}   	
+    	
+    }
+    public String workrecordendadd(){
+    	classService.workrecordadd(classrecord);
+    	return null;
+    }
+    public String workrecorddetail(){
+    	User user = (User) ActionContext.getContext().getSession().get("user");
+    	Classes teacherclass = classService.classteacherclass(user.getUsernum());
+    	Student student = classService.loadminitor(teacherclass.getClassminitorid());
+    	ActionContext.getContext().put("student", student);
+    	ActionContext.getContext().put("teacherclass", teacherclass);
+    	ClassRecord classrecords = classService.workrecorddetail(classrecord.getId());
+    	ActionContext.getContext().put("workrecord", classrecords);
+    	return "workrecorddetail";
+    }
+    public String studentsituation(){
+    	return "studentsituation";
+    }
+    public String performancelist(){
+    	HttpServletRequest request = ServletActionContext.getRequest();
+		int page = Integer.parseInt(request.getParameter("page"));
+		int pageSize = Integer.parseInt(request.getParameter("pagesize"));
+		Map<String, Object> map = classService.performancemap(page, pageSize);
+		datatojson(map);
+		return null;
+    }
+    public String performancebegainadd(){
+    	return "performanceadd";
+    }
+    public String performanceendadd(){
+    	classService.performanceadd(performance);
+    	return null;
+    }
+    public String performanceedit(){
+    	ActionContext.getContext().put("performance", performance);
+    	return "performanceedit";
+    }
+    public String performanceupdate(){
+    	classService.performanceupdate(performance);
+    	return null;
+    }
+    public String performancedelete(){
+    	classService.performancedelete(ids);
+    	return null;
+    }
+    public String classstudownload() throws Exception{
+ 	   HttpServletResponse response = ServletActionContext.getResponse();
+ 	   response.reset();
+ 	   response.setCharacterEncoding("UTF-8");
+ 	   response.setContentType("application/vnd.ms-excel");
+ 	   String fileName="班级学生名单.xls";
+ 	   response.setHeader("Content-Disposition", "attachment;filename="+new String(fileName.getBytes("GB2312"), "8859_1"));
+ 	   OutputStream out = response.getOutputStream();    	 	   
+ 	   try {
+		WritableWorkbook workbook = Workbook.createWorkbook(out);
+		WritableSheet ws = workbook.createSheet("学生名单", 0);
+		WritableFont wf = new WritableFont(WritableFont.TIMES,10,WritableFont.NO_BOLD,false,UnderlineStyle.NO_UNDERLINE,jxl.format.Colour.BLACK);//设置字体格式
+		WritableCellFormat wef = new WritableCellFormat(wf);//创建格式化对象实例
+		wef.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);//垂直居中
+		wef.setAlignment(Alignment.CENTRE);//水平居中
+		//工作表标题行（new Label（列，行，内容，格式））
+		ws.addCell(new Label(0,0,"学号",wef));
+		ws.addCell(new Label(1,0,"护照号",wef));
+		ws.addCell(new Label(2,0,"中文名",wef));
+		ws.addCell(new Label(3,0,"英文名",wef));
+		ws.addCell(new Label(4,0,"英文姓",wef));
+		ws.addCell(new Label(5,0,"性别",wef));
+		ws.addCell(new Label(6,0,"国籍",wef));
+		ws.addCell(new Label(7,0,"住址",wef));
+		ws.addCell(new Label(8,0,"电话",wef));
+		ws.addCell(new Label(9,0,"班级",wef));
+		List<Student> students = classService.loadstubyclassid(cls.getId());
+		List<Object[]> dataList = new ArrayList<Object[]>(); 
+		for(Student temp:students){
+			Object[] stu = {temp.getStuid(),temp.getPassport(),temp.getStuname(),temp.getFirstname(),temp.getLastname(),temp.getSex(),temp.getNation(),temp.getRoomplace(),temp.getTelephone(),temp.getClasses().getClassname()};
+			dataList.add(stu);
+		}
+		//向工作表添加数据
+		for (int i = 0; i < dataList.size(); i++) {
+			for (int j = 0; j < dataList.get(i).length; j++) {
+				Object o = dataList.get(i)[j];
+				if (o!=null) {
+					Label label = new jxl.write.Label(j, i+1,o.toString(),wef);
+					ws.addCell(label);
+				}
+			}
+		}
+		workbook.write();
+		workbook.close();
+		out.flush();
+		out.close();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+ 	   return null;
+    }
+	public ClassRecord getClassrecord() {
+		return classrecord;
+	}
+	public void setClassrecord(ClassRecord classrecord) {
+		this.classrecord = classrecord;
+	}
+	public String stucheck(){
+		HttpServletResponse response = ServletActionContext.getResponse();
+		boolean flg = classService.stucheck(stu.getStuid(),cls.getId(),stu.getStuname());
+		if (!flg) {
+			try {
+				response.setContentType("text/html;charset=utf-8");
+				PrintWriter out = response.getWriter();
+				out.print("fail");
+				out.flush();
+				out.close();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+}

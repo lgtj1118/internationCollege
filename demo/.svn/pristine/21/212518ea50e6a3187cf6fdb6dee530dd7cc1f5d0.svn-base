@@ -1,0 +1,14 @@
+package com.tjpu.test;
+
+import java.util.regex.Pattern;
+
+
+public class OtherTest {
+	public static void main(String[] args) {
+		String passport = "\\d{6,}";
+		String passportNum = "1";
+		System.out.println(Pattern.matches(passport, passportNum));
+		
+	}
+
+}

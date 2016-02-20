@@ -1,0 +1,49 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">
+    
+    <title>天津工业大学国际教育学院助理班主任报名表</title>
+	<script type="text/javascript" src="js/jquery/jquery-1.4.4.min.js" ></script>
+	<script type="text/javascript" src="js/jquery.jqprint-0.3.js" ></script>
+<script type="text/javascript">
+   function tabclose(){
+     window.close();
+   }
+   function tabprint(){
+     $("#contain").jqprint();
+     
+   }
+</script>
+<style type="text/css">
+#contain{
+  height: 100%;
+}
+
+</style>
+  </head>
+  
+  <body>
+  <div id="head" ><input align="center" type="button" value="关&nbsp;&nbsp;闭" onclick="tabclose()" ><input type="button" value="打&nbsp;&nbsp;印" onclick="tabprint()" ></div>   
+   <div id="contain" ><h2 align="center">天津工业大学国际教育学院助理班主任报名表</h2>
+   <table  border="1" cellspacing="0" cellpadding="0" height="90%" align="center" >
+      <div height="30%" >
+      <tr><td align="center">姓名</td><td align="center">${assistteacher.name }</td><td align="center">性别</td><td align="center">${assistteacher.gender }</td><td align="center">出生年月</td><td align="center">${assistteacher.brithdate }</td><th rowspan="4"  height="40"  style="font-weight: normal;">（免冠照片）</th></tr>
+      <tr><td align="center">政治面貌</td><td align="center">${assistteacher.politicalstatus }</td><td align="center">民族</td><td align="center">${assistteacher.nation }</td><td align="center">层次（本/硕）</td><td align="center">${assistteacher.edulevel }</td></tr>
+      <tr><td align="center">学院</td><td align="center">${assistteacher.department }</td><td align="center">专业</td><td>${assistteacher.major }</td><td align="center">班级</td><td>${assistteacher.classname }</td></tr>
+      <tr><td align="center">学号</td><td align="center">${assistteacher.assistantnum }</td><td align="center">外语语种</td><td align="center">${assistteacher.secondlanguagetype }</td><td align="center">特长</td><td >${assistteacher.forte }</td></tr>     
+      <tr><td align="center">外语水平</td><td align="center">${assistteacher.secondlanguagelevel }</td><th colspan="2" style="font-weight: normal;" align="center">联系方式（手机）</th><td align="center">${assistteacher.telephone }</td><td align="center">邮箱地址</td><td align="center">${assistteacher.email }</td></tr></div>
+      <tr><th colspan="7" align="left"><span style="font-weight: normal;"><br>学院推荐（或推荐人）意见：</span><br><br><br><br><br><br> 
+					<div align="center"><span style="font-family: 楷体; font-size: 12pt; font-weight: normal;">学院领导（或推荐人）签字：</span><br></div><br><span style="font-family: 楷体; font-size: 12pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 年&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;日</span><br></th></tr>
+      <tr><th colspan="7" align="left"><span style="font-weight: normal;"><br>国际教育学院意见：</span><br><br><br><br><br><br> 
+					<div align="center"><span style="font-family: 楷体; font-size: 12pt; font-weight: normal;">学院领导（或推荐人）签字：</span><br></div><br><span style="font-family: 楷体; font-size: 12pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 年&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;日</span><br></th></tr>
+   </table>
+   </div>
+  </body>
+</html>

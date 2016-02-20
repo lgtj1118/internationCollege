@@ -1,0 +1,66 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <base href="<%=basePath%>">   
+    <title>天津工业大学排课管理系统</title>	   
+	<link href="<%=basePath%>js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet"type="text/css" />	
+	<link href="<%=basePath %>js/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css"/>	
+    <script src="js/jquery/jquery-1.6.min.js"type="text/javascript"></script>
+	<script src="js/ligerUI/core/base.js" type="text/javascript"></script>
+	<script src="js/ligerUI/ligerui.all.js" type="text/javascript"></script>
+	<script src="js/ligerUI/plugins/ligerDateEditor.js" type="text/javascript"></script>
+<script type="text/javascript">
+    var ClassData = { Rows: [<%String s = (String) request.getAttribute("classlist");%> <%=s%>]};
+    var ClassList = ClassData.Rows;
+    
+   	$(f_initGrid);
+	var manager, g;
+	function f_initGrid() {
+		g = manager = $("#maingrid").ligerGrid(
+			{columns : [
+			{display : '序号',  name : 'id',     width : 40,  type : 'int',hide:true},
+			{display : '姓名', name : 'teachername', minWidth : 80,  editor:{type:'text'}	},
+			{display : '职称', name : 'position', minWidth : 30,  editor:{type:'text'}},	
+            {display : '编号', name : 'identificationnum', minWidth : 30 }, 
+            {display : '电话', name : 'telephone', minWidth : 120 },
+            {display : '邮箱', name : 'email', minWidth : 120 },
+            {display : '班级', name : 'classes', minWidth : 120 }
+            ],
+			onSelectRow : function(rowdata, rowindex) {
+				$("#txtrowindex").val(rowindex);
+			},
+			//checkbox:true,
+			enabledEdit : true,
+			clickToEdit : false,
+			isScroll : false,
+			rownumbers:true, 
+			pageSize:30,
+			url :'${pageContext.request.contextPath}/system/Class_classteacherList.action',
+			width : '100%',
+			});
+	}	 
+
+	function print(){
+	  var row = manager.getSelectedRow();
+	  var url = "${pageContext.request.contextPath}/system/Class_setHeadTeacher.action?queryID="+row.identificationnum;
+	  $.post(url, null, function() {
+			parent.m.hide();
+			parent.window.location.reload();
+		});
+	}
+</script>
+	</head>
+	<body style="padding: 2px"><br>
+	<!-- <a class="l-button" style="width:70px;float:left; margin:3px;" onclick="print()">选&nbsp;&nbsp;择</a>       
+	  <a class="l-button" style="width:70px;float:left; margin:3px;" onclick="print()">打&nbsp;&nbsp;印</a> -->
+		<div class="l-clear"></div>
+		<div id="maingrid" ></div>
+	</body>
+</html>
+

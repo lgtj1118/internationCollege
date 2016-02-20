@@ -1,0 +1,14 @@
+package com.tjpu.test;
+
+import java.util.regex.Pattern;
+
+
+public class OtherTest {
+	public static void main(String[] args) {
+		String reg = "[0-9A-Za-z\u4e00-\u9fa5]";
+		String str = "a";
+		System.out.println(Pattern.matches(reg, str));
+		
+	}
+
+}

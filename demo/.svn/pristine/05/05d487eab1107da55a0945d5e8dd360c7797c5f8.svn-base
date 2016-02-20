@@ -1,0 +1,649 @@
+package com.tjpu.service;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.opensymphony.xwork2.ActionContext;
+import com.tjpu.bean.Announcement;
+import com.tjpu.bean.AnnouncementModel;
+import com.tjpu.bean.Attendence;
+import com.tjpu.bean.AttendenceModel;
+import com.tjpu.bean.Certify1;
+import com.tjpu.bean.MD5;
+import com.tjpu.bean.Teacher;
+import com.tjpu.bean.TeacherModel;
+import com.tjpu.bean.Course;
+import com.tjpu.bean.Evalution;
+import com.tjpu.bean.Leave;
+import com.tjpu.bean.LeaveModel;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.User;
+import com.tjpu.dao.ManageDao;
+import com.tjpu.dao.StudentDao;
+import com.tjpu.dao.UserDao;
+import com.tjpu.bean.Dept;
+
+@Service
+public class ManageServiceImpl implements ManageService {
+
+	@Autowired
+	ManageDao manageDao;
+	@Autowired
+	StudentDao studentDao;
+	@Autowired
+	UserDao userDao;
+	@Override
+	public Teacher loginService(String usernum, String password) {
+		Teacher user1 = null;
+		List<Teacher> list = manageDao.loginDao(usernum,password);
+		if (list.size() > 0 && list != null) {
+			user1 = list.get(0);
+		}
+		return user1;
+	}
+	@Override
+	public void evalutionteacheradd(Evalution evalution) {
+		String teacher = null;
+		String extrude = null;
+		String advice = null;
+		User user = (User)ActionContext.getContext().getSession().get("user");
+		try {
+			teacher = java.net.URLDecoder.decode(evalution.getTeacher(),"UTF-8");
+			extrude = java.net.URLDecoder.decode(evalution.getExtrude(),"UTF-8");
+			advice = java.net.URLDecoder.decode(evalution.getAdvice(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		evalution.setStuid(user.getId());
+		evalution.setTeacher(teacher);
+		evalution.setExtrude(extrude);
+		evalution.setAdvice(advice);
+		manageDao.evalutionteacheradd(evalution);
+	}
+	@Override
+	public String loadevalution(Integer id) {
+		// TODO Auto-generated method stub
+		List<Evalution> evalution = manageDao.loadevalution(id);
+		String evalutionlist = "";
+		int i = 1;
+		for (Evalution c : evalution) {
+			String s = "{\"id\":" + c.getId() + "," + "\"stuid\":" + "\"" + c.getStuid() + "\"," + "\"incicators1\":" + "\"" + c.getIncicators1() + "\"," + "\"incicators2\":" + "\"" + c.getIncicators2() + "\"," + "\"incicators3\":" + "\"" + c.getIncicators3() + "\"," 
+					+ "\"incicators4\":" + "\"" + c.getIncicators4() + "\","+ "\"incicators5\":" + "\"" + c.getIncicators5() + "\","+ "\"incicators6\":" + "\"" + c.getIncicators6() + "\","+ "\"incicators7\":" + "\"" + c.getIncicators7() + "\","+ "\"summary\":" + "\"" + c.getSummary() + "\","
+					+ "\"extrude\":" + "\"" + c.getExtrude() + "\","+ "\"advice\":" + "\"" + c.getAdvice() + "\"}";
+			if (i < evalution.size()) {
+				evalutionlist += s + ",";
+			} else {
+				evalutionlist += s;
+			}
+			i++;
+		}
+		return evalutionlist;
+	}
+
+	public Map<String, Object> teachermap(int page, int pageSize) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Teacher> teachers = manageDao.loadteacher((page - 1) * pageSize, pageSize);
+		long total = manageDao.totalteacher();
+		List<TeacherModel> teachermodels = new ArrayList<TeacherModel>();
+		for (Teacher s : teachers) {
+			TeacherModel model = new TeacherModel();
+			model.setId(s.getId());
+			model.setSex(s.getSex());
+			//model.setClassid(s.getClasses().getId());
+			model.setEmail(s.getEmail());
+			model.setIdentificationnum(s.getIdentificationnum());
+			model.setPosition(s.getPosition());
+			model.setTeachername(s.getTeachername());
+			model.setTelephone(s.getTelephone());
+			
+			teachermodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", teachermodels);
+		return map;
+	}
+	@Override
+	public void teacherupdate(Teacher teacher) {
+		// TODO Auto-generated method stub
+		String name = null;
+		String identificationnum =null;
+		String gender = null;
+		String educationbackground = null;
+		//String brithdate = null;
+		String telephone = null;
+		String email = null;
+		try {
+			name = java.net.URLDecoder.decode(teacher.getTeachername(),"UTF-8");
+			identificationnum = java.net.URLDecoder.decode(teacher.getIdentificationnum(),"UTF-8");
+			gender = java.net.URLDecoder.decode(teacher.getSex(),"UTF-8");
+			educationbackground = java.net.URLDecoder.decode(teacher.getPosition(),"UTF-8");
+			//brithdate = java.net.URLDecoder.decode(teacher.getBrithdate(),"UTF-8");
+			telephone = java.net.URLDecoder.decode(teacher.getTelephone(),"UTF-8");
+			email = java.net.URLDecoder.decode(teacher.getEmail(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		teacher.setTeachername(name);
+		teacher.setIdentificationnum(identificationnum);
+		teacher.setSex(gender);
+		teacher.setPosition(educationbackground);
+		teacher.setEmail(email);
+		//teacher.setBrithdate(brithdate);
+		teacher.setTelephone(telephone);
+		manageDao.teacherupdate(teacher);
+		}
+	@Override
+	public void teacherdelete(String ids) {
+		// TODO Auto-generated method stub
+		StringTokenizer fenxi = new StringTokenizer(ids, ",");
+		while (fenxi.hasMoreTokens()) {
+			String sid = fenxi.nextToken();
+			int stuid = Integer.parseInt(sid);
+			manageDao.teacherdelete(stuid);
+		}
+	}
+	@Override
+	public void stuattendenceadd(Attendence attendence, String ids) {
+		// TODO Auto-generated method stub		
+		String date = null;
+		String time = null;
+		Integer choosencourseid = null;
+		String type = null;
+		try {
+			date = java.net.URLDecoder.decode(attendence.getDate(),"UTF-8");
+			time = java.net.URLDecoder.decode(attendence.getTime(),"UTF-8");
+			choosencourseid = attendence.getChoosencourseid();
+			type = java.net.URLDecoder.decode(attendence.getType(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		StringTokenizer fenxi = new StringTokenizer(ids, ",");
+		while (fenxi.hasMoreTokens()) {
+			String sid = fenxi.nextToken();		
+			List<Attendence> attendences = manageDao.loadattendence(attendence,sid);
+			for (int i = 0; i < attendences.size(); i++) {
+				if (sid.equals(attendences.get(i).getStuid())) {
+					sid = null;
+				}
+			}
+			if (sid==null) {
+				continue;
+			}else {
+				Attendence attendence2 = new Attendence();
+				attendence2.setChoosencourseid(choosencourseid);
+				attendence2.setDate(date);
+				attendence2.setStuid(sid);
+				attendence2.setTime(time);
+				attendence2.setType(type);
+				manageDao.stuattendenceadd(attendence2);
+			}			
+		}
+	}
+	List<Attendence> attendencelist = new ArrayList<Attendence>();
+	@Override
+	public void loadattendence(Integer id) {
+		// TODO Auto-generated method stub
+		attendencelist.clear();
+		attendencelist= manageDao.attendencestulist(id);
+	}
+	
+	@Override
+	public Map<String, Object> attendencestulistmap(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = attendencelist.size();
+		List<AttendenceModel> attendencemodels = new ArrayList<AttendenceModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < attendencelist.size()) {
+			    AttendenceModel model = new AttendenceModel();
+			    model.setId(attendencelist.get(i).getId());
+			    Student student = studentDao.loadstubyid(Integer.parseInt(attendencelist.get(i).getStuid()));
+			    model.setClassname(student.getClasses().getClassname());
+			    model.setDate(attendencelist.get(i).getDate());
+			    model.setFirstname(student.getFirstname());
+			    model.setLastname(student.getLastname());
+			    model.setStunum(student.getStuid());
+			    model.setStuname(student.getStuname());
+			    model.setTime(attendencelist.get(i).getTime());
+			    model.setType(attendencelist.get(i).getType());
+			    attendencemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", attendencemodels);
+		return map;
+	}
+	@Override
+	public List<Course> loadstucourse() {
+		// TODO Auto-generated method stub
+		List<Course> courses = studentDao.loadstucourse();
+		return courses;
+	}
+	
+	@Override
+	public void leaveadd(Leave leave) {
+		// TODO Auto-generated method stub
+		String applydate = null;		
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-d");
+		applydate = df.format(new Date());
+		leave.setApplydate(applydate);
+		leave.setStatus(0);
+		manageDao.leaveadd(leave);
+	}
+	@Override
+	public Map<String, Object> stuleavemap(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Leave> stuleave = manageDao.stuleave((page - 1) * pageSize, pageSize);
+		long total = manageDao.totalstuleave();
+		List<LeaveModel> leavemodels = new ArrayList<LeaveModel>();
+		for (Leave s : stuleave) {
+			LeaveModel model = new LeaveModel();
+			model.setId(s.getId());
+			Student student = studentDao.loadstubyid(s.getStuid());
+			model.setTelephone(s.getTelephone());
+			model.setApplydate(s.getApplydate());
+			model.setBackdate(s.getBackdate());
+			model.setLeavereason(s.getLeavereason());
+			model.setLeavingdate(s.getLeavingdate());
+			model.setClassname(student.getClasses().getClassname());
+			model.setStuname(student.getStuname());
+			model.setPassport(student.getPassport());
+			model.setMajor(student.getClasses().getMajor());
+			model.setStunum(student.getStuid());
+			model.setStatus(s.getStatus());
+			model.setType(s.getType());
+			leavemodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", leavemodels);
+		return map;
+	}
+	@Override
+	public void stuleaveupdate(Leave leave) {
+		// TODO Auto-generated method stub
+		manageDao.stuleaveupdate(leave);
+	}
+	@Override
+	public void leavedelete(Leave leave) {
+		// TODO Auto-generated method stub
+		manageDao.leavedelete(leave);
+	}
+	@Override
+	public String courseattendencesearch(Attendence attendence) {
+		// TODO Auto-generated method stub
+		Integer courseid = null;
+		String type = null;
+		courseid = attendence.getChoosencourseid();
+		try {
+			type = java.net.URLDecoder.decode(attendence.getType(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<Attendence> attendences=manageDao.courseattendencesearch(courseid,type);
+		String attendencelist = "";		
+		int i = 1;
+		for(Attendence a:attendences){
+			Student student = studentDao.loadstubyid(Integer.valueOf(a.getStuid()));
+			String s ="{\"id\":" + a.getId() + "," + "\"stuname\":" + "\"" + student.getStuname() + "\"," + "\"firstname\":" + "\"" + student.getFirstname() + "\"," + "\"lastname\":" + "\"" + student.getLastname() + "\"," + "\"classname\":" + "\"" + student.getClasses().getClassname() + "\","+ "\"time\":" + "\"" + a.getTime() + "\","+ "\"type\":" + "\"" + a.getType() + "\","+ "\"date\":" + "\"" + a.getDate() + "\","+ "\"stunum\":" + "\"" + student.getStuid() + "\"}"; 
+		    if (i<attendences.size()) {
+				attendencelist+= s+",";
+			}else {
+				attendencelist+=s;
+			}
+		}
+		return attendencelist;
+	}
+	@Override
+	public void teacheradd(Teacher teacher,Integer depid) {
+		// TODO Auto-generated method stub
+		String identificationnum = null;
+		String teachername = null;
+		String sex = null;
+		String position = null;
+		String email = null;
+		String telephone = null;
+		try {
+			identificationnum = java.net.URLDecoder.decode(teacher.getIdentificationnum(),"UTF-8");
+			teachername = java.net.URLDecoder.decode(teacher.getTeachername(),"UTF-8");
+			sex = java.net.URLDecoder.decode(teacher.getSex(),"UTF-8");
+			position = java.net.URLDecoder.decode(teacher.getPosition(),"UTF-8");
+			email = java.net.URLDecoder.decode(teacher.getEmail(),"UTF-8");
+			telephone = java.net.URLDecoder.decode(teacher.getTelephone(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		teacher.setEmail(email);
+		teacher.setIdentificationnum(identificationnum);
+		teacher.setSex(sex);
+		teacher.setTeachername(teachername);
+		teacher.setTelephone(telephone);
+		String pass= MD5.generate("123456");
+		teacher.setPassword(pass);
+		teacher.setPosition(position);
+		//teacher.setDeptid(depid);
+		manageDao.teacheradd(teacher,depid);
+	}
+	@Override
+	public boolean teachercheck(String identificationnum) {
+		// TODO Auto-generated method stub
+		List<Teacher> haveteacher = manageDao.teachercheck(identificationnum);
+		if (haveteacher.size() > 0) {
+			return false;
+		}
+		return true;
+	}
+	private List<String> readTxtFile(String filePath) {
+		List<String> linelist = new ArrayList<String>();
+		try {
+			String encoding = "GBK";
+			File file = new File(filePath);
+			if (file.isFile() && file.exists()) { // 判断文件是否存在
+				InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);// 考虑到编码格式
+				BufferedReader bufferedReader = new BufferedReader(read);
+				String lineTxt = null;
+				while ((lineTxt = bufferedReader.readLine()) != null) {
+					linelist.add(lineTxt);
+				}
+				read.close();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return linelist;
+	}
+
+	@Override
+	public void teacheraddbytxt(String path) {
+		// TODO Auto-generated method stub
+		try {
+			List<String> linelist = readTxtFile(path);
+			List<Dept> depts = userDao.loaddepts();
+			for (String line : linelist) {
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				if (tokenizer.hasMoreTokens()) {
+					Teacher teacher = new Teacher();					
+					teacher.setIdentificationnum(tokenizer.nextToken());
+					teacher.setTeachername(tokenizer.nextToken());
+					teacher.setSex(tokenizer.nextToken());
+					teacher.setTelephone(tokenizer.nextToken());
+					teacher.setEmail(tokenizer.nextToken());
+					teacher.setPosition(tokenizer.nextToken());					
+					Integer depid = 0;
+					String deptname = tokenizer.nextToken();
+					for (int i = 0; i < depts.size(); i++) {
+						if (deptname.equals(depts.get(i).getDeptname())) {
+							depid = depts.get(i).getDeptid();
+						}
+					}
+					String password = MD5.generate("123456");
+					teacher.setPassword(password);
+					manageDao.teacheradd(teacher, depid);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		File file = new File(path);
+		if (file.exists()) {
+			file.delete();
+		}
+	}
+	@Override
+	public Teacher loadteacherbyid(Integer id) {
+		// TODO Auto-generated method stub
+		Teacher teacher = manageDao.loadteacherbyid(id);
+		return teacher;
+	}
+	@Override
+	public void justiceladd(Certify1 certify1) {
+		// TODO Auto-generated method stub
+		manageDao.justiceladd(certify1);
+	}
+	@Override
+	public void announcementadd(Announcement announcement) {
+		// TODO Auto-generated method stub
+		String title = null;
+		String content = null;
+		String createdtime = null;
+		try {
+			title = java.net.URLDecoder.decode(announcement.getTitle(),"UTF-8");
+			content = announcement.getContent();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss ");
+		createdtime = df.format(new Date());
+		announcement.setContent(content);
+		announcement.setCreatedtime(createdtime);
+		announcement.setTitle(title);
+		manageDao.announcementadd(announcement);
+	}
+	@Override
+	public Map<String, Object> announcementmap(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Announcement> announcements = manageDao.announcementlist((page - 1) * pageSize, pageSize);
+		long total = manageDao.totalannouncement();
+		List<AnnouncementModel> announcementmodels = new ArrayList<AnnouncementModel>();
+		for (Announcement s : announcements) {
+			AnnouncementModel model = new AnnouncementModel();
+			model.setContent(s.getContent());
+			model.setCreatedtime(s.getCreatedtime());
+			model.setTitle(s.getTitle());
+			model.setId(s.getId());
+			announcementmodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", announcementmodels);
+		return map;
+	}
+	@Override
+	public Announcement loadannouncement(Integer id) {
+		// TODO Auto-generated method stub
+		Announcement announcement = manageDao.loadannouncement(id);		
+		return announcement;
+	}
+	@Override
+	public void announcementupdate(Announcement announcement) {
+		// TODO Auto-generated method stub
+		String title = null;
+		String content = null;
+		String createdtime = null;
+		try {
+			title = java.net.URLDecoder.decode(announcement.getTitle(),"UTF-8");
+			content =announcement.getContent();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss ");
+		createdtime = df.format(new Date());
+		announcement.setContent(content);
+		announcement.setCreatedtime(createdtime);
+		announcement.setTitle(title);
+		manageDao.announcementupdate(announcement);
+	}
+	@Override
+	public void announcementdelete(String ids) {
+		// TODO Auto-generated method stub
+		Integer id = Integer.valueOf(ids);
+		manageDao.announcementdelete(id);
+	}
+	@Override
+	public String loadjusticel() {
+		// TODO Auto-generated method stub
+		List<Certify1> certifys = manageDao.loadjusticel();
+		String justicellist = "";
+		int i = 1;
+		for (Certify1 c : certifys) {
+			String s = "{\"id\":" + c.getId() + "," + "\"title\":" + "\"" + c.getTitle() + "\","+ "\"filepath\":" + "\"" + c.getFileplace() + "\"," + "\"createdtime\":" + "\"" + c.getCreatedtime()  + "\"}";
+			if (i < certifys.size()) {
+				justicellist += s + ",";
+			} else {
+				justicellist += s;
+			}
+			i++;
+		}
+		return justicellist;
+	}
+	@Override
+	public void justiceldelete(String ids) {
+		// TODO Auto-generated method stub
+		Integer id = Integer.valueOf(ids);
+		manageDao.justiceldelete(id);
+	}
+	@Override
+	public List<Certify1> loadjusticellist() {
+		// TODO Auto-generated method stub
+		List<Certify1> justicelList = manageDao.loadjusticel();
+		return justicelList;
+	}
+	@Override
+	public Certify1 loadjusticelbyid(Integer id) {
+		// TODO Auto-generated method stub
+		Certify1 certify1 = manageDao.loadjusticelbyid(id);
+		return certify1;
+	}
+	@Override
+	public void justicelupdate(Certify1 certify) {
+		// TODO Auto-generated method stub
+		manageDao.justicelupdate(certify);
+	}
+	@Override
+	public String loadattendencelist(Integer id) {
+		// TODO Auto-generated method stub
+		attendencelist.clear();
+		attendencelist= manageDao.attendencestulist(id);
+		String justicellist = "";
+		int i = 1;
+		for (Attendence c : attendencelist) {
+			Student student = studentDao.loadstubyid(Integer.parseInt(attendencelist.get(i-1).getStuid()));
+			String s = "{\"id\":" + c.getId() + "," + "\"stunum\":" + "\"" + c.getStuid() + "\","+ "\"date\":" + "\"" + c.getDate() + "\","+ "\"type\":" + "\"" + c.getType() + "\","+"\"stuname\":" + "\"" + student.getStuname() + "\","+ "\"firstname\":" + "\"" + student.getFirstname() + "\","+"\"lastname\":" + "\"" + student.getLastname() + "\","+"\"classname\":" + "\"" + student.getClasses().getClassname() + "\","+ "\"time\":" + "\"" + c.getTime()  + "\"}";
+			if (i < attendencelist.size()) {
+				justicellist += s + ",";
+			} else {
+				justicellist += s;
+			}
+			i++;
+		}
+		return justicellist;
+	}
+	@Override
+	public List<Announcement> announcementlist() {
+		// TODO Auto-generated method stub
+		List<Announcement> announcementlist = manageDao.loadannouncementlist();
+		return announcementlist;
+	}
+	List<Attendence> attendences = new ArrayList<Attendence>();
+	@Override
+	public List<Attendence> searchstuattendence(Attendence attendence) {
+		// TODO Auto-generated method stub
+		attendences.clear();
+		attendences = manageDao.searchstuattendence(attendence);
+		return null;
+	}
+	@Override
+	public Map<String, Object> stuattendencelistmap(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = attendences.size();
+		List<AttendenceModel> attendencemodels = new ArrayList<AttendenceModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < attendences.size()) {
+			    AttendenceModel model = new AttendenceModel();
+			    model.setId(attendences.get(i).getId());
+			    Student student = studentDao.loadstubyid(Integer.parseInt(attendences.get(i).getStuid()));
+			    Course course = studentDao.loadcoursebyid(attendences.get(i).getChoosencourseid());
+			    model.setClassname(student.getClasses().getClassname());
+			    model.setCoursename(course.getCoursename());
+			    model.setDate(attendences.get(i).getDate());
+			    model.setFirstname(student.getFirstname());
+			    model.setLastname(student.getLastname());
+			    model.setStunum(student.getStuid());
+			    model.setStuname(student.getStuname());
+			    model.setTime(attendences.get(i).getTime());
+			    model.setType(attendences.get(i).getType());
+			    attendencemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", attendencemodels);
+		return map;
+	}
+	@Override
+	public Map<String, Object> personattendencelistmap(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Attendence> attendence = manageDao.personattendence();
+		long total = attendence.size();
+		List<AttendenceModel> attendencemodels = new ArrayList<AttendenceModel>();
+		for (int i = (page - 1) * pageSize; i < page * pageSize; i++) {
+			if (i < attendence.size()) {
+			    AttendenceModel model = new AttendenceModel();
+			    model.setId(attendence.get(i).getId());
+			    Student student = studentDao.loadstubyid(Integer.parseInt(attendence.get(i).getStuid()));
+			    Course course = studentDao.loadcoursebyid(attendence.get(i).getChoosencourseid());
+			    model.setClassname(student.getClasses().getClassname());
+			    model.setCoursename(course.getCoursename());
+			    model.setDate(attendence.get(i).getDate());
+			    model.setFirstname(student.getFirstname());
+			    model.setLastname(student.getLastname());
+			    model.setStunum(student.getStuid());
+			    model.setStuname(student.getStuname());
+			    model.setTime(attendence.get(i).getTime());
+			    model.setType(attendence.get(i).getType());
+			    attendencemodels.add(model);
+			} else {
+				break;
+			}
+		}
+		map.put("Total", total);
+		map.put("Rows", attendencemodels);
+		return map;
+	}
+	@Override
+	public List<Attendence> loadattendencebycourseid(Integer id) {
+		// TODO Auto-generated method stub
+		List<Attendence> attendences = manageDao.loadattendencebycourseid(id);
+		return attendences;
+	}
+	@Override
+	public void teacherchangeimg(String imgurl) {
+		// TODO Auto-generated method stub
+		User teacher = (User) ActionContext.getContext().getSession().get("user");
+		Teacher teacher2 = manageDao.loadteacherbyid(teacher.getId());
+		manageDao.changeimg(imgurl, teacher2);
+	}
+	@Override
+	public Leave loadleavebyid(Integer id) {
+		// TODO Auto-generated method stub
+		Leave leave = manageDao.loadleavebyid(id);
+		return leave;
+	}
+	
+	
+}

@@ -1,0 +1,27 @@
+$(document).ready(function(){			
+	var nowDate = new Date();
+	var nowYear = nowDate.getYear();
+	var lastYear = nowYear-1;
+	var nextYear = nowYear+1;
+	var nowuptext = nowYear+"学年上学期";
+	var nowupvalue = nowYear+"01";
+	var nowdowntext = nowYear + "学年下学期";
+	var nowdownvalue = nowYear+"02";
+	var lastuptext = lastYear+"学年上学期";
+	var lastupvalue = lastYear+"01";
+	var lastdowntext = lastYear+"学年下学期";
+	var lastdownvalue = lastYear+"02";
+	var nextuptext = nextYear+"学年上学期";
+	var nextupvalue = nextYear+"01";
+	var nextdowntext = nextYear+"学年下学期";
+	var nextdownvalue = nextYear+"02";
+	var semester = document.getElementById("semester");
+	var objOption=document.createElement("OPTION"); 
+    var objOption1=document.createElement("OPTION");
+    var objOption2=document.createElement("OPTION"); 
+    var objOption3=document.createElement("OPTION"); 
+    var objOption4=document.createElement("OPTION"); 
+    var objOption5=document.createElement("OPTION"); 
+    objOption.value=nowupvalue;  
+    objOption.text=nowsemester;
+})

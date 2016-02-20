@@ -1,0 +1,87 @@
+package com.tjpu.dao;
+
+import java.util.List;
+
+import com.tjpu.bean.Announcement;
+import com.tjpu.bean.Attendence;
+import com.tjpu.bean.Certify1;
+import com.tjpu.bean.ClassTeacher;
+import com.tjpu.bean.Evalution;
+import com.tjpu.bean.Leave;
+import com.tjpu.bean.Teacher;
+
+public interface ManageDao {
+
+	public void evalutionteacheradd(Evalution evalution);
+
+	public List<Evalution> loadevalution(Integer id);
+
+	public List<Teacher> loadteacher(int i, int pageSize);
+
+	public void teacherupdate(Teacher teacher);
+
+	public void teacherdelete(int stuid);
+
+	public void stuattendenceadd(Attendence attendence);
+
+	public List<Attendence> loadattendence(Attendence attendence, String sid);
+
+	public List<Attendence> attendencestulist(int i);
+
+	public List<Attendence> searchstuattendence(Attendence attendence);
+
+	public void leaveadd(Leave leave);
+
+	public List<Leave> stuleave(int i, int pageSize);
+
+	public void stuleaveupdate(Leave leave);
+
+	public void leavedelete(Leave leave);
+
+	public List<Attendence> courseattendencesearch(Integer courseid, String type);
+
+	public List<Teacher> loginDao(String usernum, String password);
+
+	public void teacheradd(Teacher teacher, Integer depid);
+
+	public List<Teacher> teachercheck(String identificationnum);
+
+	public Teacher loadteacherbyid(Integer id);
+
+	public void announcementadd(Announcement announcement);
+
+	public List<Announcement> announcementlist(int i, int pageSize);
+
+	public Announcement loadannouncement(Integer id);
+
+	public void announcementupdate(Announcement announcement);
+
+	public void announcementdelete(Integer id);
+
+	public void justiceladd(Certify1 certify1);
+
+	public List<Certify1> loadjusticel();
+
+	public void justiceldelete(Integer id);
+
+	public Certify1 loadjusticelbyid(Integer id);
+
+	public void justicelupdate(Certify1 certify);
+
+	public List<Announcement> loadannouncementlist();
+
+	public List<Attendence> personattendence();
+
+	public List<Attendence> loadattendencebycourseid(Integer id);
+
+	public void changeimg(String imgurl, Teacher teacher2);
+
+	public Leave loadleavebyid(Integer id);
+
+	public long totalteacher();
+
+	public long totalstuleave();
+
+	public long totalannouncement();
+
+}

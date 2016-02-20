@@ -1,0 +1,162 @@
+package com.tjpu.service;
+
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+
+import com.tjpu.bean.ChosenCourse;
+import com.tjpu.bean.ClassroomModel;
+import com.tjpu.bean.CourseModel;
+
+
+/**
+ * @author SiyuLi
+ *
+ */
+public class CourseArrangement {
+	private BitSet time_table[][][] = null;
+	private List<ClassroomModel> rooms = null;
+	private List<ChosenCourse> courses = null;
+	private int weekday = 5;
+	private int slot = 5;
+	public CourseArrangement (){
+	}
+	
+	private void teacherUniqueness (int courseOffset, Spacetime st){
+		int tid = courses.get(courseOffset).getTeacher().getId();
+		List<Integer> coursesOfSameTeacher = new ArrayList<Integer>();
+		//找到当前课程老师要上的所有课
+		for (int i = 0; i < courses.size(); ++i)
+			if (courses.get(i).getTeacher().getId() ==  tid)
+				coursesOfSameTeacher.add(i);
+		for (int r = 0; r < rooms.size(); ++r)
+			for (int i = 0; i < coursesOfSameTeacher.size(); ++i)
+				noPlace (coursesOfSameTeacher.get(i), r, st.getDay(),st.getSlot());
+		
+	}
+	
+	/**
+	 * @param courseOffset
+	 * @return 如果能放置则返回放置的时间地点，否则返回空 
+	 */
+	private Spacetime findPossibleSpacetimeAndPlaceIt (int courseOffset){
+		for (int s = 0; s < slot; ++s)
+			for (int d = 0; d < weekday; ++d)
+				for (int r = 0; r < rooms.size(); ++r)
+					if (time_table[r][d][s].get(c)) {
+						Spacetime st = new Spacetime(d, s, r);
+						setCourse(st);
+						return st;
+					}
+		return null;
+	}
+	
+	
+	/**
+	 * @param courseOffset
+	 * @param room
+	 * @param day
+	 * @param slot
+	 * 表示某个时间地点不能放置某课程
+	 */
+	private void noPlace (int courseOffset, int room, int day, int slot){
+		time_table[room][day][slot].set(courseOffset, false);
+	}
+	
+	/**
+	 * @param st 时间地点
+	 * 用于把某个时间地点清空
+	 */
+	private void setCourse (Spacetime st) {
+		time_table[st.getRoom()][st.getDay()][st.getSlot()].clear();
+	}
+	
+	/**
+	 * 建立原始表，并放入所有课程
+	 */
+	private void buildOriginalBitTable (){
+		time_table = new BitSet[rooms.size()][weekday][slot];
+		//初始化 BitSet
+		for (int r = 0; r < rooms.size(); ++r) 
+			for (int d = 0; d < weekday; ++d)
+				for (int s = 0; s < slot; ++s)
+					time_table[r][d][s] = new BitSet(courses.size());
+		//填入相应课程的下标
+		for (int c = 0; c < courses.size(); ++c) 
+			for (int r = 0; r < rooms.size(); ++r)
+				//判断某课程是否能使用某教室
+				if (Util.lessOrEqual(rooms.get(r).getRealcapacity(), courses.get(c).getStudentNum())
+						&& rooms.get(r).getRoomtype().equals(courses.get(c).getRoomType()))
+					for (int d = 0; d < weekday; ++d)
+						for (int s = 0; s < slot; ++s)
+							time_table[r][d][s].set(c);
+	}
+	
+	/**
+	 * @author SiyuLi
+	 * 静态工具类
+	 */
+	private static class Util {
+		public static boolean lessOrEqual (String a, int b){
+			return Integer.parseInt(a) <= b;
+		}
+	}
+	
+
+	/**
+	 * @author SiyuLi
+	 * 用于传递时间与地点的内部类
+	 */
+	private class Spacetime {
+		public Spacetime(int day, int slot, int room){
+			this.day = day;
+			this.room = room;
+			this.slot = slot;
+		}
+		private int day;
+		private int slot;
+		private int room;
+		public String toString () {
+			return String.format("room%d, day%s, slot%s", room, day, slot);
+		}
+		public int getDay() {
+			return day;
+		}
+		public void setDay(int day) {
+			this.day = day;
+		}
+		public int getSlot() {
+			return slot;
+		}
+		public void setSlot(int slot) {
+			this.slot = slot;
+		}
+		public int getRoom() {
+			return room;
+		}
+		public void setRoom(int room) {
+			this.room = room;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
