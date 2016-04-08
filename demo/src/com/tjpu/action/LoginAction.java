@@ -59,17 +59,20 @@ public class LoginAction {
 					users.setId(student.getId());
 					Calendar calendar = Calendar.getInstance();
 					String permit =student.getValidResidencePermit();
-					SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd");
-					Date permitDate = sdf.parse(permit);
-					Date nowdate = new Date();
-					calendar.setTime(permitDate);
-                    int day1 = calendar.get(Calendar.DAY_OF_YEAR);
-                    calendar.setTime(nowdate);
-                    int day2 = calendar.get(Calendar.DAY_OF_YEAR);
-                    int day = day2-day1;
+					/*SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd");
+					int day = 0;
+					if (permit!=null||permit!="") {
+						Date permitDate = sdf.parse(permit);
+						Date nowdate = new Date();
+						calendar.setTime(permitDate);
+	                    int day1 = calendar.get(Calendar.DAY_OF_YEAR);
+	                    calendar.setTime(nowdate);
+	                    int day2 = calendar.get(Calendar.DAY_OF_YEAR);
+	                     day = day2-day1;
+					}*/
                     Map<String, List<Menu>> map = userService.menuMap(roles.getRolerank(),users);					
 					ActionContext.getContext().put("map", map);
-					ActionContext.getContext().put("perday", day);
+					//ActionContext.getContext().put("perday", day);
 					ActionContext.getContext().getSession().put("user", users);	
 					
 					return "loginsuc";

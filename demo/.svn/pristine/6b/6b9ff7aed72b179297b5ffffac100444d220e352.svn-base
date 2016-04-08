@@ -1,0 +1,293 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@taglib uri="/struts-tags" prefix="s"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>天津工业大学排课管理系统</title>
+<link href="<%=basePath%>js/ligerUI/skins/Gray/css/form.css" rel="stylesheet"type="text/css" />
+<link href="<%=basePath%>js/ligerUI/skins/Gray/css/common.css" rel="stylesheet"type="text/css" />
+<link href="<%=basePath%>css/date.css" rel="stylesheet" type="text/css"/>
+<script src="<%=basePath%>js/jquery/jquery-1.6.min.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/core/base.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerForm.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerDateEditor.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerComboBox.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerSpinner.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerTextBox.js" type="text/javascript"></script>
+<%-- <script src="<%=basePath%>js/ligerUI/plugins/ligerRadio.js" type="text/javascript"></script> --%>
+<script src="<%=basePath%>js/ligerUI/plugins/ligerTip.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/jquery.validate.min.js"type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/jquery.metadata.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery-validation/messages_cn.js" type="text/javascript"></script>
+<script src="<%=basePath%>js/jquery.date_input.pack.js" type="text/javascript"></script>
+<script type="text/javascript">
+	 $(function(){
+	  $('.date_picker').date_input();
+   })
+	var eee;
+        $(function (){
+            $.validator.addMethod(
+                    "notnull",
+                    function (value, element, regexp)
+                    {
+                        if (!value) return true;
+                        return !$(element).hasClass("l-text-field-null");
+                    },
+                    "不能为空"
+            );
+
+            $.metadata.setType("attr", "validate");
+            var v = $("form").validate({
+                //调试状态，不会提交数据的
+                debug: true,
+                errorPlacement: function (lable, element)
+                {
+
+                    if (element.hasClass("l-textarea"))
+                    {
+                        element.addClass("l-textarea-invalid");
+                    }
+                    else if (element.hasClass("l-text-field"))
+                    {
+                        element.parent().addClass("l-text-invalid");
+                    }
+                    $(element).removeAttr("title").ligerHideTip();
+                    $(element).attr("title", lable.html()).ligerTip();
+                },
+                success: function (lable)
+                {
+                    var element = $("#" + lable.attr("for"));
+                    if (element.hasClass("l-textarea"))
+                    {
+                        element.removeClass("l-textarea-invalid");
+                    }
+                    else if (element.hasClass("l-text-field"))
+                    {
+                        element.parent().removeClass("l-text-invalid");
+                    }
+                    $(element).removeAttr("title").ligerHideTip();
+                },
+                submitHandler: function (){
+				$("form .l-text,.l-textarea").ligerHideTip();
+				if(flg){
+				var sexid=1;
+				if(document.getElementById("r2").checked){
+	                 sexid="女";
+                }else{
+                  sexid="男";
+                }
+				$.post("${pageContext.request.contextPath}/system/Stu_stuendadd.action?stu.stuid="+ $("#stunum").val()
+		        +"&stu.sex="+ encodeURI(encodeURI(sexid))
+		        +"&classid="+ $("#classid").val()
+		        +"&stu.stuname="+ encodeURI(encodeURI($("#stuname").val()))	            
+		       // +"&stu.firstname="+ encodeURI(encodeURI($("#firstname").val()))
+		       // +"&stu.lastname="+ encodeURI(encodeURI($("#lastname").val()))
+		        +"&stu.nation="+ encodeURI(encodeURI($("#nation").val()))
+		        +"&stu.studentType="+ encodeURI(encodeURI($("#studenttype").val()))
+		        +"&stu.passport="+ encodeURI(encodeURI($("#passport").val()))
+		        +"&stu.startdate="+ encodeURI(encodeURI($("#startdate").val()))
+		        +"&stu.enddate="+ encodeURI(encodeURI($("#enddate").val()))
+		        +"&stu.telephone="+ encodeURI(encodeURI($("#telephone").val()))
+		        +"&stu.validResidencePermit="+ encodeURI(encodeURI($("#validResidencePermit").val()))
+		        +"&stu.roomplace="+ encodeURI(encodeURI($("#roomplace").val()))
+		        +"&stu.source="+ encodeURI(encodeURI($("#source").val())),null,function(){
+		        alert('添加成功!');
+		        parent.m.hide();
+	            parent.g.loadData();
+		       });
+			 }
+			}
+		});
+		$("form").ligerForm();
+		$(".l-button-test").click(function() {
+			alert(v.element($("#txtName")));
+		});
+
+	});
+	var flg = true;
+	function check() {	    
+		var str = document.getElementById("passport").value;
+		var reg = /^[\u4e00-\u9fa5]+$/gi;
+		if (reg.test(str)) {
+			$("#result").html("护照不能包含中文！");
+			$("#result").show();
+			flg = false;
+			document.regFrm.username.focus();
+			return false;
+		} else {
+			$("#result").hide();
+		}$.post("${pageContext.request.contextPath}/system/Stu_stucheck.action?stu.passport="
+						+ $("#passport").val(), null, function(data) {
+					if (data == "fail") {
+						$("#result").html("已存在该护照号!");
+						$("#result").show();
+						flg = false;
+					} else {
+						$("#result").hide();
+					}
+				});		
+	}
+	var flg3 =true;
+	function check1(){
+	  var stunum = $("#stunum").val();
+	  var reg = /^[\u4e00-\u9fa5]+$/gi;
+		if (reg.test(stunum)) {
+			$("#result").html("学号不能包含中文！");
+			$("#result").show();
+			flg3 = false;
+			//document.regFrm.username.focus();
+			return false;
+		} else {
+			$("#result").hide();
+		}
+		$.post("${pageContext.request.contextPath}/system/Stu_stucheckstunum.action?stu.stuid="
+						+ $("#stunum").val(), null, function(data) {
+					if (data == "fail") {
+						$("#result").html("已存在该学号!");
+						$("#result").show();
+						flg3 = false;
+					} else {
+						$("#result").hide();
+					}
+				});		
+	}
+	var flg1 = true;
+	function checkmobile(){
+	  var isMobile=/^(?:13\d|15\d|18\d)\d{5}(\d{3}|\*{3})$/; //手机号码验证规则
+	  var mobile = document.getElementById("telephone").value;
+	  if(!isMobile.test(mobile)){ //如果用户输入的值不同时满足手机号的正则
+         $("#result").html("请输入正确的11位手机号!");
+		 $("#result").show();
+		 $("#telephone").focus();       //输入框获得光标
+		 flg1 = false; //就弹出提示信息        
+      }else{
+         $("#result").hide();
+      }
+	}	
+	var flg2 = true;
+	function checkemail() { 
+      if (!$("#email").val().match(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/)) { 
+        $("#result").html("请输入正确的邮箱地址!");
+		$("#result").show();
+		$("#email").focus();       //输入框获得光标
+		flg2 = false; //就弹出提示信息   
+     }else{
+         $("#result").hide();
+     }
+} 		
+</script>
+<style type="text/css">
+body{ font-size:12px;}
+        .l-table-edit {}
+        .l-table-edit-td{ padding:4px;}
+        .l-button-submit,.l-button-test{width:80px; float:left; margin-left:10px; padding-bottom:2px;}
+        .l-verify-tip{ left:230px; top:120px;}
+</style>
+
+</head>
+
+<body style="padding: 10px">
+
+	<form name="form1" method="post" action="" id="form1">
+		<div id="errorLabelContainer" class="l-text-invalid"></div>
+		<table cellpadding="0" cellspacing="0" class="l-table-edit">
+			
+			<!-- <tr>
+				<td align="right" class="l-table-edit-td">英文名:</td>
+				<td align="left" class="l-table-edit-td"><input name="firstname"type="text" id="firstname" ltype="text"validate="{required:true,minlength:1,maxlength:20}" /></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">英文姓:</td>
+				<td align="left" class="l-table-edit-td"><input name="lastname"type="text" id="lastname" ltype="text"validate="{required:true,minlength:1,maxlength:20}" /></td>
+				<td align="left"></td>
+			</tr> -->
+			<tr>
+				<td align="right" class="l-table-edit-td">姓名:</td>
+				<td align="left" class="l-table-edit-td"><input name="stuname"type="text" id="stuname" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">国家:</td>
+				<td align="left" class="l-table-edit-td"><input name="nation"type="text" id="nation" ltype="text"validate="{required:true}" /></td>
+				<td align="left"></td>
+			</tr>
+			<tr>
+			<td align="right" class="l-table-edit-td">护照号:</td>
+				<td align="left" class="l-table-edit-td"><input name="passport"type="text" onblur="check()" id="passport" ltype="text" placeholder="请输入护照号" validate="{required:true}" /></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">学号:</td>
+				<td align="left" class="l-table-edit-td"><input name="stunum"type="text" id="stunum" onblur="check1()" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td" valign="top">性别:</td>
+				<td align="left" class="l-table-edit-td">
+				<input id="r1" type="radio" name="rbtnl" value="1" checked="checked" />
+				<label for="rbtnl_0">男</label> 
+				<input id="r2" type="radio" name="rbtnl" value="2" />
+				<label for="rbtnl_1">女</label></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">班级:</td>
+				<td align="left" class="l-table-edit-td">
+				<select name="classid" id="classid" ltype="select" style="width:140px;" >
+						<s:iterator value="#classlist" id="gg">
+							<option value="<s:property value="#gg.id"/>"><s:property value="#gg.classname" /></option>
+						</s:iterator>
+				</select></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">学生类别:</td>
+				<td align="left" class="l-table-edit-td"><input name="studenttype" type="text" id="studenttype" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">专业:</td>
+				<td align="left" class="l-table-edit-td"><input name="major"type="text" id="major" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">入学时间:</td>
+				<td align="left" class="l-table-edit-td"><input name="startdate"type="text" id="startdate" class="date_picker link" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">离校时间:</td>
+				<td align="left" class="l-table-edit-td"><input name="enddate"type="text" id="enddate" class="date_picker link" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">联系方式:</td>
+				<td align="left" class="l-table-edit-td"><input name="telephone"type="text" id="telephone" ltype="text" onblur="checkmobile()" validate="{required:true}" /></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">居留许可有效期:</td>
+				<td align="left" class="l-table-edit-td"><input name="validResidencePermit"type="text" class="date_picker link" id="validResidencePermit" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td">住宿地点:</td>
+				<td align="left" class="l-table-edit-td"><input name="roomplace"type="text" id="roomplace" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+				<td align="right" class="l-table-edit-td">学生来源:</td>
+				<td align="left" class="l-table-edit-td"><input name="source"type="text" id="source" ltype="text" validate="{required:true}" /></td>
+				<td align="left"></td>
+			</tr>		 
+			<tr>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="left"><div id="result2" style="color: red;"></div></td>
+				<td align="left" class="l-table-edit-td"></td>
+				
+			</tr>
+			<tr>
+				<th align="center" class="l-table-edit-td"colspan="6"><div id="result" style="color: red;"></div></th>								
+			</tr>
+			<tr>
+				<td align="right" class="l-table-edit-td"></td>
+				<td align="left" class="l-table-edit-td"></td>
+				<th align="left" colspan="2"><input class="l-button l-button-submit" type="submit" value="添&nbsp;加"/></th>
+				<td align="left" class="l-table-edit-td"></td>
+				<td align="left"></td>							
+			</tr>
+		</table>
+		<br />
+	</form>
+</body>
+</html>

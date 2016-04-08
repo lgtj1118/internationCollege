@@ -1,0 +1,470 @@
+package com.tjpu.service;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import jxl.Sheet;
+import jxl.Workbook;
+
+import org.apache.commons.httpclient.util.DateUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.opensymphony.xwork2.ActionContext;
+import com.tjpu.bean.Classes;
+import com.tjpu.bean.Classroom;
+import com.tjpu.bean.MD5;
+import com.tjpu.bean.Student;
+import com.tjpu.bean.StudentModel;
+import com.tjpu.bean.User;
+import com.tjpu.dao.StudentDao;
+
+@Service
+public class StudentServiceImpl implements StudentService {
+	@Autowired
+	StudentDao studentDao;
+	
+	private List<String> readTxtFile(String filePath) {
+		List<String> linelist = new ArrayList<String>();
+		try {
+			String encoding = "GBK";
+			File file = new File(filePath);
+			if (file.isFile() && file.exists()) { // 判断文件是否存在
+				InputStreamReader read = new InputStreamReader(new FileInputStream(file), encoding);// 考虑到编码格式
+				BufferedReader bufferedReader = new BufferedReader(read);
+				String lineTxt = null;
+				while ((lineTxt = bufferedReader.readLine()) != null) {
+					linelist.add(lineTxt);
+				}
+				read.close();
+				/*System.out.println(file);
+				Workbook workbook = Workbook.getWorkbook(file);
+				Sheet sheet[] = workbook.getSheets();
+				for (int x = 0; x < sheet.length; x++) {
+					for (int y = 0; y < sheet[x].getRows(); y++) {
+						for (int z = 0; z < sheet[x].getColumns(); z++) {
+							//content = content+"\t"+sheet[x].getCell(z,y).getContents();
+							linelist.add(sheet[x].getCell(z,y).getContents());
+						}
+					}
+				}*/
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return linelist;
+	}
+	@Override
+	public Student loginService(String username,String password) {
+		// TODO Auto-generated method stub
+		Student student1 = null;
+		List<Student> list = studentDao.loginDao(username,password);
+		if (list.size() > 0 && list != null) {
+			student1 = list.get(0);
+		}
+		return student1;
+	}
+	
+	@Override
+	public String classlist() {
+		// TODO Auto-generated method stub
+		List<Classes> classes = studentDao.loadclasses();
+		String classlist = "";
+		int i = 1;
+		for (Classes c : classes) {
+			String s = "{\"Classid\":" + c.getId() + "," + "\"Classname\":" + "\"" + c.getClassname() + "\"," + "\"Classmajor\":" + "\"" + c.getMajor() + "\"}";
+			if (i < classes.size()) {
+				classlist += s + ",";
+			} else {
+				classlist += s;
+			}
+			i++;
+		}
+		return classlist;
+	}
+
+	@Override
+	public Map<String, Object> studentmap(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();
+		List<Student> stus = studentDao.loadstudents((page - 1) * pageSize, pageSize);
+		long total = studentDao.totalstu();
+		List<StudentModel> stumodels = new ArrayList<StudentModel>();
+		for (Student s : stus) {
+			StudentModel model = new StudentModel();
+			try {
+				model.setClassid(s.getClasses().getId());
+			} catch (Exception e) {
+				model.setClassid(0);
+			}
+			model.setId(s.getId());
+			model.setPassword(s.getPassword());
+			model.setStusex(s.getSex());
+			model.setStuid(s.getStuid());
+			model.setStuname(s.getStuname());
+			model.setFirstname(s.getFirstname());
+			model.setLastname(s.getLastname());
+			model.setNation(s.getNation());
+			model.setPassport(s.getPassport());
+			model.setRoomplace(s.getRoomplace());
+			model.setTelephone(s.getTelephone());
+			model.setStudentType(s.getStudentType());
+			model.setSource(s.getSource());
+			model.setEnddate(s.getEnddate());
+			model.setStartdate(s.getStartdate());
+			stumodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", stumodels);
+		return map;
+	}
+
+	@Override
+	public void stuupdate(Student stu, int classid) {
+		// TODO Auto-generated method stub
+		String stuname = null;
+		String stusex = null;
+		String stunum = null;
+		String stupassword = null;
+		String firstname = null;
+		String lastname = null;
+		String nation = null;
+		String roomplace = null;
+		String startdate = null;
+		String enddate = null;
+		String studenttype = null;
+		String passport = null;
+		String telephone = null;
+		String validresidencepermit = null;
+		String source = null;
+		try {
+			stunum = java.net.URLDecoder.decode(stu.getStuid(), "UTF-8");
+			stuname = java.net.URLDecoder.decode(stu.getStuname(), "UTF-8");
+			stusex = java.net.URLDecoder.decode(stu.getSex(), "UTF-8");
+			//stupassword = java.net.URLDecoder.decode(stu.getPassword(), "UTF-8");
+			firstname = java.net.URLDecoder.decode(stu.getFirstname(), "UTF-8");
+			lastname = java.net.URLDecoder.decode(stu.getLastname(), "UTF-8");
+			nation = java.net.URLDecoder.decode(stu.getNation(), "UTF-8");
+			roomplace = java.net.URLDecoder.decode(stu.getRoomplace(), "UTF-8");
+			startdate = java.net.URLDecoder.decode(stu.getStartdate(), "UTF-8");
+			enddate = java.net.URLDecoder.decode(stu.getEnddate(), "UTF-8");
+			studenttype = java.net.URLDecoder.decode(stu.getStudentType(), "UTF-8");
+			passport = java.net.URLDecoder.decode(stu.getPassport(), "UTF-8");
+			telephone = java.net.URLDecoder.decode(stu.getTelephone(), "UTF-8");
+			//validresidencepermit = java.net.URLDecoder.decode(stu.getValidResidencePermit(), "UTF-8");
+			source = java.net.URLDecoder.decode(stu.getSource(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		stu.setStuname(stuname);
+		stu.setSex(stusex);
+		stu.setStuid(stunum);
+		//stu.setPassword(stupassword);
+		stu.setStartdate(startdate);
+		stu.setEnddate(enddate);
+		stu.setSource(source);
+		stu.setFirstname(firstname);
+		stu.setLastname(lastname);
+		stu.setNation(nation);
+		stu.setPassport(passport);
+		stu.setRoomplace(roomplace);
+		stu.setSource(source);
+		stu.setStudentType(studenttype);
+		stu.setTelephone(telephone);
+		//stu.setValidResidencePermit(validresidencepermit);
+		studentDao.stuupdate(stu, classid);
+	}
+
+	@Override
+	public void studelete(String ids) {
+		// TODO Auto-generated method stub
+		StringTokenizer fenxi = new StringTokenizer(ids, ",");
+		while (fenxi.hasMoreTokens()) {
+			String sid = fenxi.nextToken();
+			int stuid = Integer.parseInt(sid);
+			studentDao.studelete(stuid);
+		}
+	}
+
+	@Override
+	public List<Classes> classlist1() {
+		// TODO Auto-generated method stub
+		List<Classes> classlist = studentDao.loadclasses();
+		return classlist;
+	}
+
+	@Override
+	public boolean stucheck(String stuid) {
+		// TODO Auto-generated method stub
+		List<Student> havestu = studentDao.stucheck(stuid);
+		if (havestu.size() > 0) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public void stuadd(Student stu, int classid) {
+		// TODO Auto-generated method stub
+		String stuname = null;
+		String stusex = null;
+		String stunum = null;
+		String stupassword = null;
+		String firstname = null;
+		String lastname = null;
+		String nation = null;
+		String roomplace = null;
+		String startdate = null;
+		String enddate = null;
+		String studenttype = null;
+		String passport = null;
+		String telephone = null;
+		String validresidencepermit = null;
+		String source = null;
+		try {
+			stunum = java.net.URLDecoder.decode(stu.getStuid(), "UTF-8");
+			stuname = java.net.URLDecoder.decode(stu.getStuname(), "UTF-8");
+			stusex = java.net.URLDecoder.decode(stu.getSex(), "UTF-8");
+			stupassword = java.net.URLDecoder.decode(stu.getPassword(), "UTF-8");
+			firstname = java.net.URLDecoder.decode(stu.getFirstname(), "UTF-8");
+			lastname = java.net.URLDecoder.decode(stu.getLastname(), "UTF-8");
+			nation = java.net.URLDecoder.decode(stu.getNation(), "UTF-8");
+			roomplace = java.net.URLDecoder.decode(stu.getRoomplace(), "UTF-8");
+			startdate = java.net.URLDecoder.decode(stu.getStartdate(), "UTF-8");
+			enddate = java.net.URLDecoder.decode(stu.getEnddate(), "UTF-8");
+			studenttype = java.net.URLDecoder.decode(stu.getStudentType(), "UTF-8");
+			passport = java.net.URLDecoder.decode(stu.getPassport(), "UTF-8");
+			telephone = java.net.URLDecoder.decode(stu.getTelephone(), "UTF-8");
+			validresidencepermit = java.net.URLDecoder.decode(stu.getValidResidencePermit(), "UTF-8");
+			source = java.net.URLDecoder.decode(stu.getSource(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		stu.setStuname(stuname);
+		stu.setSex(stusex);
+		stu.setStuid(stunum);
+		stu.setPassword(stupassword);
+		stu.setStartdate(startdate);
+		stu.setEnddate(enddate);
+		stu.setSource(source);
+		stu.setFirstname(firstname);
+		stu.setLastname(lastname);
+		stu.setNation(nation);
+		stu.setPassport(passport);
+		stu.setRoomplace(roomplace);
+		stu.setSource(source);
+		stu.setStudentType(studenttype);
+		stu.setTelephone(telephone);
+		stu.setValidResidencePermit(validresidencepermit);
+		Classes cls = studentDao.loadclassbyid(classid);
+		stu.setClasses(cls);
+		studentDao.stuadd(stu);
+	}
+
+	@Override
+	public boolean pwdcheck(Integer id, String password) {
+		// TODO Auto-generated method stub
+		List<Student> user = studentDao.pwdcheck(id,password);
+		if (user.size() > 0) {
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public void userchangpwd(Student user) {
+		// TODO Auto-generated method stub
+	    String password = null;
+	    password = user.getPassword();
+	    user.setPassword(password);
+	    studentDao.userchangpwd(user);
+	}
+
+	@Override
+	public Student loadstubyid(Integer id) {
+		// TODO Auto-generated method stub
+		Student student = studentDao.loadstubyid(id);
+		return student;
+	}
+
+	@Override
+	public void stuaddbytxt(String stupath) {
+		// TODO Auto-generated method stub
+		try {
+			List<String> linelist = readTxtFile(stupath);
+			for (String line : linelist) {
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				if (tokenizer.hasMoreTokens()) {
+					//String s = tokenizer.nextToken();
+					Student stu = new Student();
+					stu.setPassport(tokenizer.nextToken());
+					stu.setStuid(tokenizer.nextToken());
+					stu.setFirstname(tokenizer.nextToken());
+					stu.setLastname(tokenizer.nextToken());
+					stu.setStuname(tokenizer.nextToken());
+					stu.setSex(tokenizer.nextToken());
+					stu.setBrithdate(tokenizer.nextToken());
+					String classname = tokenizer.nextToken();
+					Classes classid = studentDao.loadclassbyname(classname);					
+					stu.setClasses(classid);
+					stu.setTelephone(tokenizer.nextToken());
+					stu.setRoomplace(tokenizer.nextToken());
+					stu.setNation(tokenizer.nextToken());
+					stu.setStudentType(tokenizer.nextToken());
+					stu.setStartdate(tokenizer.nextToken());
+					stu.setSource(tokenizer.nextToken());
+					String password = MD5.generate("123456");
+					stu.setPassword(password);
+					studentDao.stuadd(stu);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		File file = new File(stupath);
+		if (file.exists()) {
+			file.delete();
+		}
+	}
+	
+	@Override
+	public String studentlist(Integer classid) {
+		// TODO Auto-generated method stub
+		List<Student> students = studentDao.loadstubyclassid(classid);
+		String studentlist = "";
+		int i = 1;
+		for (Student c : students) {
+			String s = "{\"id\":" + c.getId() + "," + "\"stuname\":" + "\"" + c.getStuname() + "\"," + "\"stunum\":" + "\"" + c.getStuid() + "\","+ "\"Classid\":" + "\"" + c.getClasses().getId() + "\","  + "\"passport\":" + "\"" + c.getPassport() + "\"}";
+			if (i < students.size()) {
+				studentlist += s + ",";
+			} else {
+				studentlist += s;
+			}
+			i++;
+		}
+		return studentlist;
+	}
+	@Override
+	public void stubaseupdate(Student stu, int classid) {
+		// TODO Auto-generated method stub
+		String stuname = null;
+		String stunum = null;
+		String firstname = null;
+		String lastname = null;
+		String nation = null;
+		String roomplace = null;
+		String studenttype = null;
+		String passport = null;
+		String telephone = null;		
+		String source = null;
+		try {
+			stunum = java.net.URLDecoder.decode(stu.getStuid(), "UTF-8");
+			stuname = java.net.URLDecoder.decode(stu.getStuname(), "UTF-8");
+			firstname = java.net.URLDecoder.decode(stu.getFirstname(), "UTF-8");
+			lastname = java.net.URLDecoder.decode(stu.getLastname(), "UTF-8");
+			nation = java.net.URLDecoder.decode(stu.getNation(), "UTF-8");
+			roomplace = java.net.URLDecoder.decode(stu.getRoomplace(), "UTF-8");
+			studenttype = java.net.URLDecoder.decode(stu.getStudentType(), "UTF-8");
+			passport = java.net.URLDecoder.decode(stu.getPassport(), "UTF-8");
+			telephone = java.net.URLDecoder.decode(stu.getTelephone(), "UTF-8");
+			source = java.net.URLDecoder.decode(stu.getSource(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		stu.setStuname(stuname);
+		stu.setStuid(stunum);
+		stu.setSource(source);
+		stu.setFirstname(firstname);
+		stu.setLastname(lastname);
+		stu.setNation(nation);
+		stu.setPassport(passport);
+		stu.setRoomplace(roomplace);
+		stu.setSource(source);
+		stu.setStudentType(studenttype);
+		stu.setTelephone(telephone);
+		//stu.setValidResidencePermit(validresidencepermit);
+		studentDao.stubaseupdate(stu, classid);
+	}
+	@Override
+	public boolean stucheckname(String stuname) {
+		// TODO Auto-generated method stub
+		List<Student> students = studentDao.loadstubystuname(stuname);
+		if (students.size()>0) {
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public void changeimg(String imgsrc) {
+		// TODO Auto-generated method stub
+		User stu = (User) ActionContext.getContext().getSession().get("user");
+		Student student = studentDao.loadstubyid(stu.getId());
+		studentDao.changeimg(imgsrc, student);
+	}
+	List<Student> students = new ArrayList<Student>();
+	@Override
+	public List<Student> stusearch(Student stu) {
+		// TODO Auto-generated method stub
+		students.clear();
+		students = studentDao.stusearch(stu);
+		return students;
+	}
+	@Override
+	public Map<String, Object> searchstudentmap(int page, int pageSize) {
+		// TODO Auto-generated method stub
+		Map<String, Object> map = new HashMap<String, Object>();		
+		long total = students.size();
+		List<StudentModel> stumodels = new ArrayList<StudentModel>();
+		for (Student s : students) {
+			StudentModel model = new StudentModel();
+			try {
+				model.setClassid(s.getClasses().getId());
+			} catch (Exception e) {
+				model.setClassid(0);
+			}
+			model.setId(s.getId());
+			model.setPassword(s.getPassword());
+			model.setStusex(s.getSex());
+			model.setStuid(s.getStuid());
+			model.setStuname(s.getStuname());
+			model.setFirstname(s.getFirstname());
+			model.setLastname(s.getLastname());
+			model.setNation(s.getNation());
+			model.setPassport(s.getPassport());
+			model.setRoomplace(s.getRoomplace());
+			model.setTelephone(s.getTelephone());
+			model.setStudentType(s.getStudentType());
+			model.setSource(s.getSource());
+			model.setEnddate(s.getEnddate());
+			model.setStartdate(s.getStartdate());
+			stumodels.add(model);
+		}
+		map.put("Total", total);
+		map.put("Rows", stumodels);
+		return map;
+	}
+	@Override
+	public List<Student> loadallstu() {
+		// TODO Auto-generated method stub
+		List<Student> students = studentDao.loadallstu();
+		return students;
+	}
+
+	
+
+}

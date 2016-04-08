@@ -2090,7 +2090,7 @@ public class ManageAction {
 		//insertID
 		ChosenCourseModel change = null;
 		for (ChosenCourseModel c : manualCoruses) {
-			if (c.getNum().equals(insertID)){
+			if (c.getSemesterId().equals(insertID)){
 				change = c;
 				break;
 			}
@@ -2176,6 +2176,7 @@ public class ManageAction {
 				}
 				s.setClassName(name);
 				s.setNote(c.getNum());
+				s.setId(c.getSemesterId());
 				toPage.add(s);
 			}
 		} else {
@@ -2197,6 +2198,7 @@ public class ManageAction {
 				}
 				s.setClassName(name);
 				s.setNote(c.getNum());
+				s.setId(c.getSemesterId());
 				toPage.add(s);
 			}
 		}
@@ -2245,6 +2247,7 @@ public class ManageAction {
 				}
 				s.setClassName(name);
 				s.setNote(c.getNum());
+				s.setId(c.getSemesterId());
 				toPage.add(s);
 			}
 		} else {
@@ -2267,6 +2270,7 @@ public class ManageAction {
 					}
 					s.setClassName(name);
 					s.setNote(c.getNum());
+					s.setId(c.getSemesterId());
 					toPage.add(s);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -3532,6 +3536,10 @@ public class ManageAction {
 		Student student = studentService.loadstubystuid(stu.getPassport());
 		if (student == null) {
 			return null;
+		}
+		if (student.getEnddate()==null||student.getStartdate()==null) {
+			ActionContext.getContext().put("msg","该学生学习期限有问题，请查证后再打印！");
+			return "uploadmsg";//
 		}
 		HttpServletResponse response = ServletActionContext.getResponse();
 		response.reset();

@@ -420,7 +420,7 @@ public class ClassServiceImpl implements ClassService {
 			model.setAcademic(p.getAcademic());
 			model.setIsDeleted(p.getDeleted());
 			model.setWeeklesson(p.getWeeklesson());
-			model.setLessoncount((int)(p.getCredits()*16));
+			model.setLessoncount((int)(p.getCredits()*15));
 			coursemodels.add(model);
 		}
 		map.put("Total", total);
@@ -500,7 +500,7 @@ public class ClassServiceImpl implements ClassService {
 	@Override
 	public void courseadd(Course course) {
 
-		Integer num = null;
+		String num = null;
 		String coursename = null;
 		Integer beginweeks = null;
 		Integer endweeks = null;
@@ -511,7 +511,7 @@ public class ClassServiceImpl implements ClassService {
 		String academic = null;
 		Integer weeklesson = null;
 		try {
-			//num = course.getNum();
+			num = course.getNum();
 			coursename = java.net.URLDecoder.decode(course.getCoursename(),"UTF-8");
 			beginweeks = course.getBeginweeks();
 			endweeks = course.getEndweeks();
@@ -524,7 +524,7 @@ public class ClassServiceImpl implements ClassService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Integer number = 1251000;
+		/*Integer number = 1251000;
 		List<Course> courses = studentDao.loadcourse();
 		number = number +courses.size()+1;
 		String nums ="";
@@ -549,9 +549,10 @@ public class ClassServiceImpl implements ClassService {
 					nums = String.valueOf(number)+credits;
 				}
 			}
-		}
+		}*/
 		//num = Integer.valueOf(nums);
-		course.setNum(nums);
+		//course.setNum(nums);
+		course.setNum(num);
 		course.setBeginweeks(beginweeks);
 		course.setCharacter(character);
 		//course.setCheckway(checkway);
@@ -1285,7 +1286,7 @@ public class ClassServiceImpl implements ClassService {
 		if (!Pattern.matches(reg, items.get(i++))) {
 			return "课程名称格式由汉字英文数字构成";
 		}
-		reg = "[0-9A-Za-z]{2,}";
+		reg = "[0-9A-Za-z\\s]{2,}";
 		if (!Pattern.matches(reg, items.get(i++))) {
 			return "课程名英文名称格式不正确";
 		}
@@ -1394,9 +1395,12 @@ public class ClassServiceImpl implements ClassService {
 			return ret;
 		}
 		for (List<String> items:getItems(path)) {
+			items.removeAll(Arrays.asList("", null));
 			if (items.size() == 0) {
 				continue;
 			}
+			if (items.get(items.size() - 1) == "" || items.get(items.size() - 1) == null)
+				items.remove(items.size() - 1);
 			String errMsg = courseChk(items);
 			if (errMsg == null) {
 				studentDao.courseadd(formateCourse(items));

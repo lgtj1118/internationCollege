@@ -143,7 +143,7 @@ border-color:#ccc; }
 			  <td align="left" class="l-table-edit-td">文件格式:</td>
 			  <td colspan="2">
 			  <%-- <img src="<%=basePath%>images/addtxt/teacherbatchadd.png" alt="" style="width: 550px;height: 100px" /> --%>
-			  请按照编号、姓名、性别、电话号码、邮箱、职称、所属部门的顺序组织文件。<br/>如是外聘教师，编号请写&ldquo;<font color="#ff0000">外聘</font>&rdquo;两字。
+			  请按照编号、姓名、性别、电话号码、职称、所属部门的顺序组织文件。<br/>如是外聘教师，编号请写&ldquo;<font color="#ff0000">外聘</font>&rdquo;两字。
 			  </td>
 			</tr>
 			<tr>

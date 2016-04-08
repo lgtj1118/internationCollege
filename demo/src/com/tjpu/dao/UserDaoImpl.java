@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.opensymphony.xwork2.ActionContext;
 import com.tjpu.bean.Dept;
 import com.tjpu.bean.FileRecord;
 import com.tjpu.bean.Links;
@@ -65,13 +66,34 @@ public class UserDaoImpl implements UserDao {
 		List<User> user = (List<User>) query.list();
 		return user;
 	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Teacher> Teacherpwdcheck(Integer id, String password) {
+		 
+		String pass = MD5.generate(password);
+		String queryString = "from Teacher u  where u.id=:id and u.password=:password ";
+		Query query = sessionFactory.getCurrentSession().createQuery(queryString);
+		query.setString("password", pass);
+		query.setInteger("id", id);
+		List<Teacher> user = (List<Teacher>) query.list();
+		return user;
+	}
 	@Override
 	public void userchangpwd(User user) {
-		 
-		User user1 = (User) sessionFactory.getCurrentSession().load(User.class, user.getId());
-		String pass = MD5.generate(user.getPassword());
-		user1.setPassword(pass);		
-		sessionFactory.getCurrentSession().update(user1);
+
+	    User userInfo = (User) ActionContext.getContext().getSession().get("user");
+	    if (userInfo.getRoles().getRolerank()==2||userInfo.getRoles().getRolerank()==4) {
+	    	Teacher user1 = (Teacher) sessionFactory.getCurrentSession().load(Teacher.class, user.getId());
+			String pass = MD5.generate(user.getPassword());
+			user1.setPassword(pass);		
+			sessionFactory.getCurrentSession().update(user1);
+		}else if(userInfo.getRoles().getRolerank()==0||userInfo.getRoles().getRolerank()==1) {
+			User user1 = (User) sessionFactory.getCurrentSession().load(User.class, user.getId());
+			String pass = MD5.generate(user.getPassword());
+			user1.setPassword(pass);		
+			sessionFactory.getCurrentSession().update(user1);
+		} 
+		
 	}
 	@SuppressWarnings("unchecked")
 	@Override

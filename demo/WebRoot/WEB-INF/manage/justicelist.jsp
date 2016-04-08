@@ -1,4 +1,5 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ page import="java.io.*"%>   
 <%
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -74,7 +75,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	function download(){
 	 var row = manager.getSelectedRow();
 	 var str = "${pageContext.request.contextPath}/"+row.fileplace;
-	 window.location.href=str;
+	 //window.location.href=str;	
+	 $.ajax({
+        type: "GET",
+        cache: false,
+        url: str,
+        data: "",
+        success: function() {
+            window.location.href=str;
+        },
+        error: function() {
+            alert("该文件已被删除，请联系管理员！");
+        }
+    });   
 	}
 
 </script>

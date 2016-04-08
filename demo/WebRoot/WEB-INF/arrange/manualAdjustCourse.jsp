@@ -85,7 +85,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				name : 'teacherName',
 				width : 60,
 				editor: { type: 'text'}
-			}  ],
+			}  , {
+				display : '学期编号',
+				name : 'id',
+				width : 100,				
+			} ],
 					onSelectRow : function(rowdata, rowindex) {
 						$("#txtrowindex").val(rowindex);
 					},
@@ -112,7 +116,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	function tosubmit(){
 		 var row = manager.getSelectedRow();
 		 if (!row) { alert('请选择一个课程！'); return; }
-		 var str = "${pageContext.request.contextPath}/system/Manage_insertIntoSyllabus.action?insertID=" + row.note;
+		 var str = "${pageContext.request.contextPath}/system/Manage_insertIntoSyllabus.action?insertID=" + row.id;
 		 $.post(str, null, function() {
 			parent.m.hide();
 			parent.window.location.reload();

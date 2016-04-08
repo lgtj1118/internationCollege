@@ -58,17 +58,17 @@
 		$("#pageloading").hide();
 		var userrole = ${session.user.roles.rolerank};
 		if(userrole==3){
-		   var day =${perday};
+		   /* var day =${perday};
 		   if(day!=-999&&day<0){
 		     var wel = $.ligerDialog.tip({  title: '温馨提示',content:'<font style="color:red;" >您的居留许可已过期，请及时更新！！</font>' });
              setTimeout(function () { wel.close(); }, 5000);
 		   }else if(day!=-999&&day<45){
 		     var wel = $.ligerDialog.tip({  title: '温馨提示',content:'您的居留许可有效期还有<font style="color:red;font-size:24px;" >'+day+' </font>天到期，请注意更新！' });
              setTimeout(function () { wel.close(); }, 8000);
-		   }else{
+		   }else{ */
 		     var wel = $.ligerDialog.tip({  title: '温馨提示',content:'欢迎您的登录！' });
              setTimeout(function () { wel.close(); }, 8000);
-		   }
+		   //}
 		}				
 	});
 	function f_heightChanged(options){
@@ -111,7 +111,9 @@
 		});		
 	 }	
 	} 
-	
+  function fopenlink(){
+   alert("如有疑问请发邮件到：China_ximeng@sohu.com");
+  }	
 </script>
 
 </head>
@@ -163,6 +165,6 @@
             </div> 
 		</div>				
 		</div>	
-		<div id="footer"align="center">版权所有© 天津工业大学计算机科学与软件学院<br>Copyright jsj.tjpu.edu.cn</div>	
+		<div id="footer"align="center">版权所有© 天津工业大学国际教育学院<br>技术支持：<a href="javascript:void(0)" onclick="fopenlink()" style="color: rgb(102, 102, 102);" >绿色之园工作组</a></div>	
 </body>
 </html>

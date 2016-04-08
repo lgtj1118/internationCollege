@@ -59,7 +59,7 @@ a:visited {color:#333;text-decoration:none;}/*访问后的样式*/
       </div>
 		<table width="100%">
 			<s:if test="#students.size()!=0">
-				<s:if test="#students.size()<5">
+				<s:if test="#students.size()<6">
 				   <tr>
 					<td align="center" >护照号</td>
 					<td align="center" >姓名</td>

@@ -68,13 +68,13 @@
 				//checknum();&&(flg3)
 				//checktype();
 				//checkmajor();
-				checkdate();
+				//checkdate();
 				checkmobile();
-				checkval();
+				//checkval();
 				checkroom();
 				checksource();
-				checkbrith();
-				var test = (flg)&&(flg1)&&(flg2)&&(flg6)&&(flg7)&&(flg8)&&(flg9)&&(flgtest)&&(flgtest1)&&flgt;
+				//checkbrith();&&(flg6)&&(flg8)&&(flgtest1)
+				var test = (flg)&&(flg1)&&(flg2)&&(flg7)&&(flg9)&&(flgtest)&&flgt;
 				if(test){		
 				var sexid=1;
 				if(document.getElementById("r2").checked){
@@ -561,7 +561,7 @@ body{ font-size:12px;}
 			<td align="right" class="l-table-edit-td">护照号:<font color="#ff0000">*</font></td>
 				<td align="left" class="l-table-edit-td"><input name="passport"type="text" disabled="disabled" onchange="checkpassport()" value="${student.passport }" id="passport" ltype="text" placeholder="请输入护照号"  /></td>
 				<td align="left"><div id="result2" style="color: red;"></div></td>
-				<td align="right" class="l-table-edit-td">学号:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">学号:</td>
 				<td align="left" class="l-table-edit-td"><input name="stunum"type="text" disabled="disabled" id="stunum"  onchange="checknum()" value="${student.stuid }" ltype="text" /></td>
 				<td align="left"><div id="result3" style="color: red;"></div></td>
 			</tr>
@@ -604,10 +604,10 @@ body{ font-size:12px;}
 				<td align="left"><div id="result5" style="color: red;"></div></td>
 			</tr>
 			<tr>
-				<td align="right" class="l-table-edit-td">入学时间:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">入学时间:</td>
 				<td align="left" class="l-table-edit-td"><input name="startdate"type="text" disabled="disabled"  value="${student.startdate }" id="startdate" v ltype="text" class="date_picker link" /></td>
 				<td align="left"></td>
-				<td align="right" class="l-table-edit-td">离校时间:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">离校时间:</td>
 				<td align="left" class="l-table-edit-td"><input name="enddate"type="text" disabled="disabled" onchange="checkdate()" id="enddate" value="${student.enddate }" ltype="text" class="date_picker link" /></td>
 				<td align="left"><div id="result6" style="color: red;"></div></td>
 			</tr>
@@ -615,7 +615,7 @@ body{ font-size:12px;}
 				<td align="right" class="l-table-edit-td">联系方式:<font color="#ff0000">*</font></td>
 				<td align="left" class="l-table-edit-td"><input name="telephone"type="text" id="telephone" onchange="checkmobile()" value="${student.telephone }" onblur="checkmobile()" ltype="text" /></td>
 				<td align="left"><div id="result7" style="color: red;"></div></td>
-				<td align="right" class="l-table-edit-td">居留许可有效期:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">居留许可有效期:</td>
 				<td align="left" class="l-table-edit-td"><input name="validResidencePermit" disabled="disabled" type="text" onchange="checkval()" id="validResidencePermit" value="${student.validResidencePermit }" ltype="text" class="date_picker link" /></td>
 				<td align="left"><div id="result8" style="color: red;"></div></td>
 			</tr>
@@ -628,7 +628,7 @@ body{ font-size:12px;}
 				<td align="left"><div id="result10" style="color: red;"></div></td>
 			</tr>		 
 			<tr>
-				<td align="right" class="l-table-edit-td">出生年月:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">出生年月:</td>
 				<td align="left" class="l-table-edit-td"><input name="brithdate"type="text" id="brithdate" onchange="checkbrith()"  value="${student.brithdate }" onchange="checkbrith()" class="date_picker link" ltype="text" /></td>
 				<td align="left"><div id="result11" style="color: red;"></div></td>
 				<td align="right" class="l-table-edit-td"></td>

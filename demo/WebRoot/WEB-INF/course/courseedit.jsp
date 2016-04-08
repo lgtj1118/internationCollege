@@ -255,7 +255,7 @@ body{ font-size:12px;}
 		<table cellpadding="0" cellspacing="0" class="l-table-edit">
 			<tr>
 				<td align="right" class="l-table-edit-td">课程编号:</td>
-				<td align="left" class="l-table-edit-td"><input name="num" disabled type="text" value="${courses.num }"  id="num" ltype="text"validate="{required:true,number:true,minlength:1,maxlength:20}" /></td>
+				<td align="left" class="l-table-edit-td"><input name="num"  type="text" value="${courses.num }"  id="num" ltype="text"validate="{required:true,number:true,minlength:1,maxlength:20}" /></td>
 				<td align="left"><div id="result1" style="margin-top:-10px;color: red;font-size: 10px;"></div></td>
 			</tr>
 			<tr>

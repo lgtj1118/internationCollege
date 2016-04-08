@@ -9,7 +9,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <head>
     <base href="<%=basePath%>">
     
-    <title>My JSP 'scholarmanagement.jsp' starting page</title>
+    <title>奖学金管理界面</title>
     
 	<meta http-equiv="pragma" content="no-cache">
 	<meta http-equiv="cache-control" content="no-cache">
@@ -23,6 +23,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   </head>
   
   <body>
-    奖学金管理界面 <br>
+    <img alt="" src="<%=basePath%>images/underconstruction.jpg" style="margin:150px 300px;width:500px;height: 300px;">
   </body>
 </html>
