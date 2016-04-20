@@ -115,6 +115,4 @@ public interface UserDao {
 
 	public Dept loaddeptbyresponsible(String teachername);
 
-	public List<Teacher> Teacherpwdcheck(Integer id, String password);
-
 }

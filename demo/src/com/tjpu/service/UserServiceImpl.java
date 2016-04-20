@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.jms.Session;
-
 import org.hibernate.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,25 +73,18 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public boolean pwdcheck(Integer id, String password) {
-		User userInfo = (User) ActionContext.getContext().getSession().get("user");
-		if (userInfo.getRoles().getRolerank()==2||userInfo.getRoles().getRolerank()==4) {
-			List<Teacher> user = userDao.Teacherpwdcheck(id,password);
-			if (user.size() > 0) {
-				return true;
-			}
-		}else if(userInfo.getRoles().getRolerank()==0||userInfo.getRoles().getRolerank()==1) {
-			List<User> user = userDao.pwdcheck(id,password);
-			if (user.size() > 0) {
-				return true;
-			}
-			
+		
+		List<User> user = userDao.pwdcheck(id,password);
+		if (user.size() > 0) {
+			return true;
 		}
 		return false;
 	}
 	@Override
-	public void userchangpwd(User user) {		
-	    String password = null;	    	    
-		password = user.getPassword();
+	public void userchangpwd(User user) {
+		
+	    String password = null;
+	    password = user.getPassword();
 	    user.setPassword(password);
 	    userDao.userchangpwd(user);
 	}

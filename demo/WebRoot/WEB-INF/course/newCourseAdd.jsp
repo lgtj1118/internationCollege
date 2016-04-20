@@ -139,7 +139,7 @@ textarea {
 				return;
 			}
 			//alert("here");
-			var regx = /^[a-zA-Z\s]{2,}$/;
+			var regx = /^[a-zA-Z]{2,}$/;
 			//alert($("#nameEN").val());
 			if (!validate_required(nameEN, "课程英文名不能为空")) {
 				return;			
@@ -231,7 +231,7 @@ textarea {
 		        +"&course.credits="+ $("#credit").val()
 		        +"&course.weeklesson="+ $("#weeklesson").val()
 		        +"&course.academic="+ encodeURI(encodeURI($("#college").val()))
-		        +"&course.num="+  encodeURI(encodeURI($("#number").val()))
+		        /* +"&course.num="+  encodeURI(encodeURI($("#number").val())) */
 		        +"&course.coursename_en=" + nameEN.val();
     		
     		//alert(nameEN.val());
@@ -266,13 +266,13 @@ textarea {
   <body>
   
     <table cellpadding="0" cellspacing="0" class="l-table-edit" >
-    	<tr style="font-size:12px">
+    	<!-- <tr style="font-size:12px">
     		<td align="center" class="l-table-edit-td">课程编号<font style="color:red; font-size:20">*</font></td>
     		<td align="center" class="l-table-edit-td">
 				<input type="text" class="link" onchange="clear()" id="number">
 			</td>
     		<td align="left"></td>
-    	</tr>
+    	</tr> -->
     	<tr style="font-size:12px">
     		<td align="center" class="l-table-edit-td">课程名<font style="color:red; font-size:20">*</font></td>
     		<td align="center" class="l-table-edit-td">

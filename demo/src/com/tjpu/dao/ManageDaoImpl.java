@@ -1070,9 +1070,8 @@ public class ManageDaoImpl implements ManageDao {
 	    chosenCourse2.setMidexam(chosenCourse.getMidexam());
 	    chosenCourse2.setFinalexam(chosenCourse.getFinalexam());
 	    if(chosenCourse.getIsmakeup()==1){
-	    	chosenCourse2.setMakeup(chosenCourse.getMakeup());	
-	    	//chosenCourse2.setSummary(Float.parseFloat("60"));
-	    }	    
+	    	chosenCourse2.setMakeup(chosenCourse.getMakeup());	    	
+	    }
 	    chosenCourse2.setIsmakeup(chosenCourse.getIsmakeup());
 	    chosenCourse2.setSummary(chosenCourse.getSummary());
 	    sessionFactory.getCurrentSession().update(chosenCourse2);

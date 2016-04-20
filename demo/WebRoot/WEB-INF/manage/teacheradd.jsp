@@ -226,14 +226,15 @@
 				err("电话号码格式不正确");
 				return;
 			}
-			if (validate_required(email,"")){
-			   var reg3 = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/;
+			if (!validate_required(email,"邮箱不能为空")){
+				return false;
+			}
+			var reg3 = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/;
 			if(!reg3.test(email.val())){
 				err("邮箱格式不正确");
 				return;
 			}
-			}
-						
+			
 			var sexid = 1;
 			if (document.getElementById("r2").checked) {
 				sexid = "女";
@@ -308,7 +309,7 @@
 				<td align="left"></td>
 			</tr>
 			<tr>
-				<td align="right" class="l-table-edit-td">E-mail:</td>
+				<td align="right" class="l-table-edit-td">E-mail:<font color="#ff0000">*</font></td>
 				<td align="left" class="l-table-edit-td"><input name="email"type="text" id="email"  ltype="text"  /></td>
 				<td align="left"></td>
 			</tr>

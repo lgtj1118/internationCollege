@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import javax.xml.crypto.Data;
-
 import jxl.Cell;
 import jxl.CellType;
 import jxl.DateCell;
@@ -492,18 +490,12 @@ public class StudentServiceImpl implements StudentService {
 			return ret;
 		}
 						
-		for (List<String> ttk:getItems(path)) {	
-			List<String> tk = new ArrayList<String>();
-			for (String s:ttk) {
-				if(s != null && s != "")
-					tk.add(s);
-				
-			}
+		for (List<String> tk:getItems(path)) {	
 			if (tk.size() == 0) {
 				continue;
 			}
 			// 项数不正确
-			if (tk.size() != 13) {
+			if (tk.size() != 17) {
 				BatchRegiste br = new BatchRegiste();
 				StringBuffer bf = new StringBuffer();
 				for(String s:tk){
@@ -563,11 +555,11 @@ public class StudentServiceImpl implements StudentService {
 		if (!stucheckstunum(stuNum)) {
 			return "学号重复";
 		}*/
-		String firstName = "[a-zA-Z\\s]{2,79}";
+		String firstName = "[a-zA-Z]{2,}";
 		if (!Pattern.matches(firstName, items.get(i++))){
 			return "名应为2个以上的英文字符";
 		}
-		String lastName = "[a-zA-Z\\s]{2,79}";
+		String lastName = "[a-zA-Z]{2,}";
 		if (!Pattern.matches(lastName, items.get(i++))){
 			return "姓应为2个以上的英文字符";
 		}
@@ -588,7 +580,7 @@ public class StudentServiceImpl implements StudentService {
 		if (c == null){
 			return "班级不存在";
 		}
-		String phone = "1\\d{10}";
+		String phone = "(?:13\\d|15\\d|18\\d)\\d{5}(\\d{3}|\\*{3})";
 		if (!Pattern.matches(phone, items.get(i++))){
 			return "手机格式不正确";
 		}
@@ -605,7 +597,7 @@ public class StudentServiceImpl implements StudentService {
 			return "学生类型格式不正确";
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		/*try {
+		try {
 			Date admission = sdf.parse(items.get(i++));
 			Date graduation = sdf.parse(items.get(i++));
 			if (graduation.before(admission)) {
@@ -630,12 +622,7 @@ public class StudentServiceImpl implements StudentService {
 			}
 		} catch (ParseException e) {
 			return "日期格式不正确";
-		}*/
-		String source = "[\u4e00-\u9fa5]{2,}";
-		if (!Pattern.matches(source, items.get(i++))){
-			return "来源因为2个以上中文字符";
 		}
-		/*
 		String duration = items.get(i++);
 		String level = items.get(i++);
 		Map<String, String> schooling = new HashMap<String, String>() {{
@@ -651,7 +638,6 @@ public class StudentServiceImpl implements StudentService {
 		if (!level.equals(schooling.get(duration))) {
 			return "当前学习层次为本、硕、短期进修、长期进修";
 		}
-		*/
 		
 		return null;
 	}
@@ -665,7 +651,6 @@ public class StudentServiceImpl implements StudentService {
 		int i = 0;
 		stu.setPassport(line.get(i++));
 		//stu.setStuid(line.get(i++));
-		stu.setStuid("");
 		stu.setFirstname(line.get(i++));
 		stu.setLastname(line.get(i++));
 		stu.setStuname(line.get(i++));
@@ -688,11 +673,11 @@ public class StudentServiceImpl implements StudentService {
 		stu.setRoomplace(line.get(i++));
 		stu.setNation(line.get(i++));
 		stu.setStudentType(line.get(i++));
-		//stu.setStartdate(line.get(i++));
-		//stu.setEnddate(line.get(i++));
+		stu.setStartdate(line.get(i++));
+		stu.setEnddate(line.get(i++));
 		stu.setSource(line.get(i++));
-		//stu.setBrithdate(line.get(i++));
-		//stu.setValidResidencePermit(line.get(i++));
+		stu.setBrithdate(line.get(i++));
+		stu.setValidResidencePermit(line.get(i++));
 		stu.setDuration(line.get(i++));
 		stu.setStudyLevel(line.get(i++));
 		stu.setStatus("0");
@@ -1096,28 +1081,21 @@ public class StudentServiceImpl implements StudentService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd");		
 		for(int i=0;i<students.size();i++){
 			String permit =students.get(i).getValidResidencePermit();
-			Date permitDate= null;
-			try {
-				permitDate = sdf.parse(permit);
-				calendar.setTime(permitDate);
-	            int day1 = calendar.get(Calendar.DAY_OF_YEAR);
-	            calendar.setTime(nowdate);
-	            int day2 = calendar.get(Calendar.DAY_OF_YEAR);
-	            int day = day1-day2;
-	            if (day>45) {
-					continue;
-				}else if(day>0&&day<=45) {
-					students.get(i).setValidResidencePermit(String.valueOf(day));
-					students2.add(students.get(i));
-				}else {
-					students.get(i).setValidResidencePermit(String.valueOf(day));
-					students2.add(students.get(i));
-				}
-			} catch (Exception e) {
-				// TODO: handle exception
-			    System.out.println("学生有效期有问题！");
+			Date permitDate = sdf.parse(permit);			
+			calendar.setTime(permitDate);
+            int day1 = calendar.get(Calendar.DAY_OF_YEAR);
+            calendar.setTime(nowdate);
+            int day2 = calendar.get(Calendar.DAY_OF_YEAR);
+            int day = day1-day2;
+            if (day>45) {
 				continue;
-			}			
+			}else if(day>0&&day<=45) {
+				students.get(i).setValidResidencePermit(String.valueOf(day));
+				students2.add(students.get(i));
+			}else {
+				students.get(i).setValidResidencePermit(String.valueOf(day));
+				students2.add(students.get(i));
+			}
 		}
 		return students2;
 	}
@@ -1130,20 +1108,16 @@ public class StudentServiceImpl implements StudentService {
 		Date nowdate = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd");		
 		for(int i=0;i<stus.size();i++){
-			try {
-				String permit =stus.get(i).getValidResidencePermit();
-				Date permitDate = sdf.parse(permit);			
-				calendar.setTime(permitDate);
-	            int day1 = calendar.get(Calendar.DAY_OF_YEAR);
-	            calendar.setTime(nowdate);
-	            int day2 = calendar.get(Calendar.DAY_OF_YEAR);
-	            int day = day1-day2;
-	            if (day>45) {
-	            	stus.remove(i);
-					i--;
-				}
-			} catch (Exception e) {
-				System.out.println("学生有效期有问题！");
+			String permit =stus.get(i).getValidResidencePermit();
+			Date permitDate = sdf.parse(permit);			
+			calendar.setTime(permitDate);
+            int day1 = calendar.get(Calendar.DAY_OF_YEAR);
+            calendar.setTime(nowdate);
+            int day2 = calendar.get(Calendar.DAY_OF_YEAR);
+            int day = day1-day2;
+            if (day>45) {
+            	stus.remove(i);
+				i--;
 			}
 		}
 		long total = stus.size();

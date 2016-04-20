@@ -70,8 +70,8 @@
 				
 				checkname();
 				checkmobile();
-				//checkemail();&&flg2
-				if(flg1&&flg3){
+				checkemail();
+				if(flg1&&flg2&&flg3){
 				var sexid=1;
 				if(document.getElementById("r2").checked){
 	                 sexid="女";
@@ -141,16 +141,14 @@
 	}	
 	var flg2 = false;
 	function checkemail() { 
-      if($("#email").val().length()!=0){
-       if (!$("#email").val().match(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/)) { 
+      if (!$("#email").val().match(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/)) { 
         $("#result1").html("请输入正确的邮箱地址!");
 		$("#resul1t").show();
 		$("#email").focus();       //输入框获得光标
 		flg2 = false; //就弹出提示信息   
-      }else{
+     }else{
          $("#result1").hide();
          flg2=true;
-      }
      }
 } 
    var flg3=false;
@@ -225,7 +223,7 @@ body{ font-size:12px;}
 				<td align="left"><div id="result" style="color: red;"></div></td>
 			</tr>
 			<tr>
-				<td align="right" class="l-table-edit-td">E-mail:</td>
+				<td align="right" class="l-table-edit-td">E-mail:<font color="#ff0000">*</font></td>
 				<td align="left" class="l-table-edit-td"><input name="email"type="text" style="width: 170px;" id="email" value="${teachers.email }" onchange="checkemail()" ltype="text" /></td>
 				<td align="left"><div id="result1" style="color: red;"></div></td>
 			</tr>

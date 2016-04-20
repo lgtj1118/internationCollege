@@ -956,7 +956,7 @@ public class ManageServiceImpl implements ManageService {
 	
 	private String teacherChk (List<String> items){
 		int i = 0;
-		if (items.size() != 6) {
+		if (items.size() != 7) {
 			return "无法匹配正确项";
 		}
 		String reg = "(?!0)[0-9]{8}";
@@ -991,14 +991,14 @@ public class ManageServiceImpl implements ManageService {
 		if (!gender.equals("男") && !gender.equals("女")){
 			return "性别只有男女";
 		}
-		reg = "1\\d{10}";
+		reg = "(1(([35][0-9])|(47)|[8][0126789]))\\d{8}";
 		if (!Pattern.matches(reg, items.get(i++))){
 			return "手机号格式不正确";
 		}
-		/*reg = "\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+";
+		reg = "\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+";
 		if (!Pattern.matches(reg, items.get(i++))){
 			return "邮箱格式不正确";
-		}*/
+		}
 		reg = "[\u4e00-\u9fa5]{2,}";
 		if (!Pattern.matches(reg, items.get(i++))){
 			return "职称格式由2个或以上的汉字组成";
@@ -1035,7 +1035,7 @@ public class ManageServiceImpl implements ManageService {
 		t.setTeachername(items.get(i++));
 		t.setSex(items.get(i++));
 		t.setTelephone(items.get(i++));
-		//t.setEmail(items.get(i++));
+		t.setEmail(items.get(i++));
 		t.setPosition(items.get(i++));
 		List<Dept> depts = userDao.loaddepts();
 		String deptName = items.get(i++);
@@ -3417,7 +3417,6 @@ public class ManageServiceImpl implements ManageService {
 		chosenCourse.setFinalexam(chosenCourse2.getFinalexam());
 		chosenCourse.setHomework(chosenCourse2.getHomework());
 		chosenCourse.setMidexam(chosenCourse2.getMidexam());
-		chosenCourse.setSummary(chosenCourse2.getSummary());
 		chosenCourse.setIsmakeup(1);
 		manageDao.courseclassscoreadd(chosenCourse);
 	}
@@ -4019,18 +4018,13 @@ public class ManageServiceImpl implements ManageService {
 				courseList.add(course);
 			}			
 		}
-		try{
-			for(int i = 0;i<courseList.size();i++){
-	    		for (int j = courseList.size()-1; j>i; j--) {
-					if(courseList.get(i).getId()==courseList.get(j).getId()){
-						courseList.remove(j);
-					}
+		for(int i = 0;i<courseList.size();i++){
+    		for (int j = courseList.size()-1; j>i; j--) {
+				if(courseList.get(i).getId()==courseList.get(j).getId()){
+					courseList.remove(j);
 				}
-	    	}
-		} catch (Exception e) {
-			// TODO: handle exception
-			return courseList;
-		}
+			}
+    	}
 		return courseList;
 	}
 

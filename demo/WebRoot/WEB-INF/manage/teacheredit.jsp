@@ -68,10 +68,10 @@
 			submitHandler : function() {
 				$("form .l-text,.l-textarea").ligerHideTip();
 				checkmobile();
-				//checkemail();&&flg2
+				checkemail();
 				check3();
 				checkdept();
-				if(flg1&&flg3&&flg4){
+				if(flg1&&flg2&&flg3&&flg4){
 				var sexid=1;
 				if(document.getElementById("r2").checked){
 	                 sexid="女";
@@ -168,12 +168,12 @@
 	var flg2 = false;
 	function checkemail() { 
 	 var email = $("#email").val();
-	 if(email.length!=0){
-	   /*  $("#result2").html("邮箱地址不能为空!");
+	 if(email.length==0){
+	    $("#result2").html("邮箱地址不能为空!");
 		$("#result2").show();
 		$("#email").focus();       //输入框获得光标
 		flg2 = false; //就弹出提示信息
-	 }else{ */
+	 }else{
 	   $("#result2").hide();
 	   if (!$("#email").val().match(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/)) { 
         $("#result2").html("请输入正确的邮箱地址!");
@@ -243,12 +243,12 @@ body{ font-size:12px;}
 		<input id="deptids" value="${teachers.dept.deptid }" type="hidden" />
 		<table cellpadding="0" cellspacing="0" class="l-table-edit">
 			<tr>
-				<td align="right" class="l-table-edit-td">用户编号:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">用户编号:</td>
 				<td align="left" class="l-table-edit-td"><input name="usernum" value="${teachers.identificationnum }" type="text"  onchange="check()" id="usernum" disabled="disabled" ltype="text" placeholder="请输入用户编号"  /></td>
 				<td align="left"><div id="result" style="color: red;"></div></td>
 			</tr>			
 			<tr>
-				<td align="right" class="l-table-edit-td">姓名:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">姓名:</td>
 				<td align="left" class="l-table-edit-td"><input name="realname"type="text" value="${teachers.teachername }" id="realname" onchange="check3()" ltype="text"/></td>
 				<td align="left"><div id="result3" style="color: red;"></div></td>
 			</tr>
@@ -271,7 +271,7 @@ body{ font-size:12px;}
 				<td align="left"></td>
 			</tr>
 			<tr>
-				<td align="right" class="l-table-edit-td">电话:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">电话:</td>
 				<td align="left" class="l-table-edit-td"><input name="telephone" value="${teachers.telephone }" onchange="checkmobile()" type="text" id="telephone" ltype="text" style="width: 170px;" /></td>
 				<td align="left"><div id="result1" style="color: red;"></div></td>
 			</tr>
@@ -281,13 +281,13 @@ body{ font-size:12px;}
 				<td align="left"><div id="result2" style="color: red;"></div></td>
 			</tr>
 			<tr>
-				<td align="right" class="l-table-edit-td">职称:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">职称:</td>
 				<td align="left" class="l-table-edit-td">
 				   <input id="position" name="position" value="${ teachers.position}" disabled="disabled" style="width: 170px;" />
 				</td>
 			</tr>
 			<tr>
-				<td align="right" class="l-table-edit-td">部门:<font color="#ff0000">*</font></td>
+				<td align="right" class="l-table-edit-td">部门:</td>
 				<td align="left" class="l-table-edit-td">
 				<select name="depid" id="depid" ltype="select" style="width: 170px;" onchange="checkdept()" >
 						<s:iterator value="#deptlist" id="gg">

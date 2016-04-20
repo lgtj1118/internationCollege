@@ -61,8 +61,8 @@ width:330px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow
       </div>      
       <table width="100%" >
       <s:if test="#announcementlist.size()!=0">
-        <s:if test="#announcementlist.size()<6">
-           <s:iterator value="#announcementlist" id="announcements" begin="0" end="#announcements.size()" >
+        <s:if test="#announcementlist.size()<5">
+           <s:iterator value="#announcementlist" id="announcements" begin="0" end="6" >
              <tr>
                  <td><div class="content" ><a title="${announcements.title }" href="system/User_announcementdetail.action?announcement.id=${announcements.id }" target="_blank">${announcements.title }</a></div></td>
                  <td align="right" > <s:property value="#announcements.createdtime.substring(0,11)" /></td>
@@ -70,7 +70,7 @@ width:330px;white-space:nowrap;word-break:keep-all;overflow:hidden;text-overflow
           </s:iterator> 
         </s:if>
         <s:else>
-           <s:iterator value="#announcementlist" id="announcements" begin="0" end="5" >
+           <s:iterator value="#announcementlist" id="announcements" begin="0" end="6" >
              <tr>
                  <td><div class="content" ><a title="${announcements.title }" href="system/User_announcementdetail.action?announcement.id=${announcements.id }" target="_blank">${announcements.title }</a></div></td>
                  <td align="right" > <s:property value="#announcements.createdtime.substring(0,11)" /></td>

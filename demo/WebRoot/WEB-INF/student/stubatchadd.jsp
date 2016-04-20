@@ -142,19 +142,19 @@ border-color:#ccc; }
 			  <td align="left" class="l-table-edit-td">文件格式:</td>
 			  <td colspan="2" align="left">
 			  	<%-- <img src="<%=basePath%>images/addtxt/studentadd.png" alt="" style="width: 550px;height: 100px" /> --%>
-			  	请按照护照号、英文名、英文姓、中文名、性别、班级、电话、住址、
+			  	请按照护照号、学号、英文名、英文姓、中文名、性别、班级、电话、住址、
 			  </td>
 			</tr>
 			<tr>
 				<td></td>
-				<td colspan="2" align="left">国籍、学生类别、来源、学制、层次的顺序组织文件。</td>
+				<td colspan="2" align="left">国籍、学生类别、入学时间、离校时间、来源、出生日期、居留许可有效期、</td>
 				
 			</tr>
 			<tr>
 				<td>
 				</td>
 				<td colspan="2">
-					
+					学制、层次的顺序组织文件。
 				</td>
 			</tr>
 			<tr>
