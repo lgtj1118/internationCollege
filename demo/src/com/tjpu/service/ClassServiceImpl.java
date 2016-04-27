@@ -420,7 +420,7 @@ public class ClassServiceImpl implements ClassService {
 			model.setAcademic(p.getAcademic());
 			model.setIsDeleted(p.getDeleted());
 			model.setWeeklesson(p.getWeeklesson());
-			model.setLessoncount((int)(p.getCredits()*16));
+			model.setLessoncount((int)(p.getCredits()*15));
 			coursemodels.add(model);
 		}
 		map.put("Total", total);
